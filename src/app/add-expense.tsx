@@ -50,6 +50,7 @@ export default function AddExpenseScreen() {
   const [notes, setNotes] = useState('');
   const [expenseDate, setExpenseDate] = useState<Date>(new Date());
   const [tempExpenseDate, setTempExpenseDate] = useState<Date>(new Date());
+  const [webExpenseDate, setWebExpenseDate] = useState<string>(''); // For web date input
   const [receiptImageUrl, setReceiptImageUrl] = useState<string | undefined>();
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -594,28 +595,61 @@ export default function AddExpenseScreen() {
               Fecha del gasto
             </Text>
 
-            <View style={{ backgroundColor: '#FFFFFF' }}>
-              <DateTimePicker
-                value={tempExpenseDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={(event, selectedDate) => {
-                  if (Platform.OS === 'android') {
-                    setIsDatePickerVisible(false);
-                    if (selectedDate) {
-                      setExpenseDate(selectedDate);
-                      Haptics.selectionAsync();
+            {Platform.OS === 'web' ? (
+              // Web: Use HTML5 date input
+              <View className="mb-4">
+                <TextInput
+                  className="border border-[#E5E5E5] p-4 text-[16px] text-black"
+                  value={webExpenseDate || (() => {
+                    // Initialize with current expenseDate
+                    const y = expenseDate.getFullYear();
+                    const m = String(expenseDate.getMonth() + 1).padStart(2, '0');
+                    const d = String(expenseDate.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                  })()}
+                  onChange={(e: any) => {
+                    // On web, TextInput can receive native events
+                    const value = e.target?.value || e.nativeEvent?.text;
+                    if (value) {
+                      setWebExpenseDate(value);
                     }
-                  } else if (selectedDate) {
-                    setTempExpenseDate(selectedDate);
-                  }
-                }}
-                maximumDate={new Date()}
-                locale="es-ES"
-                textColor="#000000"
-                style={{ backgroundColor: '#FFFFFF' }}
-              />
-            </View>
+                  }}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#999999"
+                  // @ts-ignore - type prop works on web via react-native-web
+                  type="date"
+                  // @ts-ignore - max prop works on web
+                  max={new Date().toISOString().split('T')[0]}
+                  style={{
+                    outlineStyle: 'none',
+                  }}
+                />
+              </View>
+            ) : (
+              // Native: Use DateTimePicker
+              <View style={{ backgroundColor: '#FFFFFF' }}>
+                <DateTimePicker
+                  value={tempExpenseDate}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={(event, selectedDate) => {
+                    if (Platform.OS === 'android') {
+                      setIsDatePickerVisible(false);
+                      if (selectedDate) {
+                        setExpenseDate(selectedDate);
+                        Haptics.selectionAsync();
+                      }
+                    } else if (selectedDate) {
+                      setTempExpenseDate(selectedDate);
+                    }
+                  }}
+                  maximumDate={new Date()}
+                  locale="es-ES"
+                  textColor="#000000"
+                  style={{ backgroundColor: '#FFFFFF' }}
+                />
+              </View>
+            )}
 
             <View className="flex-row mt-4" style={{ gap: 12 }}>
               <Pressable
@@ -631,7 +665,16 @@ export default function AddExpenseScreen() {
               </Pressable>
               <Pressable
                 onPress={() => {
-                  setExpenseDate(tempExpenseDate);
+                  if (Platform.OS === 'web') {
+                    // Web: Convert YYYY-MM-DD string to Date object
+                    if (webExpenseDate) {
+                      const [year, month, day] = webExpenseDate.split('-').map(Number);
+                      setExpenseDate(new Date(year, month - 1, day));
+                    }
+                  } else {
+                    // Native: Use tempExpenseDate
+                    setExpenseDate(tempExpenseDate);
+                  }
                   setIsDatePickerVisible(false);
                   Haptics.selectionAsync();
                 }}

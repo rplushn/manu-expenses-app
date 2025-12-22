@@ -87,18 +87,19 @@ export default function HomeScreen() {
   const getCategorySummary = useAppStore((s) => s.getCategorySummary);
   const currentUser = useAppStore((s) => s.currentUser);
   const addExpense = useAppStore((s) => s.addExpense);
+  const expenses = useAppStore((s) => s.expenses);
 
   const periodExpenses = useMemo(
     () => getExpensesByPeriod(selectedPeriod),
-    [getExpensesByPeriod, selectedPeriod]
+    [getExpensesByPeriod, selectedPeriod, expenses]
   );
   const stats = useMemo(
     () => getPeriodStats(selectedPeriod),
-    [getPeriodStats, selectedPeriod]
+    [getPeriodStats, selectedPeriod, expenses]
   );
   const categorySummary = useMemo(
     () => getCategorySummary(selectedPeriod),
-    [getCategorySummary, selectedPeriod]
+    [getCategorySummary, selectedPeriod, expenses]
   );
 
   // Show only last 3 expenses
