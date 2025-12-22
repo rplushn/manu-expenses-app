@@ -165,9 +165,11 @@ export default function InvoiceDetailScreen() {
 <body>
   <!-- Header -->
   <div class="header">
-    <div class="company-name">${currentUser.nombreNegocio || 'MI EMPRESA'}</div>
+    <div class="company-name">${currentUser.empresaNombre || currentUser.nombreNegocio || 'MI EMPRESA'}</div>
     ${currentUser.empresaRtn ? `<div class="company-info">RTN: ${currentUser.empresaRtn}</div>` : ''}
-    ${currentUser.empresaDireccion ? `<div class="company-info">${currentUser.empresaDireccion}</div>` : ''}
+    ${currentUser.empresaCai ? `<div class="company-info">CAI: ${currentUser.empresaCai}</div>` : ''}
+    ${currentUser.caiFechaVencimiento ? `<div class="company-info">Fecha vencimiento CAI: ${format(parseISO(currentUser.caiFechaVencimiento), 'dd/MM/yyyy')}</div>` : ''}
+    ${currentUser.empresaDireccion ? `<div class="company-info">Dirección: ${currentUser.empresaDireccion}</div>` : ''}
     ${currentUser.empresaTelefono ? `<div class="company-info">Tel: ${currentUser.empresaTelefono}</div>` : ''}
     ${currentUser.empresaEmail ? `<div class="company-info">Email: ${currentUser.empresaEmail}</div>` : ''}
   </div>
@@ -428,17 +430,27 @@ export default function InvoiceDetailScreen() {
         <View className="px-5 pt-6">
           {/* Company Header */}
           <View className="mb-6 border border-[#E5E5E5] p-4 bg-[#F9FAFB]">
-            <Text className="text-[18px] font-bold text-black mb-3 text-center">
-              {currentUser?.nombreNegocio || 'MI EMPRESA'}
+            <Text className="text-[20px] font-bold text-black mb-3 text-center">
+              {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'MI EMPRESA'}
             </Text>
             {currentUser?.empresaRtn && (
               <Text className="text-[13px] text-[#666666] text-center mb-1">
                 RTN: {currentUser.empresaRtn}
               </Text>
             )}
+            {currentUser?.empresaCai && (
+              <Text className="text-[13px] text-[#666666] text-center mb-1">
+                CAI: {currentUser.empresaCai}
+              </Text>
+            )}
+            {currentUser?.caiFechaVencimiento && (
+              <Text className="text-[13px] text-[#666666] text-center mb-1">
+                Fecha vencimiento CAI: {format(parseISO(currentUser.caiFechaVencimiento), 'dd/MM/yyyy')}
+              </Text>
+            )}
             {currentUser?.empresaDireccion && (
               <Text className="text-[13px] text-[#666666] text-center mb-1">
-                {currentUser.empresaDireccion}
+                Dirección: {currentUser.empresaDireccion}
               </Text>
             )}
             <View className="flex-row justify-center flex-wrap" style={{ gap: 8 }}>

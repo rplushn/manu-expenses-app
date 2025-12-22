@@ -109,6 +109,7 @@ export default function ProfileScreen() {
 
   // Edit company info state
   const [showCompanyInfoModal, setShowCompanyInfoModal] = useState(false);
+  const [companyName, setCompanyName] = useState('');
   const [companyRtn, setCompanyRtn] = useState('');
   const [companyCai, setCompanyCai] = useState('');
   const [companyAddress, setCompanyAddress] = useState('');
@@ -157,6 +158,7 @@ export default function ProfileScreen() {
           email: data.email || authUser.email || '',
           nombreNegocio: data.nombre_negocio || 'Mi Negocio',
           plan: data.plan || 'gratis',
+          empresaNombre: data.empresa_nombre || undefined,
           empresaRtn: data.empresa_rtn || undefined,
           empresaCai: data.empresa_cai || undefined,
           empresaDireccion: data.empresa_direccion || undefined,
@@ -332,6 +334,7 @@ export default function ProfileScreen() {
 
   // Handle edit company info
   const handleEditCompanyInfo = () => {
+    setCompanyName(currentUser?.empresaNombre || '');
     setCompanyRtn(currentUser?.empresaRtn || '');
     setCompanyCai(currentUser?.empresaCai || '');
     setCompanyAddress(currentUser?.empresaDireccion || '');
@@ -364,6 +367,7 @@ export default function ProfileScreen() {
       const { error } = await supabase
         .from('usuarios')
         .update({
+          empresa_nombre: companyName.trim() || null,
           empresa_rtn: companyRtn.trim() || null,
           empresa_cai: companyCai.trim() || null,
           empresa_direccion: companyAddress.trim() || null,
@@ -382,6 +386,7 @@ export default function ProfileScreen() {
       // Update local state
       setCurrentUser({
         ...currentUser,
+        empresaNombre: companyName.trim() || undefined,
         empresaRtn: companyRtn.trim() || undefined,
         empresaCai: companyCai.trim() || undefined,
         empresaDireccion: companyAddress.trim() || undefined,
@@ -680,6 +685,24 @@ export default function ProfileScreen() {
           </View>
 
           <ScrollView className="flex-1 px-5 pt-6" showsVerticalScrollIndicator={false}>
+            {/* Company Name */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Nombre de la empresa *
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={companyName}
+                onChangeText={setCompanyName}
+                placeholder="RPLUS INVERSIONES S DE RL"
+                placeholderTextColor="#999999"
+                maxLength={100}
+              />
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Nombre legal de la empresa para facturas
+              </Text>
+            </View>
+
             {/* RTN */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
