@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, Text } from 'react-native';
-import { Home, Clock, BarChart2, User } from 'lucide-react-native';
+import { Home, Clock, FileText, BarChart2, User } from 'lucide-react-native';
 
 interface TabIconProps {
   focused: boolean;
@@ -73,6 +73,24 @@ export default function TabLayout() {
                 />
               }
               label="Historial"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="invoices"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              icon={
+                <FileText
+                  size={24}
+                  strokeWidth={1.5}
+                  color={focused ? '#000000' : '#999999'}
+                />
+              }
+              label="Facturas"
             />
           ),
         }}
