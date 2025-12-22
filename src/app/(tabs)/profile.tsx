@@ -107,6 +107,19 @@ export default function ProfileScreen() {
   const [newBusinessName, setNewBusinessName] = useState('');
   const [isSavingName, setIsSavingName] = useState(false);
 
+  // Edit company info state
+  const [showCompanyInfoModal, setShowCompanyInfoModal] = useState(false);
+  const [companyRtn, setCompanyRtn] = useState('');
+  const [companyCai, setCompanyCai] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('');
+  const [taxRate, setTaxRate] = useState('');
+  const [invoiceRangeStart, setInvoiceRangeStart] = useState('');
+  const [invoiceRangeEnd, setInvoiceRangeEnd] = useState('');
+  const [caiExpirationDate, setCaiExpirationDate] = useState('');
+  const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
+
   const initials = currentUser?.nombreNegocio
     ? getInitials(currentUser.nombreNegocio)
     : 'MN';
@@ -251,6 +264,81 @@ export default function ProfileScreen() {
     }
   };
 
+  // Handle edit company info
+  const handleEditCompanyInfo = () => {
+    setCompanyRtn(currentUser?.empresaRtn || '');
+    setCompanyCai(currentUser?.empresaCai || '');
+    setCompanyAddress(currentUser?.empresaDireccion || '');
+    setCompanyPhone(currentUser?.empresaTelefono || '');
+    setCompanyEmail(currentUser?.empresaEmail || '');
+    setTaxRate(currentUser?.tasaImpuesto ? (currentUser.tasaImpuesto * 100).toString() : '15');
+    setInvoiceRangeStart(currentUser?.facturaRangoInicio || '');
+    setInvoiceRangeEnd(currentUser?.facturaRangoFin || '');
+    setCaiExpirationDate(currentUser?.caiFechaVencimiento || '');
+    setShowCompanyInfoModal(true);
+  };
+
+  const handleSaveCompanyInfo = async () => {
+    if (!currentUser?.id) return;
+
+    setIsSavingCompanyInfo(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      // Parse tax rate (convert from percentage to decimal)
+      const parsedTaxRate = taxRate.trim() ? parseFloat(taxRate) / 100 : 0.15;
+
+      // Auto-calculate next invoice number if range is set
+      let nextInvoiceNumber = currentUser?.facturaProximoNumero;
+      if (invoiceRangeStart.trim() && !nextInvoiceNumber) {
+        // Initialize with range start if not set
+        nextInvoiceNumber = invoiceRangeStart.trim();
+      }
+
+      const { error } = await supabase
+        .from('usuarios')
+        .update({
+          empresa_rtn: companyRtn.trim() || null,
+          empresa_cai: companyCai.trim() || null,
+          empresa_direccion: companyAddress.trim() || null,
+          empresa_telefono: companyPhone.trim() || null,
+          empresa_email: companyEmail.trim() || null,
+          tasa_impuesto: parsedTaxRate,
+          factura_rango_inicio: invoiceRangeStart.trim() || null,
+          factura_rango_fin: invoiceRangeEnd.trim() || null,
+          factura_proximo_numero: nextInvoiceNumber || null,
+          cai_fecha_vencimiento: caiExpirationDate.trim() || null,
+        })
+        .eq('id', currentUser.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setCurrentUser({
+        ...currentUser,
+        empresaRtn: companyRtn.trim() || undefined,
+        empresaCai: companyCai.trim() || undefined,
+        empresaDireccion: companyAddress.trim() || undefined,
+        empresaTelefono: companyPhone.trim() || undefined,
+        empresaEmail: companyEmail.trim() || undefined,
+        tasaImpuesto: parsedTaxRate,
+        facturaRangoInicio: invoiceRangeStart.trim() || undefined,
+        facturaRangoFin: invoiceRangeEnd.trim() || undefined,
+        facturaProximoNumero: nextInvoiceNumber || undefined,
+        caiFechaVencimiento: caiExpirationDate.trim() || undefined,
+      });
+
+      setShowCompanyInfoModal(false);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Listo', 'Información actualizada correctamente');
+    } catch (error) {
+      console.error('Error updating company info:', error);
+      Alert.alert('Error', 'No se pudo actualizar la información');
+    } finally {
+      setIsSavingCompanyInfo(false);
+    }
+  };
+
   // Handle FAQ press
   const handleFAQPress = () => {
     Haptics.selectionAsync();
@@ -377,6 +465,28 @@ export default function ProfileScreen() {
             value={isPro ? 'Pro' : 'Gratis'}
             onPress={handlePlanPress}
           />
+        </Animated.View>
+
+        {/* Company Info Section */}
+        <Animated.View
+          entering={FadeInDown.duration(300).delay(250)}
+          className="px-5 mt-8"
+        >
+          <Text className="text-[13px] text-[#999999] mb-3 uppercase tracking-wide">
+            Datos de facturación
+          </Text>
+          <MenuItem
+            label="Información de empresa"
+            value={currentUser?.empresaRtn ? 'Configurado' : 'Sin configurar'}
+            onPress={handleEditCompanyInfo}
+          />
+        </Animated.View>
+
+        {/* Help Section */}
+        <Animated.View
+          entering={FadeInDown.duration(300).delay(275)}
+          className="px-5 mt-8"
+        >
           <MenuItem
             label="FAQ y ayuda"
             onPress={handleFAQPress}
@@ -465,6 +575,226 @@ export default function ProfileScreen() {
               )}
             </Pressable>
           </View>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Company Info Modal */}
+      <Modal
+        visible={showCompanyInfoModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowCompanyInfoModal(false)}
+      >
+        <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
+          {/* Modal Header */}
+          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+            <Pressable
+              onPress={() => setShowCompanyInfoModal(false)}
+              className="p-1 active:opacity-60"
+              disabled={isSavingCompanyInfo}
+            >
+              <X size={24} strokeWidth={1.5} color="#000000" />
+            </Pressable>
+            <Text className="text-[18px] font-semibold text-black">
+              Datos de facturación
+            </Text>
+            <View style={{ width: 32 }} />
+          </View>
+
+          <ScrollView className="flex-1 px-5 pt-6" showsVerticalScrollIndicator={false}>
+            {/* RTN */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                RTN de la empresa
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={companyRtn}
+                onChangeText={setCompanyRtn}
+                placeholder="0801199012345"
+                placeholderTextColor="#999999"
+                keyboardType="numeric"
+                maxLength={13}
+              />
+            </View>
+
+            {/* CAI */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                CAI (Código de Autorización)
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={companyCai}
+                onChangeText={setCompanyCai}
+                placeholder="CAI-123456-789012-345678"
+                placeholderTextColor="#999999"
+                maxLength={50}
+              />
+            </View>
+
+            {/* Address */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Dirección
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={companyAddress}
+                onChangeText={setCompanyAddress}
+                placeholder="Calle Principal, Col. Centro"
+                placeholderTextColor="#999999"
+                multiline
+                numberOfLines={2}
+                textAlignVertical="top"
+                style={{ minHeight: 60 }}
+              />
+            </View>
+
+            {/* Phone */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Teléfono
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={companyPhone}
+                onChangeText={setCompanyPhone}
+                placeholder="+504 1234-5678"
+                placeholderTextColor="#999999"
+                keyboardType="phone-pad"
+                maxLength={20}
+              />
+            </View>
+
+            {/* Email */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Email de facturación
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={companyEmail}
+                onChangeText={setCompanyEmail}
+                placeholder="facturacion@empresa.com"
+                placeholderTextColor="#999999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                maxLength={100}
+              />
+            </View>
+
+            {/* Tax Rate */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Tasa de impuesto (%)
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={taxRate}
+                onChangeText={setTaxRate}
+                placeholder="15"
+                placeholderTextColor="#999999"
+                keyboardType="decimal-pad"
+                maxLength={5}
+              />
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Por defecto: 15% (ISV en Honduras)
+              </Text>
+            </View>
+
+            {/* Section Divider */}
+            <View className="my-6 border-t border-[#E5E5E5]" />
+            <Text className="text-[15px] font-medium text-black mb-4">
+              Rango de facturas
+            </Text>
+
+            {/* Invoice Range Start */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Rango de facturas - Inicio
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={invoiceRangeStart}
+                onChangeText={setInvoiceRangeStart}
+                placeholder="000-001-01-00000001"
+                placeholderTextColor="#999999"
+                maxLength={50}
+              />
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Formato: 000-001-01-00000001
+              </Text>
+            </View>
+
+            {/* Invoice Range End */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Rango de facturas - Fin
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={invoiceRangeEnd}
+                onChangeText={setInvoiceRangeEnd}
+                placeholder="000-001-01-00005000"
+                placeholderTextColor="#999999"
+                maxLength={50}
+              />
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Formato: 000-001-01-00005000
+              </Text>
+            </View>
+
+            {/* Next Invoice Number (Read-only) */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Próximo número de factura
+              </Text>
+              <View className="border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-3">
+                <Text className="text-[16px] text-[#666666]">
+                  {currentUser?.facturaProximoNumero || invoiceRangeStart || 'Sin configurar'}
+                </Text>
+              </View>
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Se actualiza automáticamente al crear facturas
+              </Text>
+            </View>
+
+            {/* CAI Expiration Date */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Fecha de vencimiento del CAI
+              </Text>
+              <TextInput
+                className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                value={caiExpirationDate}
+                onChangeText={setCaiExpirationDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor="#999999"
+                maxLength={10}
+              />
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Formato: YYYY-MM-DD (ejemplo: 2025-12-31)
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={handleSaveCompanyInfo}
+              disabled={isSavingCompanyInfo}
+              className="mt-4 mb-8 py-4 items-center active:opacity-80"
+              style={{
+                backgroundColor: isSavingCompanyInfo ? '#E5E5E5' : '#000000',
+              }}
+            >
+              {isSavingCompanyInfo ? (
+                <ActivityIndicator size="small" color="#666666" />
+              ) : (
+                <Text className="text-[16px] font-semibold text-white">
+                  Guardar
+                </Text>
+              )}
+            </Pressable>
+          </ScrollView>
         </SafeAreaView>
       </Modal>
 

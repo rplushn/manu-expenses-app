@@ -32,6 +32,16 @@ export interface CurrentUser {
   email: string;
   nombreNegocio: string;
   plan: string;
+  empresaRtn?: string;
+  empresaCai?: string;
+  empresaDireccion?: string;
+  empresaTelefono?: string;
+  empresaEmail?: string;
+  tasaImpuesto?: number;
+  facturaRangoInicio?: string;
+  facturaRangoFin?: string;
+  facturaProximoNumero?: string;
+  caiFechaVencimiento?: string;
 }
 
 export interface CategorySummary {
