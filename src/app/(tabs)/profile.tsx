@@ -11,7 +11,7 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { ChevronRight, X, Crown, Check } from 'lucide-react-native';
 import { useAppStore } from '@/lib/store';
 import { signOut } from '@/lib/auth';
@@ -119,10 +119,73 @@ export default function ProfileScreen() {
   const [invoiceRangeEnd, setInvoiceRangeEnd] = useState('');
   const [caiExpirationDate, setCaiExpirationDate] = useState('');
   const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
+  const [isLoadingUserData, setIsLoadingUserData] = useState(false);
 
   const initials = currentUser?.nombreNegocio
     ? getInitials(currentUser.nombreNegocio)
     : 'MN';
+
+  // Load user data from Supabase
+  const loadUserData = useCallback(async () => {
+    try {
+      // Get authenticated user ID
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !authUser) {
+        console.error('Error getting auth user:', authError);
+        return;
+      }
+
+      setIsLoadingUserData(true);
+
+      // Fetch full user data from usuarios table
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading user data:', error);
+        return;
+      }
+
+      if (data) {
+        // Update currentUser with all fields from database
+        setCurrentUser({
+          id: data.id,
+          email: data.email || authUser.email || '',
+          nombreNegocio: data.nombre_negocio || 'Mi Negocio',
+          plan: data.plan || 'gratis',
+          empresaRtn: data.empresa_rtn || undefined,
+          empresaCai: data.empresa_cai || undefined,
+          empresaDireccion: data.empresa_direccion || undefined,
+          empresaTelefono: data.empresa_telefono || undefined,
+          empresaEmail: data.empresa_email || undefined,
+          tasaImpuesto: data.tasa_impuesto || undefined,
+          facturaRangoInicio: data.factura_rango_inicio || undefined,
+          facturaRangoFin: data.factura_rango_fin || undefined,
+          facturaProximoNumero: data.factura_proximo_numero || undefined,
+          caiFechaVencimiento: data.cai_fecha_vencimiento || undefined,
+        });
+      }
+    } catch (error) {
+      console.error('Error in loadUserData:', error);
+    } finally {
+      setIsLoadingUserData(false);
+    }
+  }, [setCurrentUser]);
+
+  // Load user data on mount and when screen comes into focus
+  useEffect(() => {
+    loadUserData();
+  }, [loadUserData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadUserData();
+    }, [loadUserData])
+  );
 
   // Check Pro status and load offerings
   const checkProAndLoadOfferings = useCallback(async () => {
@@ -256,6 +319,9 @@ export default function ProfileScreen() {
       setShowEditNameModal(false);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Listo', 'Nombre actualizado correctamente');
+      
+      // Reload user data to ensure sync
+      await loadUserData();
     } catch (error) {
       console.error('Error updating business name:', error);
       Alert.alert('Error', 'No se pudo actualizar el nombre');
@@ -331,6 +397,9 @@ export default function ProfileScreen() {
       setShowCompanyInfoModal(false);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Listo', 'Información actualizada correctamente');
+      
+      // Reload user data to ensure sync
+      await loadUserData();
     } catch (error) {
       console.error('Error updating company info:', error);
       Alert.alert('Error', 'No se pudo actualizar la información');
@@ -414,6 +483,15 @@ export default function ProfileScreen() {
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
         <ActivityIndicator size="large" color="#000000" />
         <Text className="text-[15px] text-[#666666] mt-4">Cerrando sesion...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (isLoadingUserData && !currentUser) {
+    return (
+      <SafeAreaView className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#000000" />
+        <Text className="text-[15px] text-[#666666] mt-4">Cargando perfil...</Text>
       </SafeAreaView>
     );
   }
