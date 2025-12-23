@@ -8,7 +8,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { useAppStore } from '@/lib/store';
+import { useAppStore, CurrentUser } from '@/lib/store';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -37,6 +37,7 @@ function RootLayoutNav() {
   const [session, setSession] = useState<Session | null>(null);
   const [isReady, setIsReady] = useState(false);
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
+  const currentUser = useAppStore((s) => s.currentUser);
   const loadExpenses = useAppStore((s) => s.loadExpenses);
 
   useEffect(() => {
@@ -74,6 +75,63 @@ function RootLayoutNav() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Load complete user data from usuarios table when session exists but currentUser lacks empresa data
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    if (!currentUser?.id) return; // Wait for basic user data to be set first
+    
+    // Check if we already have empresa data loaded
+    const hasEmpresaData = currentUser.empresaNombre || currentUser.empresaRtn || currentUser.empresaLogoUrl;
+    if (hasEmpresaData) return; // Already loaded, skip
+
+    // Load complete user data from usuarios table
+    const loadCompleteUserData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error) {
+          console.error('❌ Error loading complete user data:', error);
+          return;
+        }
+
+        if (!data) {
+          console.warn('⚠️ No user data found in usuarios table');
+          return;
+        }
+
+        const userData: CurrentUser = {
+          id: data.id,
+          email: data.email,
+          nombreNegocio: data.nombre_negocio || 'Mi Negocio',
+          plan: data.plan || 'gratis',
+          empresaNombre: data.empresa_nombre || undefined,
+          empresaLogoUrl: data.empresa_logo_url || undefined,
+          empresaRtn: data.empresa_rtn || undefined,
+          empresaCai: data.empresa_cai || undefined,
+          empresaDireccion: data.empresa_direccion || undefined,
+          empresaTelefono: data.empresa_telefono || undefined,
+          empresaEmail: data.empresa_email || undefined,
+          tasaImpuesto: data.tasa_impuesto || undefined,
+          facturaRangoInicio: data.factura_rango_inicio || undefined,
+          facturaRangoFin: data.factura_rango_fin || undefined,
+          facturaProximoNumero: data.factura_proximo_numero || undefined,
+          caiFechaVencimiento: data.cai_fecha_vencimiento || undefined,
+        };
+
+        console.log('✅ Complete user data loaded from usuarios table');
+        setCurrentUser(userData);
+      } catch (error) {
+        console.error('❌ Exception loading complete user data:', error);
+      }
+    };
+
+    loadCompleteUserData();
+  }, [session?.user?.id, currentUser?.id, currentUser?.empresaNombre, currentUser?.empresaRtn, currentUser?.empresaLogoUrl, setCurrentUser]);
 
   useEffect(() => {
     if (!isReady) return;
