@@ -6,8 +6,6 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  Share,
-  Platform,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -344,24 +342,19 @@ export default function InvoiceDetailScreen() {
       console.log('📄 Calling Print.printToFileAsync...');
       const { uri } = await Print.printToFileAsync({
         html,
-        base64: false,
       });
       console.log('✅ PDF generated at:', uri);
 
-      // Share or print
-      if (Platform.OS === 'ios') {
-        await Print.printAsync({ uri });
+      // Share PDF
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: `Factura ${invoice.invoice_number}`,
+          UTI: 'com.adobe.pdf',
+        });
       } else {
-        const isAvailable = await Sharing.isAvailableAsync();
-        if (isAvailable) {
-          await Sharing.shareAsync(uri, {
-            mimeType: 'application/pdf',
-            dialogTitle: `Factura ${invoice.invoice_number}`,
-            UTI: 'com.adobe.pdf',
-          });
-        } else {
-          Alert.alert('Error', 'No se puede compartir el PDF en este dispositivo');
-        }
+        Alert.alert('Error', 'No se puede compartir el PDF en este dispositivo');
       }
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

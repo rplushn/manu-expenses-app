@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from 'expo-router';
 import { useAppStore } from '@/lib/store';
 import {
   Trash2,
@@ -25,7 +26,7 @@ import {
   Receipt,
 } from 'lucide-react-native';
 import { ExpenseCategory, CATEGORY_LABELS, Expense } from '@/lib/types';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday, parseISO, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -48,6 +49,14 @@ export default function HistoryScreen() {
   const expenses = useAppStore((s) => s.expenses);
   const removeExpense = useAppStore((s) => s.removeExpense);
   const updateExpense = useAppStore((s) => s.updateExpense);
+  const loadExpenses = useAppStore((s) => s.loadExpenses);
+
+  // Reload expenses when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadExpenses();
+    }, [loadExpenses])
+  );
 
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -74,7 +83,79 @@ export default function HistoryScreen() {
       )
     : expenses;
 
+  // Sort by created_at DESC (most recent first)
+  const sortedExpenses = [...filteredExpenses].sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
   const total = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+  // Group expenses by creation date
+  interface ExpenseGroup {
+    dateKey: string; // YYYY-MM-DD
+    dateLabel: string; // "HOY", "AYER", or "DD MMM"
+    expenses: Expense[];
+    subtotal: number;
+  }
+
+  const formatDateLabel = (date: Date): string => {
+    if (isToday(date)) {
+      const dayMonth = format(date, 'd MMM', { locale: es });
+      return `HOY - ${dayMonth}`;
+    } else if (isYesterday(date)) {
+      const dayMonth = format(date, 'd MMM', { locale: es });
+      return `AYER - ${dayMonth}`;
+    } else {
+      const dayName = format(date, 'EEEE', { locale: es });
+      const dayMonth = format(date, 'd MMM', { locale: es });
+      // Capitalize first letter of day name
+      const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+      return `${capitalizedDay} - ${dayMonth}`;
+    }
+  };
+
+  const groupExpensesByDate = (): ExpenseGroup[] => {
+    const groups: Map<string, ExpenseGroup> = new Map();
+
+    sortedExpenses.forEach((expense) => {
+      const createdAt = parseISO(expense.createdAt);
+      const dateKey = format(startOfDay(createdAt), 'yyyy-MM-dd');
+      const dateLabel = formatDateLabel(startOfDay(createdAt));
+
+      if (!groups.has(dateKey)) {
+        groups.set(dateKey, {
+          dateKey,
+          dateLabel,
+          expenses: [],
+          subtotal: 0,
+        });
+      }
+
+      const group = groups.get(dateKey)!;
+      group.expenses.push(expense);
+      group.subtotal += expense.amount;
+    });
+
+    // Sort expenses within each group by createdAt DESC (most recent first)
+    groups.forEach((group) => {
+      group.expenses.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    });
+
+    // Convert to array and sort by dateKey DESC (most recent first)
+    return Array.from(groups.values()).sort((a, b) => {
+      return b.dateKey.localeCompare(a.dateKey);
+    });
+  };
+
+  const expenseGroups = groupExpensesByDate();
+
+  // Format time as HH:MM AM/PM (English format)
+  const formatTime = (dateString: string): string => {
+    const date = parseISO(dateString);
+    return format(date, 'h:mm a'); // No locale to ensure AM/PM in English
+  };
 
   const handleDelete = (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -213,44 +294,79 @@ export default function HistoryScreen() {
 
         {/* Expense List */}
         <FlatList
-          data={filteredExpenses}
-          keyExtractor={(item) => item.id}
+          data={expenseGroups}
+          keyExtractor={(group) => group.dateKey}
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => openDetailModal(item)}
-              className="flex-row justify-between items-center py-4 border-b border-[#E5E5E5] active:opacity-60"
-            >
-              <View className="flex-1">
-                <Text className="text-[16px] font-medium text-black mb-1">
-                  {item.provider || 'Sin proveedor'}
-                </Text>
-                <View className="flex-row items-center">
-                  <Text className="text-[13px] text-[#999999]">
-                    {CATEGORY_LABELS[item.category]}
-                  </Text>
-                  {item.notes && (
-                    <View className="ml-2 px-1.5 py-0.5 bg-[#F5F5F5]">
-                      <Text className="text-[10px] text-[#666666]">NOTAS</Text>
-                    </View>
-                  )}
-                  {item.receiptImageUrl && (
-                    <Receipt
-                      size={12}
-                      strokeWidth={1.5}
-                      color="#999999"
-                      style={{ marginLeft: 6 }}
-                    />
-                  )}
-                </View>
-              </View>
-
-              <Text className="text-[16px] font-semibold text-black mr-2">
-                L {item.amount.toFixed(2)}
+          renderItem={({ item: group }) => (
+            <View className="mb-6">
+              {/* Date Header */}
+              <Text className="text-[14px] font-semibold text-black mb-3 mt-2">
+                {group.dateLabel}
               </Text>
-              <ChevronRight size={18} strokeWidth={1.5} color="#CCCCCC" />
-            </Pressable>
+
+              {/* Expenses in this group */}
+              {group.expenses.map((expense) => (
+                <Pressable
+                  key={expense.id}
+                  onPress={() => openDetailModal(expense)}
+                  className="py-2 active:opacity-60"
+                >
+                  <View className="flex-row">
+                    {/* Time column */}
+                    <View className="mr-3" style={{ width: 70 }}>
+                      <Text className="text-[13px] text-[#999999]">
+                        {formatTime(expense.createdAt)}
+                      </Text>
+                    </View>
+
+                    {/* Content column */}
+                    <View className="flex-1">
+                      {/* Provider and amount row */}
+                      <View className="flex-row justify-between items-center mb-1">
+                        <Text className="text-[16px] font-medium text-black flex-1">
+                          {expense.provider || 'Sin proveedor'}
+                        </Text>
+                        <Text className="text-[16px] font-semibold text-black ml-2">
+                          L {expense.amount.toFixed(2)}
+                        </Text>
+                      </View>
+
+                      {/* Category and notes row (indented) */}
+                      <View className="flex-row items-center">
+                        <Text className="text-[13px] text-[#999999]">
+                          {CATEGORY_LABELS[expense.category]}
+                        </Text>
+                        {expense.notes && (
+                          <>
+                            <Text className="text-[13px] text-[#999999] mx-1">•</Text>
+                            <Text className="text-[13px] text-[#999999]">NOTAS</Text>
+                          </>
+                        )}
+                        {expense.receiptImageUrl && (
+                          <Receipt
+                            size={12}
+                            strokeWidth={1.5}
+                            color="#999999"
+                            style={{ marginLeft: 6 }}
+                          />
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                </Pressable>
+              ))}
+
+              {/* Divider and Subtotal */}
+              <View className="flex-row items-center my-2">
+                <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
+              </View>
+              <View className="flex-row justify-end items-center mb-2">
+                <Text className="text-[14px] font-medium text-[#666666]">
+                  Subtotal: L {group.subtotal.toFixed(2)}
+                </Text>
+              </View>
+            </View>
           )}
           ListEmptyComponent={
             <View className="items-center mt-16">

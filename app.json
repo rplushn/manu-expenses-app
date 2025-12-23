@@ -8,14 +8,29 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.flowmati.com.vibecode",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "edgeToEdgeEnabled": true
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "typedRoutes": true
+    },
+    "nodeModules": {
+      "install": "npm"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3d3b4292-4416-41c9-9134-4db42b7616ae"
+      }
     }
   }
 }

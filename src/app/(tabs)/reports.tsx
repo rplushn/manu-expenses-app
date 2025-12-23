@@ -2,35 +2,41 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppStore, Period } from '@/lib/store';
-import { CATEGORY_LABELS, ExpenseCategory } from '@/lib/types';
-import { generateMonthlyReport } from '@/lib/pdf-generator';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
-import { TrendingUp, TrendingDown, Minus, Receipt, Target, FileText } from 'lucide-react-native';
+import { CATEGORY_LABELS } from '@/lib/types';
+import { generateDetailedReport } from '@/lib/pdf-generator';
+import { FileText } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 function formatAmount(amount: number): string {
-  return amount.toLocaleString('es-HN');
+  return amount.toLocaleString('es-HN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 const PERIOD_LABELS: Record<Period, string> = {
+  today: 'Hoy',
+  week: 'Semana',
+  month: 'Mes',
+};
+
+const PERIOD_DISPLAY: Record<Period, string> = {
   today: 'Hoy',
   week: 'Esta semana',
   month: 'Este mes',
 };
 
-const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
-  mercaderia: '#000000',
-  servicios: '#1A1A1A',
-  marketing: '#333333',
-  transporte: '#4D4D4D',
-  operacion: '#666666',
-  personal: '#737373',
-  instalaciones: '#808080',
-  impuestos: '#8C8C8C',
-  equipamiento: '#999999',
-  alimentacion: '#A6A6A6',
-  otros: '#BBBBBB',
-};
+// Format date from YYYY-MM-DD to "DD MMM YYYY"
+function formatExpenseDate(dateStr: string): string {
+  const months = [
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+  ];
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return `${day} ${months[month - 1]} ${year}`;
+}
 
 export default function ReportsScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('month');
@@ -46,29 +52,37 @@ export default function ReportsScreen() {
   const categorySummary = useMemo(() => getCategorySummary(selectedPeriod), [getCategorySummary, selectedPeriod]);
   const periodExpenses = useMemo(() => getExpensesByPeriod(selectedPeriod), [getExpensesByPeriod, selectedPeriod]);
 
-  const topProvider = useMemo(() => {
-    const providerMap: Record<string, { total: number; count: number }> = {};
-    periodExpenses.forEach((e) => {
-      if (!providerMap[e.provider]) {
-        providerMap[e.provider] = { total: 0, count: 0 };
-      }
-      providerMap[e.provider].total += e.amount;
-      providerMap[e.provider].count += 1;
-    });
-
-    const sorted = Object.entries(providerMap).sort(([, a], [, b]) => b.total - a.total);
-    if (sorted.length === 0) return null;
-    return {
-      name: sorted[0][0],
-      total: sorted[0][1].total,
-      count: sorted[0][1].count,
-    };
-  }, [periodExpenses]);
-
   const biggestExpense = useMemo(() => {
     if (periodExpenses.length === 0) return null;
     return periodExpenses.reduce((max, e) => (e.amount > max.amount ? e : max), periodExpenses[0]);
   }, [periodExpenses]);
+
+  // Calculate average per expense
+  const averagePerExpense = useMemo(() => {
+    if (stats.count === 0) return 0;
+    return stats.total / stats.count;
+  }, [stats]);
+
+  // Get top category (highest percentage)
+  const topCategory = useMemo(() => {
+    if (categorySummary.length === 0) return null;
+    return categorySummary.reduce((max, item) => 
+      item.percentage > max.percentage ? item : max, 
+      categorySummary[0]
+    );
+  }, [categorySummary]);
+
+  // Sort expenses by date (most recent first)
+  const sortedExpenses = useMemo(() => {
+    return [...periodExpenses].sort((a, b) => {
+      return b.expenseDate.localeCompare(a.expenseDate);
+    });
+  }, [periodExpenses]);
+
+  // Current date and time for header/footer
+  const now = new Date();
+  const formattedDate = format(now, "d 'de' MMMM yyyy", { locale: es });
+  const formattedTime = format(now, 'h:mm a');
 
   const handlePeriodChange = (period: Period) => {
     Haptics.selectionAsync();
@@ -76,8 +90,8 @@ export default function ReportsScreen() {
   };
 
   const handleDownloadPDF = async () => {
-    if (expenses.length === 0) {
-      Alert.alert('Sin datos', 'No hay gastos para reportar');
+    if (periodExpenses.length === 0) {
+      Alert.alert('Sin datos', 'No hay gastos para reportar en este periodo');
       return;
     }
 
@@ -85,9 +99,19 @@ export default function ReportsScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
-      const businessName = currentUser?.nombreNegocio || 'Mi Negocio';
-      await generateMonthlyReport(expenses, businessName);
-      // No mostrar alert de éxito - el share sheet es suficiente
+      const businessName = currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio';
+      const logoUrl = currentUser?.empresaLogoUrl;
+      await generateDetailedReport(
+        periodExpenses,
+        businessName,
+        selectedPeriod,
+        stats,
+        categorySummary,
+        biggestExpense,
+        averagePerExpense,
+        topCategory,
+        logoUrl
+      );
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       Alert.alert('Error', 'No se pudo generar el reporte');
@@ -97,44 +121,28 @@ export default function ReportsScreen() {
     }
   };
 
-  const renderChangeIndicator = () => {
-    if (stats.change === 0) {
-      return (
-        <View className="flex-row items-center mt-2">
-          <Minus size={14} strokeWidth={1.5} color="#999999" />
-          <Text className="text-[13px] text-[#999999] ml-1">
-            Sin cambio vs periodo anterior
-          </Text>
-        </View>
-      );
-    }
-
-    const isUp = stats.change > 0;
-    return (
-      <View className="flex-row items-center mt-2">
-        {isUp ? (
-          <TrendingUp size={14} strokeWidth={1.5} color="#DC2626" />
-        ) : (
-          <TrendingDown size={14} strokeWidth={1.5} color="#16A34A" />
-        )}
-        <Text
-          className="text-[13px] ml-1"
-          style={{ color: isUp ? '#DC2626' : '#16A34A' }}
-        >
-          {isUp ? '+' : ''}L {formatAmount(stats.change)} ({stats.changePercent.toFixed(0)}%)
-        </Text>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="px-5 pt-2 pb-4">
-          <Text className="text-[20px] font-semibold text-black">Reportes</Text>
+        {/* Header */}
+        <View className="px-5 pt-6 pb-4 border-b border-[#E5E5E5]">
+          <Text className="text-[24px] font-bold text-black mb-1">MANU</Text>
+          <Text className="text-[18px] font-semibold text-black mb-2">
+            {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio'}
+          </Text>
+          <Text className="text-[16px] font-medium text-[#666666] mb-3">
+            Reporte de Gastos
+          </Text>
+          <Text className="text-[13px] text-[#999999] mb-1">
+            Rango de fechas: {PERIOD_DISPLAY[selectedPeriod]}
+          </Text>
+          <Text className="text-[13px] text-[#999999]">
+            Generado el {formattedDate} a las {formattedTime}
+          </Text>
         </View>
 
-        <View className="flex-row mx-5 border border-[#E5E5E5]">
+        {/* Period Tabs */}
+        <View className="flex-row mx-5 mt-2 border border-[#E5E5E5]">
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
@@ -150,143 +158,197 @@ export default function ReportsScreen() {
                   color: selectedPeriod === period ? '#FFFFFF' : '#666666',
                 }}
               >
-                {period === 'today' ? 'Hoy' : period === 'week' ? 'Semana' : 'Mes'}
+                {PERIOD_LABELS[period]}
               </Text>
             </Pressable>
           ))}
         </View>
 
-        <Animated.View
-          entering={FadeInDown.duration(300).delay(100)}
-          className="px-5 mt-8"
-        >
-          <Text className="text-[14px] text-[#666666] mb-1">
-            {PERIOD_LABELS[selectedPeriod]}
+        {/* Resumen Ejecutivo */}
+        <View className="px-5 mt-6">
+          <Text className="text-[18px] font-bold text-black mb-4">
+            RESUMEN EJECUTIVO
           </Text>
-          <Text
-            className="text-[48px] font-bold text-black tracking-[-1px]"
-            style={{ fontFamily: 'System' }}
-          >
-            L {formatAmount(stats.total)}
-          </Text>
-          <Text className="text-[14px] text-[#666666] mt-1">
-            {stats.count} {stats.count === 1 ? 'gasto' : 'gastos'}
-            {selectedPeriod !== 'today' && ` - L ${formatAmount(stats.averageDaily)}/dia`}
-          </Text>
-          {renderChangeIndicator()}
-        </Animated.View>
-
-        <View className="flex-row px-5 mt-6">
-          <Animated.View
-            entering={FadeIn.duration(300).delay(200)}
-            className="flex-1 border border-[#E5E5E5] p-4 mr-2"
-          >
-            <View className="flex-row items-center mb-2">
-              <Target size={16} strokeWidth={1.5} color="#666666" />
-              <Text className="text-[12px] text-[#666666] ml-1">Mayor gasto</Text>
+          
+          <View className="border border-[#E5E5E5] p-4">
+            <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
+              <Text className="text-[14px] text-[#666666]">Total Gastos:</Text>
+              <Text className="text-[14px] font-semibold text-black">
+                L {formatAmount(stats.total)}
+              </Text>
             </View>
-            {biggestExpense ? (
-              <>
-                <Text className="text-[18px] text-black font-semibold" style={{ fontFamily: 'System' }}>
-                  L {formatAmount(biggestExpense.amount)}
-                </Text>
-                <Text className="text-[12px] text-[#999999] mt-1" numberOfLines={1}>
-                  {biggestExpense.provider}
-                </Text>
-              </>
-            ) : (
-              <Text className="text-[14px] text-[#999999]">-</Text>
-            )}
-          </Animated.View>
-
-          <Animated.View
-            entering={FadeIn.duration(300).delay(250)}
-            className="flex-1 border border-[#E5E5E5] p-4 ml-2"
-          >
-            <View className="flex-row items-center mb-2">
-              <Receipt size={16} strokeWidth={1.5} color="#666666" />
-              <Text className="text-[12px] text-[#666666] ml-1">Top proveedor</Text>
+            <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
+              <Text className="text-[14px] text-[#666666]">Número de Gastos:</Text>
+              <Text className="text-[14px] font-semibold text-black">
+                {stats.count}
+              </Text>
             </View>
-            {topProvider ? (
-              <>
-                <Text className="text-[18px] text-black font-semibold" style={{ fontFamily: 'System' }}>
-                  L {formatAmount(topProvider.total)}
-                </Text>
-                <Text className="text-[12px] text-[#999999] mt-1" numberOfLines={1}>
-                  {topProvider.name} ({topProvider.count})
-                </Text>
-              </>
-            ) : (
-              <Text className="text-[14px] text-[#999999]">-</Text>
-            )}
-          </Animated.View>
+            <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
+              <Text className="text-[14px] text-[#666666]">Promedio por Gasto:</Text>
+              <Text className="text-[14px] font-semibold text-black">
+                L {formatAmount(averagePerExpense)}
+              </Text>
+            </View>
+            <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
+              <Text className="text-[14px] text-[#666666]">Gasto Más Alto:</Text>
+              <Text className="text-[14px] font-semibold text-black">
+                {biggestExpense ? `L ${formatAmount(biggestExpense.amount)}` : '-'}
+              </Text>
+            </View>
+            <View className="flex-row justify-between items-center py-2">
+              <Text className="text-[14px] text-[#666666]">Categoría Mayor Gasto:</Text>
+              <Text className="text-[14px] font-semibold text-black">
+                {topCategory 
+                  ? `${CATEGORY_LABELS[topCategory.category]} (${topCategory.percentage.toFixed(1)}%)`
+                  : '-'
+                }
+              </Text>
+            </View>
+          </View>
         </View>
 
-        <View className="mx-5 mt-8 h-[1px] bg-[#E5E5E5]" />
-
+        {/* Gastos por Categoría */}
         <View className="px-5 mt-6">
-          <Text className="text-[16px] font-medium text-black mb-4">
-            Por categoria
+          <Text className="text-[18px] font-bold text-black mb-4">
+            GASTOS POR CATEGORÍA
           </Text>
 
           {categorySummary.length === 0 ? (
-            <View className="py-8 items-center">
-              <Text className="text-[15px] text-[#999999]">
+            <View className="border border-[#E5E5E5] p-4">
+              <Text className="text-[14px] text-[#999999] text-center py-4">
                 Sin datos en este periodo
               </Text>
             </View>
           ) : (
-            <View className="border border-[#E5E5E5] p-4">
+            <View className="border border-[#E5E5E5]">
+              {/* Table Header */}
+              <View className="flex-row border-b border-[#E5E5E5] bg-[#F9FAFB]">
+                <View className="flex-1 px-3 py-3">
+                  <Text className="text-[13px] font-semibold text-black">Categoría</Text>
+                </View>
+                <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black text-right">Monto</Text>
+                </View>
+                <View className="w-20 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black text-right">%</Text>
+                </View>
+              </View>
+
+              {/* Table Rows */}
               {categorySummary.map((item, index) => (
-                <Animated.View
+                <View
                   key={item.category}
-                  entering={FadeInDown.duration(300).delay(300 + index * 80)}
-                  className={index > 0 ? 'mt-5' : ''}
+                  className={`flex-row border-b border-[#F5F5F5] ${index === categorySummary.length - 1 ? 'border-b-0' : ''}`}
                 >
-                  <View className="flex-row justify-between items-center mb-2">
-                    <View className="flex-row items-center">
-                      <View
-                        className="w-3 h-3 mr-2"
-                        style={{ backgroundColor: CATEGORY_COLORS[item.category] }}
-                      />
-                      <Text className="text-[14px] text-black">
-                        {CATEGORY_LABELS[item.category]}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-baseline">
-                      <Text
-                        className="text-[14px] text-black font-medium"
-                        style={{ fontFamily: 'System' }}
-                      >
-                        L {formatAmount(item.total)}
-                      </Text>
-                      <Text className="text-[12px] text-[#999999] ml-2">
-                        {item.count} {item.count === 1 ? 'gasto' : 'gastos'}
-                      </Text>
-                    </View>
+                  <View className="flex-1 px-3 py-3">
+                    <Text className="text-[13px] text-black">
+                      {CATEGORY_LABELS[item.category]}
+                    </Text>
                   </View>
-
-                  <View className="h-2 bg-[#F5F5F5] overflow-hidden">
-                    <Animated.View
-                      entering={FadeIn.duration(500).delay(400 + index * 80)}
-                      className="h-full"
-                      style={{
-                        width: `${item.percentage}%`,
-                        backgroundColor: CATEGORY_COLORS[item.category],
-                      }}
-                    />
+                  <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
+                    <Text className="text-[13px] text-black text-right">
+                      L {formatAmount(item.total)}
+                    </Text>
                   </View>
+                  <View className="w-20 px-3 py-3 border-l border-[#E5E5E5]">
+                    <Text className="text-[13px] text-black text-right">
+                      {item.percentage.toFixed(1)}%
+                    </Text>
+                  </View>
+                </View>
+              ))}
 
-                  <Text className="text-[12px] text-[#999999] mt-1">
-                    {item.percentage.toFixed(1)}% del total
+              {/* Table Footer - Total */}
+              <View className="flex-row border-t-2 border-[#E5E5E5] bg-[#F9FAFB]">
+                <View className="flex-1 px-3 py-3">
+                  <Text className="text-[13px] font-semibold text-black">TOTAL</Text>
+                </View>
+                <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black text-right">
+                    L {formatAmount(stats.total)}
                   </Text>
-                </Animated.View>
+                </View>
+                <View className="w-20 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black text-right">
+                    100%
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Detalle de Gastos */}
+        <View className="px-5 mt-6">
+          <Text className="text-[18px] font-bold text-black mb-4">
+            DETALLE DE GASTOS
+          </Text>
+
+          {sortedExpenses.length === 0 ? (
+            <View className="border border-[#E5E5E5] p-4">
+              <Text className="text-[14px] text-[#999999] text-center py-4">
+                Sin gastos en este periodo
+              </Text>
+            </View>
+          ) : (
+            <View className="border border-[#E5E5E5]">
+              {/* Table Header */}
+              <View className="flex-row border-b border-[#E5E5E5] bg-[#F9FAFB]">
+                <View className="w-24 px-3 py-3">
+                  <Text className="text-[13px] font-semibold text-black">Fecha</Text>
+                </View>
+                <View className="flex-1 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black">Proveedor</Text>
+                </View>
+                <View className="w-28 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black">Categoría</Text>
+                </View>
+                <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
+                  <Text className="text-[13px] font-semibold text-black text-right">Monto</Text>
+                </View>
+              </View>
+
+              {/* Table Rows */}
+              {sortedExpenses.map((expense, index) => (
+                <View
+                  key={expense.id}
+                  className={`flex-row border-b border-[#F5F5F5] ${index === sortedExpenses.length - 1 ? 'border-b-0' : ''}`}
+                >
+                  <View className="w-24 px-3 py-3">
+                    <Text className="text-[12px] text-black">
+                      {formatExpenseDate(expense.expenseDate)}
+                    </Text>
+                  </View>
+                  <View className="flex-1 px-3 py-3 border-l border-[#E5E5E5]">
+                    <Text className="text-[12px] text-black" numberOfLines={1}>
+                      {expense.provider || 'Sin proveedor'}
+                    </Text>
+                  </View>
+                  <View className="w-28 px-3 py-3 border-l border-[#E5E5E5]">
+                    <Text className="text-[12px] text-black" numberOfLines={1}>
+                      {CATEGORY_LABELS[expense.category]}
+                    </Text>
+                  </View>
+                  <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
+                    <Text className="text-[12px] text-black text-right">
+                      L {formatAmount(expense.amount)}
+                    </Text>
+                  </View>
+                </View>
               ))}
             </View>
           )}
         </View>
 
-        <View className="px-5 mt-8 mb-8">
+        {/* Footer */}
+        <View className="px-5 mt-6 mb-8 pt-4 border-t border-[#E5E5E5]">
+          <Text className="text-[12px] text-[#999999] text-center">
+            Reporte generado por MANU el {formattedDate} a las {formattedTime}
+          </Text>
+        </View>
+
+        {/* Download PDF Button */}
+        <View className="px-5 mt-4 mb-8">
           <Pressable
             onPress={handleDownloadPDF}
             disabled={isGeneratingPDF}
@@ -311,7 +373,7 @@ export default function ReportsScreen() {
               <>
                 <FileText size={20} color="#FFFFFF" />
                 <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '500', marginLeft: 8 }}>
-                  Descargar Reporte PDF
+                  Descargar reporte detallado (PDF)
                 </Text>
               </>
             )}
