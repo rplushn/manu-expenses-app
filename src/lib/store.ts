@@ -33,6 +33,7 @@ export interface CurrentUser {
   nombreNegocio: string;
   plan: string;
   empresaNombre?: string;
+  empresaLogoUrl?: string;
   empresaRtn?: string;
   empresaCai?: string;
   empresaDireccion?: string;

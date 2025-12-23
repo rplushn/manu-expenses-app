@@ -9,10 +9,14 @@ import {
   Modal,
   TextInput,
   Linking,
+  Image,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { ChevronRight, X, Crown, Check } from 'lucide-react-native';
+import { ChevronRight, X, Crown, Check, Upload, Image as ImageIcon } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { useAppStore } from '@/lib/store';
 import { signOut } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -110,6 +114,8 @@ export default function ProfileScreen() {
   // Edit company info state
   const [showCompanyInfoModal, setShowCompanyInfoModal] = useState(false);
   const [companyName, setCompanyName] = useState('');
+  const [companyLogoUrl, setCompanyLogoUrl] = useState('');
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [companyRtn, setCompanyRtn] = useState('');
   const [companyCai, setCompanyCai] = useState('');
   const [companyAddress, setCompanyAddress] = useState('');
@@ -159,6 +165,7 @@ export default function ProfileScreen() {
           nombreNegocio: data.nombre_negocio || 'Mi Negocio',
           plan: data.plan || 'gratis',
           empresaNombre: data.empresa_nombre || undefined,
+          empresaLogoUrl: data.empresa_logo_url || undefined,
           empresaRtn: data.empresa_rtn || undefined,
           empresaCai: data.empresa_cai || undefined,
           empresaDireccion: data.empresa_direccion || undefined,
@@ -332,9 +339,222 @@ export default function ProfileScreen() {
     }
   };
 
+  // Handle logo upload
+  const handleUploadLogo = async () => {
+    if (!currentUser?.id) return;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('🔐 Session exists:', !!session);
+    console.log('🔐 User ID:', session?.user?.id);
+    console.log('🆔 Current User ID:', currentUser?.id);
+
+    if (!session) {
+      Alert.alert('Error', 'No estás autenticado. Cerrá sesión y volvé a entrar.');
+      return;
+    }
+
+    try {
+      // Request permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permisos requeridos',
+          'Se necesita acceso a la galería para seleccionar el logo.'
+        );
+        return;
+      }
+
+      // Pick image
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: false,
+      });
+
+      if (result.canceled) return;
+
+      const asset = result.assets[0];
+      
+      // Validate file size (2MB max)
+      if (asset.fileSize && asset.fileSize > 2097152) {
+        Alert.alert('Error', 'El archivo es muy grande. Máximo 2MB.');
+        return;
+      }
+
+      setIsUploadingLogo(true);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+      // Get file extension from mimeType or URI
+      let fileExt = 'jpg';
+      if (asset.mimeType) {
+        // Use mimeType if available (e.g., "image/png" -> "png")
+        fileExt = asset.mimeType.split('/')[1];
+      } else if (Platform.OS === 'web' && asset.uri.startsWith('data:')) {
+        // Web data URI: extract from "data:image/png;base64,..."
+        const match = asset.uri.match(/data:image\/(\w+);base64/);
+        fileExt = match ? match[1] : 'jpg';
+      } else {
+        // Native file URI: extract from file path
+        fileExt = asset.uri.split('.').pop()?.toLowerCase() || 'jpg';
+      }
+      
+      const fileName = `logo.${fileExt}`;
+      const filePath = `${currentUser.id}/${fileName}`;
+
+      console.log('📤 Uploading to path:', filePath, 'contentType:', `image/${fileExt}`);
+
+      // Read file as base64
+      let base64Data: string;
+      
+      if (Platform.OS === 'web') {
+        // Web: Extract base64 from data URI
+        console.log('🌐 Web: Extracting base64 from data URI');
+        base64Data = asset.uri.split(',')[1];
+      } else {
+        // Native: Read file as base64
+        console.log('📱 Native: Reading file as base64');
+        base64Data = await FileSystem.readAsStringAsync(asset.uri, {
+          encoding: 'base64',
+        });
+      }
+      
+      console.log('📦 Base64 length:', base64Data.length, 'characters');
+
+      // Convert base64 to Uint8Array
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      console.log('📦 File size:', bytes.length, 'bytes');
+
+      // Upload to Supabase Storage
+      console.log('📤 Uploading logo to:', filePath);
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('company-logos')
+        .upload(filePath, bytes.buffer, {
+          contentType: `image/${fileExt}`,
+          upsert: true,
+        });
+
+      console.log('📤 Upload response:', { data: uploadData, error: uploadError });
+
+      if (uploadError) {
+        console.error('❌ Upload error details:', {
+          message: uploadError.message,
+          name: uploadError.name,
+          cause: uploadError.cause,
+        });
+        throw uploadError;
+      }
+
+      // Get public URL with cache-busting parameter
+      console.log('🔗 Getting public URL for:', filePath);
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(filePath);
+      
+      // Add timestamp to avoid browser cache
+      const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
+      console.log('✅ Public URL with cache-buster:', cacheBustedUrl);
+
+      // Update database
+      console.log('💾 Updating database with URL:', cacheBustedUrl);
+      const { error: dbError } = await supabase
+        .from('usuarios')
+        .update({ empresa_logo_url: cacheBustedUrl })
+        .eq('id', currentUser.id);
+
+      if (dbError) {
+        console.error('❌ Database error:', dbError);
+        throw dbError;
+      }
+      console.log('✅ Database updated successfully');
+
+      setCompanyLogoUrl(cacheBustedUrl);
+      
+      // Update store
+      setCurrentUser({
+        ...currentUser,
+        empresaLogoUrl: cacheBustedUrl,
+      });
+      
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Alert.alert('Listo', 'Logo subido correctamente');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      Alert.alert('Error', 'No se pudo subir el logo');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  // Handle delete logo
+  const handleDeleteLogo = async () => {
+    if (!currentUser?.id) return;
+
+    Alert.alert(
+      'Eliminar logo',
+      '¿Seguro que quieres quitar el logo de tu empresa?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+          onPress: () => Haptics.selectionAsync(),
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+              // Try to remove all possible logo variants
+              const filesToRemove = [
+                `${currentUser.id}/logo.png`,
+                `${currentUser.id}/logo.jpg`,
+                `${currentUser.id}/logo.jpeg`,
+              ];
+
+              // Attempt to remove files (ignore errors if files don't exist)
+              await supabase.storage
+                .from('company-logos')
+                .remove(filesToRemove);
+
+              // Update database
+              const { error: dbError } = await supabase
+                .from('usuarios')
+                .update({ empresa_logo_url: null })
+                .eq('id', currentUser.id);
+
+              if (dbError) throw dbError;
+
+              // Update local state
+              setCompanyLogoUrl('');
+              setCurrentUser({
+                ...currentUser,
+                empresaLogoUrl: undefined,
+              });
+
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              Alert.alert('Listo', 'Logo eliminado correctamente');
+            } catch (error) {
+              console.error('Error deleting logo:', error);
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              Alert.alert('Error', 'No se pudo eliminar el logo');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   // Handle edit company info
   const handleEditCompanyInfo = () => {
     setCompanyName(currentUser?.empresaNombre || '');
+    setCompanyLogoUrl(currentUser?.empresaLogoUrl || '');
     setCompanyRtn(currentUser?.empresaRtn || '');
     setCompanyCai(currentUser?.empresaCai || '');
     setCompanyAddress(currentUser?.empresaDireccion || '');
@@ -368,6 +588,7 @@ export default function ProfileScreen() {
         .from('usuarios')
         .update({
           empresa_nombre: companyName.trim() || null,
+          empresa_logo_url: companyLogoUrl || null,
           empresa_rtn: companyRtn.trim() || null,
           empresa_cai: companyCai.trim() || null,
           empresa_direccion: companyAddress.trim() || null,
@@ -387,6 +608,7 @@ export default function ProfileScreen() {
       setCurrentUser({
         ...currentUser,
         empresaNombre: companyName.trim() || undefined,
+        empresaLogoUrl: companyLogoUrl || undefined,
         empresaRtn: companyRtn.trim() || undefined,
         empresaCai: companyCai.trim() || undefined,
         empresaDireccion: companyAddress.trim() || undefined,
@@ -685,6 +907,59 @@ export default function ProfileScreen() {
           </View>
 
           <ScrollView className="flex-1 px-5 pt-6" showsVerticalScrollIndicator={false}>
+            {/* Company Logo */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Logo de la empresa
+              </Text>
+              <View className="flex-row items-center" style={{ gap: 12 }}>
+                {companyLogoUrl ? (
+                  <View className="border border-[#E5E5E5] p-2">
+                    <Image
+                      source={{ uri: companyLogoUrl }}
+                      style={{ width: 100, height: 100 }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                ) : (
+                  <View className="border border-[#E5E5E5] p-2 w-[100px] h-[100px] items-center justify-center bg-[#F9FAFB]">
+                    <ImageIcon size={40} strokeWidth={1.5} color="#CCCCCC" />
+                  </View>
+                )}
+                <View className="flex-1">
+                  <Pressable
+                    onPress={handleUploadLogo}
+                    disabled={isUploadingLogo}
+                    className="border border-black px-4 py-3 items-center active:opacity-60"
+                  >
+                    {isUploadingLogo ? (
+                      <ActivityIndicator size="small" color="#000000" />
+                    ) : (
+                      <View className="flex-row items-center" style={{ gap: 8 }}>
+                        <Upload size={18} strokeWidth={1.5} color="#000000" />
+                        <Text className="text-[14px] text-black">
+                          {companyLogoUrl ? 'Cambiar logo' : 'Subir logo'}
+                        </Text>
+                      </View>
+                    )}
+                  </Pressable>
+                  <Text className="text-[12px] text-[#999999] mt-2">
+                    PNG o JPG, máx 2MB
+                  </Text>
+                  {companyLogoUrl && (
+                    <Pressable
+                      onPress={handleDeleteLogo}
+                      className="mt-3 active:opacity-60"
+                    >
+                      <Text className="text-[13px] text-[#DC2626] text-center">
+                        Eliminar logo
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
+            </View>
+
             {/* Company Name */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">

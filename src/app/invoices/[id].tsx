@@ -8,6 +8,7 @@ import {
   Alert,
   Share,
   Platform,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -71,14 +72,72 @@ export default function InvoiceDetailScreen() {
     }
   };
 
+  // Convert image to base64 using Canvas (more reliable for PDFs)
+  const imageUrlToBase64 = async (url: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0);
+          const dataURL = canvas.toDataURL('image/png');
+          console.log('✅ Canvas conversion complete. Length:', dataURL.length);
+          resolve(dataURL);
+        } catch (error) {
+          console.error('❌ Canvas conversion error:', error);
+          reject(error);
+        }
+      };
+      
+      img.onerror = (error) => {
+        console.error('❌ Image load error:', error);
+        reject(error);
+      };
+      
+      // Remove query parameters and add timestamp to avoid cache
+      const cleanUrl = url.split('?')[0];
+      img.src = `${cleanUrl}?nocache=${Date.now()}`;
+    });
+  };
+
   // Generate PDF HTML
-  const generateInvoiceHTML = (): string => {
+  const generateInvoiceHTML = async (): Promise<string> => {
     if (!invoice || !currentUser) return '';
 
     const invoiceDate = format(parseISO(invoice.invoice_date), "d 'de' MMMM, yyyy", { locale: es });
     const discount = invoice.discount_amount || 
       (invoice.discount_percentage ? invoice.subtotal * (invoice.discount_percentage / 100) : 0);
     const taxableAmount = invoice.subtotal - discount;
+
+    // Convert logo to base64 if exists
+    let logoBase64 = '';
+    if (currentUser.empresaLogoUrl) {
+      try {
+        console.log('🖼️ Converting logo to Base64 for PDF...');
+        console.log('📍 Logo URL:', currentUser.empresaLogoUrl);
+        
+        logoBase64 = await imageUrlToBase64(currentUser.empresaLogoUrl);
+        
+        console.log('✅ Logo Base64 ready for PDF');
+        console.log('📝 Base64 preview:', logoBase64.substring(0, 100) + '...');
+      } catch (error) {
+        console.error('❌ Error converting logo to base64:', error);
+        console.log('⚠️ PDF will be generated without logo');
+      }
+    } else {
+      console.log('⚠️ No logo URL found in currentUser');
+    }
 
     return `
 <!DOCTYPE html>
@@ -165,6 +224,20 @@ export default function InvoiceDetailScreen() {
 <body>
   <!-- Header -->
   <div class="header">
+    ${logoBase64 ? `
+    <div style="text-align: center; margin-bottom: 15px;">
+      <img 
+        src="${logoBase64}" 
+        style="
+          width: 100px;
+          height: 100px;
+          object-fit: contain;
+          display: block;
+          margin: 0 auto;
+        " 
+        alt="Logo" 
+      />
+    </div>` : ''}
     <div class="company-name">${currentUser.empresaNombre || currentUser.nombreNegocio || 'MI EMPRESA'}</div>
     ${currentUser.empresaRtn ? `<div class="company-info">RTN: ${currentUser.empresaRtn}</div>` : ''}
     ${currentUser.empresaCai ? `<div class="company-info">CAI: ${currentUser.empresaCai}</div>` : ''}
@@ -259,13 +332,21 @@ export default function InvoiceDetailScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
-      const html = generateInvoiceHTML();
+      console.log('📄 Starting PDF generation...');
+      const html = await generateInvoiceHTML();
+      console.log('📄 HTML generated, length:', html.length);
+      
+      // Log if logo is in HTML
+      const hasLogo = html.includes('data:image');
+      console.log('🖼️ Logo in HTML:', hasLogo ? 'YES' : 'NO');
       
       // Generate PDF
+      console.log('📄 Calling Print.printToFileAsync...');
       const { uri } = await Print.printToFileAsync({
         html,
         base64: false,
       });
+      console.log('✅ PDF generated at:', uri);
 
       // Share or print
       if (Platform.OS === 'ios') {
@@ -430,6 +511,15 @@ export default function InvoiceDetailScreen() {
         <View className="px-5 pt-6">
           {/* Company Header */}
           <View className="mb-6 border border-[#E5E5E5] p-4 bg-[#F9FAFB]">
+            {currentUser?.empresaLogoUrl && (
+              <View className="items-center mb-3">
+                <Image
+                  source={{ uri: currentUser.empresaLogoUrl }}
+                  style={{ width: 100, height: 100 }}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
             <Text className="text-[20px] font-bold text-black mb-3 text-center">
               {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'MI EMPRESA'}
             </Text>
