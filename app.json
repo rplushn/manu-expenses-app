@@ -18,13 +18,19 @@
       "edgeToEdgeEnabled": true
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      "expo-build-properties",
+      "expo-font",
+      "expo-mail-composer",
+      "expo-secure-store",
+      "expo-sqlite",
+      "expo-video",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "nodeModules": {
-      "install": "npm"
     },
     "extra": {
       "router": {},
