@@ -24,7 +24,7 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useAppStore } from '@/lib/store';
 import { signOut } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -417,11 +417,19 @@ export default function ProfileScreen() {
   };
 
   const handleUploadLogo = async () => {
-    if (!currentUser?.id) return;
+    console.log('🚀 [INICIO] handleUploadLogo llamado');
+
+    if (!currentUser?.id) {
+      console.log('❌ No hay currentUser.id');
+      return;
+    }
+    console.log('✅ currentUser.id existe:', currentUser.id);
 
     const {
       data: { session },
     } = await supabase.auth.getSession();
+
+    console.log('✅ Session obtenida:', !!session);
 
     if (!session) {
       Alert.alert(
@@ -432,8 +440,10 @@ export default function ProfileScreen() {
     }
 
     try {
+      console.log('📸 Solicitando permisos de galería...');
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log('📸 Permisos resultado:', status);
       if (status !== 'granted') {
         Alert.alert(
           'Permisos requeridos',
@@ -442,6 +452,7 @@ export default function ProfileScreen() {
         return;
       }
 
+      console.log('🖼️ Abriendo selector de imagen...');
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -450,9 +461,12 @@ export default function ProfileScreen() {
         base64: false,
       });
 
+      console.log('🖼️ Resultado del picker:', result.canceled ? 'CANCELADO' : 'SELECCIONADO');
       if (result.canceled) return;
 
       const asset = result.assets[0];
+      console.log('📦 Asset URI:', asset.uri);
+      console.log('📦 Asset size:', asset.fileSize);
 
       if (asset.fileSize && asset.fileSize > 2097152) {
         Alert.alert('Error', 'El archivo es muy grande. Máximo 2MB.');
@@ -475,16 +489,33 @@ export default function ProfileScreen() {
       const fileName = `logo.${fileExt}`;
       const filePath = `${currentUser.id}/${fileName}`;
 
-      const response = await fetch(asset.uri);
-      const blob = await response.blob();
+      console.log('🔄 Leyendo archivo con FileSystem...');
 
+      // Leer el archivo como base64
+      const base64 = await FileSystem.readAsStringAsync(asset.uri, {
+        encoding: 'base64' as any,
+      });
+
+      console.log('✅ Base64 leído, length:', base64.length);
+
+      // Decodificar base64 a ArrayBuffer
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      console.log('✅ ArrayBuffer creado, size:', bytes.length);
+
+      console.log('📤 Iniciando upload a Supabase, path:', filePath);
       const { error: uploadError } = await supabase.storage
         .from('company-logos')
-        .upload(filePath, blob, {
+        .upload(filePath, bytes.buffer, {
           contentType: `image/${fileExt}`,
           upsert: true,
         });
 
+      console.log('📤 Upload completado, error:', uploadError ? uploadError.message : 'ninguno');
       if (uploadError) throw uploadError;
 
       const {
@@ -506,6 +537,10 @@ export default function ProfileScreen() {
         ...currentUser,
         empresaLogoUrl: cacheBustedUrl,
       });
+
+      // Force reload user data to ensure sync
+      await loadUserData();
+      console.log('🔄 User data reloaded, new logo URL:', currentUser?.empresaLogoUrl);
 
       Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success,
@@ -560,6 +595,10 @@ export default function ProfileScreen() {
                 ...currentUser,
                 empresaLogoUrl: undefined,
               });
+
+              // Force reload user data to ensure sync
+              await loadUserData();
+              console.log('🗑️ User data reloaded after delete');
 
               Haptics.notificationAsync(
                 Haptics.NotificationFeedbackType.Success,
@@ -884,6 +923,7 @@ export default function ProfileScreen() {
                       height: '100%',
                     }}
                     resizeMode="contain"
+                    key={currentUser.empresaLogoUrl}
                   />
                 </View>
               ) : (
