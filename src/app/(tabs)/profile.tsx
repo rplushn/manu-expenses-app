@@ -11,6 +11,7 @@ import {
   Linking,
   Image,
   Platform,
+  ActionSheetIOS,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -191,6 +192,7 @@ export default function ProfileScreen() {
   const [invoiceRangeStart, setInvoiceRangeStart] = useState('');
   const [invoiceRangeEnd, setInvoiceRangeEnd] = useState('');
   const [caiExpirationDate, setCaiExpirationDate] = useState('');
+  const [currencyCode, setCurrencyCode] = useState(currentUser?.currencyCode || 'HNL');
   const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
 
@@ -230,6 +232,7 @@ export default function ProfileScreen() {
           email: data.email || authUser.email || '',
           nombreNegocio: data.nombre_negocio || 'Mi Negocio',
           plan: data.plan || 'gratis',
+          currencyCode: data.currency_code || 'HNL',
           empresaNombre: data.empresa_nombre || undefined,
           empresaLogoUrl: data.empresa_logo_url || undefined,
           empresaRtn: data.empresa_rtn || undefined,
@@ -633,6 +636,7 @@ export default function ProfileScreen() {
     setInvoiceRangeStart(currentUser?.facturaRangoInicio || '');
     setInvoiceRangeEnd(currentUser?.facturaRangoFin || '');
     setCaiExpirationDate(currentUser?.caiFechaVencimiento || '');
+    setCurrencyCode(currentUser?.currencyCode || 'HNL');
 
     setShowCompanyInfoModal(true);
   };
@@ -716,6 +720,7 @@ export default function ProfileScreen() {
           factura_rango_fin: rangeEnd || null,
           factura_proximo_numero: nextInvoiceNumber,
           cai_fecha_vencimiento: caiExpirationDate.trim() || null,
+          currency_code: currencyCode,
         })
         .eq('id', currentUser.id);
 
@@ -735,6 +740,7 @@ export default function ProfileScreen() {
         facturaRangoFin: rangeEnd || undefined,
         facturaProximoNumero: nextInvoiceNumber || undefined,
         caiFechaVencimiento: caiExpirationDate.trim() || undefined,
+        currencyCode: currencyCode,
       });
 
       setShowCompanyInfoModal(false);
@@ -1365,6 +1371,51 @@ export default function ProfileScreen() {
                   )}
                 </View>
               </View>
+            </View>
+
+            {/* Moneda principal */}
+            <View className="mb-5">
+              <Text className="text-[13px] text-[#666666] mb-2">
+                Moneda principal
+              </Text>
+              <Pressable
+                onPress={() => {
+                  if (Platform.OS === 'ios') {
+                    ActionSheetIOS.showActionSheetWithOptions(
+                      {
+                        options: ['Cancelar', 'HNL - Lempira hondureño', 'USD - Dólar estadounidense'],
+                        cancelButtonIndex: 0,
+                      },
+                      (buttonIndex) => {
+                        if (buttonIndex === 1) setCurrencyCode('HNL');
+                        if (buttonIndex === 2) setCurrencyCode('USD');
+                      }
+                    );
+                  } else {
+                    // Para Android/Web, usar Alert simple o mantener Picker
+                    Alert.alert(
+                      'Seleccionar moneda',
+                      '',
+                      [
+                        { text: 'Cancelar', style: 'cancel' },
+                        { text: 'HNL - Lempira hondureño', onPress: () => setCurrencyCode('HNL') },
+                        { text: 'USD - Dólar estadounidense', onPress: () => setCurrencyCode('USD') },
+                      ]
+                    );
+                  }
+                }}
+                className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
+                style={{ minHeight: 50 }}
+              >
+                <Text className="text-[16px] text-black">
+                  {currencyCode === 'USD' ? 'USD - Dólar estadounidense' : 'HNL - Lempira hondureño'}
+                </Text>
+                <ChevronRight size={20} strokeWidth={1.5} color="#999999" />
+              </Pressable>
+              <Text className="text-[12px] text-[#999999] mt-1">
+                Esta moneda se usa para registrar y ver tus GASTOS y reportes.
+                Las FACTURAS legales se generan siempre en Lempiras (HNL).
+              </Text>
             </View>
 
             {/* El resto de campos de empresa: igual que en tu archivo original */}

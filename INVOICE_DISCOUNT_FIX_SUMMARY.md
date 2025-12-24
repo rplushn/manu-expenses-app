@@ -377,3 +377,4 @@ Código: 42703
 
 **Next Step:** Run `fix_invoice_discount_schema.sql` in Supabase!
 
+

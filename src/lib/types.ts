@@ -20,6 +20,7 @@ export interface Expense {
   expenseDate: string;
   /** ISO timestamp of when the expense was created (UTC) */
   createdAt: string;
+  currencyCode: string;
   receiptUri?: string;
   notes?: string;
   receiptImageUrl?: string;

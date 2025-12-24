@@ -122,3 +122,4 @@ Si es posible, toma capturas de:
 
 Los logs ahora son **MUCHO MÁS DETALLADOS**. Cada paso del proceso mostrará información específica que nos ayudará a identificar exactamente dónde está fallando el upload.
 
+

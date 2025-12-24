@@ -160,3 +160,4 @@ This fix is code-only. No SQL migration required! 🎉
 
 **That's it!** Try creating an invoice now. It should work with any format! 🚀
 
+

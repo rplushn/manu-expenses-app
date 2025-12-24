@@ -123,3 +123,4 @@ DELETE FROM facturas WHERE numero = 'FAC-TEST-001' AND usuario_id = auth.uid();
 -- 5. Test inserts should work when authenticated
 -- =====================================================
 
+

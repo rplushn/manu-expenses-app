@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { X, Camera, Image as ImageIcon, ChevronDown, CheckCircle, Calendar } from 'lucide-react-native';
-import { useAppStore } from '@/lib/store';
+import { useAppStore, formatMoney } from '@/lib/store';
 import { ExpenseCategory, CATEGORY_LABELS } from '@/lib/types';
 import { processReceiptImage } from '@/lib/ocr';
 import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
@@ -43,6 +43,9 @@ export default function AddExpenseScreen() {
   const addExpense = useAppStore((s) => s.addExpense);
   const uploadReceiptImage = useAppStore((s) => s.uploadReceiptImage);
   const currentUser = useAppStore((s) => s.currentUser);
+
+  // Currency symbol based on user's selected currency
+  const currencySymbol = currentUser?.currencyCode === 'USD' ? '$' : 'L';
 
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<ExpenseCategory | null>(null);
@@ -370,7 +373,9 @@ export default function AddExpenseScreen() {
                     borderColor: amountFocused ? '#000000' : '#E5E5E5',
                   }}
                 >
-                  <Text className="text-[16px] text-black mr-1">L</Text>
+                  <Text className="text-[16px] text-black mr-1">
+                    {currencySymbol}
+                  </Text>
                   <TextInput
                     className="flex-1 text-[16px] text-black"
                     placeholder="0"

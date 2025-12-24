@@ -29,6 +29,7 @@ export interface DbExpense {
   categoria: ExpenseCategory;
   proveedor: string;
   fecha: string; // YYYY-MM-DD (local date)
+  currency_code: string | null;
   foto_url: string | null;
   notas: string | null;
   created_at: string; // ISO timestamp (UTC)

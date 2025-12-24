@@ -513,3 +513,4 @@ The layout now matches official Honduras invoice requirements:
 
 **Result:** Professional, compliant invoice detail screen with safe deletion capability!
 
+

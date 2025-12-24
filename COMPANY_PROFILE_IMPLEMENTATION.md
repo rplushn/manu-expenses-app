@@ -206,3 +206,4 @@ Consider adding:
 - Invoice number range tracking (rango_inicial, rango_final)
 - CAI expiration date
 
+

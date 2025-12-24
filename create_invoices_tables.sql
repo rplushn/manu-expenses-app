@@ -109,3 +109,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.invoice_items TO authenticated;
 -- MIGRATION COMPLETE
 -- =====================================================
 
+

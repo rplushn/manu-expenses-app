@@ -180,3 +180,4 @@ El timestamp en la URL **NO afecta** el archivo en Supabase Storage. El archivo 
 
 **El fix está completo y listo para usar.** 🎊
 
+

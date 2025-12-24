@@ -21,7 +21,7 @@ import {
   Check,
   Crown,
 } from 'lucide-react-native';
-import { useAppStore, Period } from '@/lib/store';
+import { useAppStore, Period, formatMoney } from '@/lib/store';
 import { CATEGORY_LABELS, ExpenseCategory } from '@/lib/types';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -34,10 +34,6 @@ import {
 } from '@/lib/revenuecatClient';
 import { checkExpenseLimit, EXPENSE_LIMITS } from '@/lib/expense-limits';
 import type { PurchasesPackage } from 'react-native-purchases';
-
-function formatAmount(amount: number): string {
-  return amount.toLocaleString('es-HN');
-}
 
 const PERIOD_LABELS: Record<Period, string> = {
   today: 'Hoy',
@@ -87,6 +83,9 @@ export default function HomeScreen() {
   const getCategorySummary = useAppStore((s) => s.getCategorySummary);
   const currentUser = useAppStore((s) => s.currentUser);
   const addExpense = useAppStore((s) => s.addExpense);
+  
+  // User currency for consistent formatting
+  const userCurrency = currentUser?.currencyCode || 'HNL';
 
   const periodExpenses = useMemo(
     () => getExpensesByPeriod(selectedPeriod),
@@ -259,7 +258,7 @@ export default function HomeScreen() {
           className="text-[13px] ml-1"
           style={{ color: isUp ? '#DC2626' : '#16A34A' }}
         >
-          {isUp ? '+' : ''}L {formatAmount(stats.change)} (
+          {isUp ? '+' : ''}{formatMoney(stats.change, userCurrency)} (
           {stats.changePercent.toFixed(0)}%)
         </Text>
       </View>
@@ -382,12 +381,12 @@ export default function HomeScreen() {
             className="text-[48px] font-bold text-black tracking-[-1px]"
             style={{ fontFamily: 'System' }}
           >
-            L {formatAmount(stats.total)}
+            {formatMoney(stats.total, userCurrency)}
           </Text>
           <Text className="text-[14px] text-[#666666] mt-1">
             {stats.count} {stats.count === 1 ? 'gasto' : 'gastos'}
             {selectedPeriod !== 'today' &&
-              ` · L ${formatAmount(stats.averageDaily)}/dia`}
+              ` · ${formatMoney(stats.averageDaily, userCurrency)}/dia`}
           </Text>
           {renderChangeIndicator()}
         </Animated.View>
@@ -409,7 +408,7 @@ export default function HomeScreen() {
                       {CATEGORY_LABELS[cat.category]}
                     </Text>
                     <Text className="text-[14px] text-[#666666]">
-                      L {formatAmount(cat.total)} ({cat.percentage.toFixed(0)}%)
+                      {formatMoney(cat.total, userCurrency)} ({cat.percentage.toFixed(0)}%)
                     </Text>
                   </View>
                   <View className="h-2 bg-[#F5F5F5] overflow-hidden">
@@ -476,7 +475,7 @@ export default function HomeScreen() {
                       className="text-[16px] text-black font-medium"
                       style={{ fontFamily: 'System' }}
                     >
-                      L {formatAmount(expense.amount)}
+                      {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
                     </Text>
                   </View>
                 </View>

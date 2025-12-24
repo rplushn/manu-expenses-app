@@ -102,3 +102,4 @@ CREATE POLICY "Users can delete their own invoice items"
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.facturas TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.factura_items TO authenticated;
 
+

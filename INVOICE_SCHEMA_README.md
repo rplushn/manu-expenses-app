@@ -286,3 +286,4 @@ For questions or issues with the schema, refer to:
 - PostgreSQL numeric types: https://www.postgresql.org/docs/current/datatype-numeric.html
 - RLS policies: https://supabase.com/docs/guides/auth/row-level-security
 
+

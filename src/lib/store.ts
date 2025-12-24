@@ -7,6 +7,20 @@ import { supabase, DbExpense } from './supabase';
 import { startOfDay, startOfWeek, startOfMonth, subDays, subWeeks, subMonths, differenceInDays } from 'date-fns';
 import { decode } from 'base64-arraybuffer';
 
+// Supported currencies
+export const SUPPORTED_CURRENCIES = [
+  { code: 'HNL', name: 'Lempira hondureño', symbol: 'L' },
+  { code: 'USD', name: 'Dólar estadounidense', symbol: '$' }
+] as const;
+
+export type CurrencyCode = 'HNL' | 'USD';
+
+// Currency symbols mapping
+export const currencySymbols: Record<string, string> = {
+  HNL: 'L',
+  USD: '$'
+};
+
 // Helper to log errors properly
 const logError = (message: string, error: unknown) => {
   if (error && typeof error === 'object') {
@@ -32,6 +46,7 @@ export interface CurrentUser {
   email: string;
   nombreNegocio: string;
   plan: string;
+  currencyCode: string; // Default 'HNL' if not from DB
   empresaNombre?: string;
   empresaLogoUrl?: string;
   empresaRtn?: string;
@@ -177,6 +192,7 @@ const dbToAppExpense = (db: DbExpense): Expense => {
     provider: db.proveedor,
     expenseDate,
     createdAt,
+    currencyCode: db.currency_code || 'HNL',
     receiptUri: db.foto_url || undefined,
     notes: db.notas || undefined,
     receiptImageUrl: db.foto_url || undefined,
@@ -345,6 +361,7 @@ export const useAppStore = create<AppState>()(
               categoria: expense.category,
               proveedor: expense.provider,
               fecha: localDateString,
+              currency_code: currentUser.currencyCode || 'HNL',
               foto_url: finalPhotoUrl,
               notas: expense.notes || null,
             })
@@ -366,6 +383,10 @@ export const useAppStore = create<AppState>()(
 
           // Add to local state
           const newExpense = dbToAppExpense(data);
+          // Ensure currencyCode is set from currentUser if not in DB response
+          if (!newExpense.currencyCode) {
+            newExpense.currencyCode = currentUser.currencyCode || 'HNL';
+          }
           set((state) => ({
             expenses: [newExpense, ...state.expenses],
             syncStatus: 'synced',
@@ -707,3 +728,25 @@ export const useAppStore = create<AppState>()(
     }
   )
 );
+
+// Función para formatear montos con moneda
+export const formatMoney = (amount: number, currencyCode: string = 'HNL'): string => {
+  // Si amount es null/undefined, usar 0
+  const safeAmount = amount ?? 0;
+  
+  // Mapeo de símbolos (solo HNL y USD)
+  const currencySymbols: Record<string, string> = {
+    HNL: 'L',
+    USD: '$'
+  };
+  
+  const symbol = currencySymbols[currencyCode] || currencyCode;
+  
+  // Formato: símbolo antes, 2 decimales, separador de miles con coma
+  const formatted = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(safeAmount);
+  
+  return `${symbol} ${formatted}`;
+};

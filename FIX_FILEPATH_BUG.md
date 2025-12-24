@@ -167,3 +167,4 @@ filePath = "user-id-123/logo.png"
 
 Este fix resuelve completamente el bug del upload de logo. El problema era simplemente cómo se extraía la extensión del archivo, no la lógica de conversión a ArrayBuffer ni el upload a Supabase.
 
+

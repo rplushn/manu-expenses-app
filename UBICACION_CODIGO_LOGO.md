@@ -345,3 +345,4 @@ Para ver el código completo, revisar:
 - `src/app/invoices/[id].tsx` (líneas 1-606)
 - `src/lib/store.ts` (líneas 30-47)
 
+

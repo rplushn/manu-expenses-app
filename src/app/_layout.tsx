@@ -50,6 +50,7 @@ function RootLayoutNav() {
           email: session.user.email || '',
           nombreNegocio: session.user.user_metadata?.nombre_negocio || 'Mi Negocio',
           plan: 'gratis',
+          currencyCode: 'HNL',
         });
         loadExpenses();
       }
@@ -66,6 +67,7 @@ function RootLayoutNav() {
           email: session.user.email || '',
           nombreNegocio: session.user.user_metadata?.nombre_negocio || 'Mi Negocio',
           plan: 'gratis',
+          currencyCode: 'HNL',
         });
         loadExpenses();
       } else {

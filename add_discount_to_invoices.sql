@@ -24,3 +24,4 @@ COMMENT ON COLUMN public.invoices.discount_amount IS 'Discount amount in currenc
 -- 
 -- =====================================================
 
+

@@ -134,3 +134,4 @@ See detailed guide: `INVOICE_DISCOUNT_DEBUG_GUIDE.md`
 
 **That's it!** After running the SQL, invoice creation with discounts should work perfectly.
 
+

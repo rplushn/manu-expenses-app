@@ -391,3 +391,4 @@ isValidInvoiceNumberFormat("x".repeat(100)); // false (too long)
 
 **Result:** Users can now use any reasonable invoice number format configured in their profile!
 
+

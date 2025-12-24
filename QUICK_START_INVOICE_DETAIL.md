@@ -212,3 +212,4 @@ Just run the SQL migration and refresh the invoice detail screen.
 
 **Status:** Ready to use! 🎉
 
+

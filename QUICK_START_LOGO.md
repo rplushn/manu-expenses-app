@@ -288,3 +288,4 @@ https://{project}.supabase.co/storage/v1/object/public/company-logos/{user-id}/l
 3. Set storage policies
 4. Upload your company logo!
 
+

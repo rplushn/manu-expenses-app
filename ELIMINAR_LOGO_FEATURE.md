@@ -264,3 +264,4 @@ Se ha implementado exitosamente la funcionalidad para eliminar el logo de la emp
 
 **La funcionalidad está lista para usar.** 🎊
 
+

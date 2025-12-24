@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
-import { useAppStore } from '@/lib/store';
+import { useAppStore, formatMoney } from '@/lib/store';
 import {
   Trash2,
   Search,
@@ -51,6 +51,10 @@ export default function HistoryScreen() {
   const removeExpense = useAppStore((s) => s.removeExpense);
   const updateExpense = useAppStore((s) => s.updateExpense);
   const loadExpenses = useAppStore((s) => s.loadExpenses);
+  const currentUser = useAppStore((s) => s.currentUser);
+  
+  // User currency for consistent formatting
+  const userCurrency = currentUser?.currencyCode || 'HNL';
 
   // Reload expenses when screen comes into focus
   useFocusEffect(
@@ -286,7 +290,7 @@ export default function HistoryScreen() {
           )}
 
           <Text style={textStyles.largeNumber} className="mb-1">
-            Total: L {total.toFixed(2)}
+            Total: {formatMoney(total, userCurrency)}
           </Text>
           <Text style={textStyles.secondaryText}>
             {filteredExpenses.length} gasto{filteredExpenses.length !== 1 ? 's' : ''}
@@ -329,7 +333,7 @@ export default function HistoryScreen() {
                           {expense.provider || 'Sin proveedor'}
                         </Text>
                         <Text style={textStyles.listItemAmount} className="ml-2">
-                          L {expense.amount.toFixed(2)}
+                          {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
                         </Text>
                       </View>
 
@@ -364,7 +368,7 @@ export default function HistoryScreen() {
               </View>
               <View className="flex-row justify-end items-center mb-2">
                 <Text style={textStyles.secondaryText}>
-                  Subtotal: L {group.subtotal.toFixed(2)}
+                  Subtotal: {formatMoney(group.subtotal, userCurrency)}
                 </Text>
               </View>
             </View>
@@ -412,7 +416,7 @@ export default function HistoryScreen() {
                   <View className="mb-6">
                     <Text className="text-[13px] text-[#666666] mb-1">Monto</Text>
                     <Text className="text-[32px] font-semibold text-black">
-                      L {selectedExpense.amount.toFixed(2)}
+                      {formatMoney(selectedExpense.amount, selectedExpense.currencyCode || userCurrency)}
                     </Text>
                   </View>
 

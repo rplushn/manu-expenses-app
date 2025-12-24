@@ -239,3 +239,4 @@ El logo ahora se embebe como Base64 en el HTML del PDF, garantizando que siempre
 
 **El fix está completo y probado.** ✅
 
+

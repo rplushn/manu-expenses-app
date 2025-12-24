@@ -159,3 +159,4 @@ El error "Unexpected token '<'" generalmente indica que:
 
 Con los cambios realizados, el cliente de Supabase ahora envía los headers correctos para todas las peticiones, lo que debería resolver el problema.
 
+

@@ -1,7 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Expense, ExpenseCategory, CATEGORY_LABELS } from './types';
-import { Period } from './store';
+import { Period, formatMoney } from './store';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -119,7 +119,7 @@ export async function generateDetailedReport(
       .map(cat => `
         <tr>
           <td>${CATEGORY_LABELS[cat.category]}</td>
-          <td style="text-align: right;">L ${formatAmount(cat.total)}</td>
+          <td style="text-align: right;">${formatMoney(cat.total, 'HNL')}</td>
           <td style="text-align: right;">${formatPercentage(cat.percentage)}</td>
         </tr>
       `)
@@ -132,7 +132,7 @@ export async function generateDetailedReport(
           <td style="white-space: nowrap;">${formatDate(expense.expenseDate)}</td>
           <td>${expense.provider || 'Sin proveedor'}</td>
           <td>${CATEGORY_LABELS[expense.category]}</td>
-          <td style="text-align: right; white-space: nowrap;">L ${formatAmount(expense.amount)}</td>
+          <td style="text-align: right; white-space: nowrap;">${formatMoney(expense.amount, 'HNL')}</td>
         </tr>
       `)
       .join('');
@@ -312,7 +312,7 @@ export async function generateDetailedReport(
         <div class="summary-grid">
           <div class="summary-item">
             <span class="summary-label">Total Gastos:</span>
-            <span class="summary-value">L ${formatAmount(stats.total)}</span>
+            <span class="summary-value">${formatMoney(stats.total, 'HNL')}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Número de Gastos:</span>
@@ -320,11 +320,11 @@ export async function generateDetailedReport(
           </div>
           <div class="summary-item">
             <span class="summary-label">Promedio por Gasto:</span>
-            <span class="summary-value">L ${formatAmount(averagePerExpense)}</span>
+            <span class="summary-value">${formatMoney(averagePerExpense, 'HNL')}</span>
           </div>
           <div class="summary-item">
             <span class="summary-label">Gasto Más Alto:</span>
-            <span class="summary-value">${biggestExpense ? `L ${formatAmount(biggestExpense.amount)}` : '-'}</span>
+            <span class="summary-value">${biggestExpense ? formatMoney(biggestExpense.amount, 'HNL') : '-'}</span>
           </div>
         </div>
         <div class="summary-item summary-full">
@@ -354,7 +354,7 @@ export async function generateDetailedReport(
         <tfoot>
           <tr class="total-row">
             <td><strong>TOTAL</strong></td>
-            <td style="text-align: right;"><strong>L ${formatAmount(stats.total)}</strong></td>
+            <td style="text-align: right;"><strong>${formatMoney(stats.total, 'HNL')}</strong></td>
             <td style="text-align: right;"><strong>100%</strong></td>
           </tr>
         </tfoot>

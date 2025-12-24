@@ -165,3 +165,4 @@ See `INVOICE_ENHANCEMENTS.md` for:
 
 The invoice system is now fully functional with discount support, detail viewing, and PDF generation. Just run the database migration and start creating invoices!
 
+

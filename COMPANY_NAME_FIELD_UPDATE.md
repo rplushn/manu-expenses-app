@@ -394,3 +394,4 @@ currentUser?.empresaNombre || currentUser?.nombreNegocio || 'MI EMPRESA'
 
 **Result:** Professional, legally-compliant invoice headers with complete business information!
 
+

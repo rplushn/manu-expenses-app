@@ -553,3 +553,4 @@ if (currentUser?.empresaLogoUrl) {
 
 **Result:** Professional invoice headers with company branding!
 
+

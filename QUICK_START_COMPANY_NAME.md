@@ -227,3 +227,4 @@ Just run the SQL migration and reload the Profile screen.
 
 **Next:** Fill in your company information in Profile → Datos de facturación
 
+

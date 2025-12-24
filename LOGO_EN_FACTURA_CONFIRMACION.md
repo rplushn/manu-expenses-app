@@ -147,3 +147,4 @@ El logo se muestra automáticamente si `empresaLogoUrl` tiene un valor, y no se 
 
 **Todo funciona correctamente.** ✅
 
+

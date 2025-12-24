@@ -290,3 +290,4 @@ For issues or questions:
 4. Ensure CAI and expiration date are set
 5. Test on physical device for print functionality
 
+

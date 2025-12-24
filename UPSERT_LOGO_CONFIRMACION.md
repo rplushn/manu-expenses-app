@@ -106,3 +106,4 @@ La función `handleUploadLogo` ya estaba correctamente configurada con `upsert: 
 
 **No se requieren más cambios.** La función está lista para usar.
 
+
