@@ -129,10 +129,10 @@ export async function generateDetailedReport(
     const expenseRows = sortedExpenses
       .map(expense => `
         <tr>
-          <td>${formatDate(expense.expenseDate)}</td>
+          <td style="white-space: nowrap;">${formatDate(expense.expenseDate)}</td>
           <td>${expense.provider || 'Sin proveedor'}</td>
           <td>${CATEGORY_LABELS[expense.category]}</td>
-          <td style="text-align: right;">L ${formatAmount(expense.amount)}</td>
+          <td style="text-align: right; white-space: nowrap;">L ${formatAmount(expense.amount)}</td>
         </tr>
       `)
       .join('');
@@ -143,164 +143,246 @@ export async function generateDetailedReport(
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    @page {
+      size: letter;
+      margin: 1.5cm 1.5cm 1.5cm 1.5cm;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+    }
     body {
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      color: #000000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      color: #1a1a1a;
+      font-size: 10pt;
+      line-height: 1.3;
+      padding: 0;
+      margin: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 100%;
+      padding: 0;
+      margin: 0;
     }
     .header {
       text-align: center;
-      border-bottom: 2px solid #000000;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #000;
     }
     .logo {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 10px;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 8px auto;
       object-fit: contain;
+      display: block;
     }
     h1 {
-      font-size: 24px;
-      margin: 5px 0;
-      font-weight: bold;
+      font-size: 16pt;
+      margin: 6px 0 3px 0;
+      font-weight: 700;
+      color: #000;
+    }
+    .subtitle {
+      font-size: 11pt;
+      margin: 3px 0;
+      color: #333;
+      font-weight: 600;
+    }
+    .meta {
+      font-size: 8pt;
+      color: #666;
+      margin: 2px 0;
     }
     h2 {
-      font-size: 18px;
-      margin: 20px 0 10px 0;
-      font-weight: bold;
+      font-size: 11pt;
+      margin: 16px 0 8px 0;
+      font-weight: 700;
+      color: #000;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     .section {
-      margin: 30px 0;
+      margin: 16px 0;
+      page-break-inside: avoid;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 10px 0;
+      margin: 8px 0;
+      font-size: 9pt;
+      page-break-inside: auto;
+    }
+    thead {
+      display: table-header-group;
+    }
+    tbody {
+      display: table-row-group;
+    }
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
     }
     th, td {
-      border: 1px solid #E5E5E5;
-      padding: 10px;
+      border: 1px solid #ccc;
+      padding: 6px 8px;
       text-align: left;
+      vertical-align: middle;
     }
     th {
-      background-color: #F9FAFB;
-      font-weight: bold;
+      background-color: #f0f0f0;
+      font-weight: 700;
+      color: #000;
+      font-size: 9pt;
     }
     .total-row {
-      background-color: #F9FAFB;
-      font-weight: bold;
-      border-top: 2px solid #000000;
+      background-color: #f0f0f0;
+      font-weight: 700;
+      border-top: 2px solid #000;
     }
     .footer {
       text-align: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #E5E5E5;
-      font-size: 12px;
-      color: #999999;
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid #ccc;
+      font-size: 8pt;
+      color: #999;
+      page-break-inside: avoid;
     }
     .summary-box {
-      border: 1px solid #E5E5E5;
-      padding: 15px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #fafafa;
+      page-break-inside: avoid;
     }
-    .summary-row {
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .summary-item {
       display: flex;
       justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #F5F5F5;
+      padding: 4px 0;
+      border-bottom: 1px solid #e0e0e0;
     }
-    .summary-row:last-child {
+    .summary-item:last-child {
       border-bottom: none;
+    }
+    .summary-label {
+      color: #555;
+      font-size: 9pt;
+    }
+    .summary-value {
+      font-weight: 700;
+      color: #000;
+      font-size: 9pt;
+    }
+    .summary-full {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
-  <!-- HEADER -->
-  <div class="header">
-    ${logoBase64 ? `<img src="${logoBase64}" class="logo" alt="Logo" />` : ''}
-    <h1>${businessName}</h1>
-    <p>Reporte de Gastos</p>
-    <p style="font-size: 13px; color: #666;">Rango de fechas: ${getPeriodDisplay(period)}</p>
-    <p style="font-size: 12px; color: #999;">Generado el ${formattedDate} a las ${formattedTime}</p>
-  </div>
+  <div class="container">
+    <!-- HEADER -->
+    <div class="header">
+      ${logoBase64 ? `<img src="${logoBase64}" class="logo" alt="Logo" />` : ''}
+      <h1>${businessName}</h1>
+      <div class="subtitle">Reporte de Gastos</div>
+      <div class="meta">Período: ${getPeriodDisplay(period)}</div>
+      <div class="meta">Generado: ${formattedDate} a las ${formattedTime}</div>
+    </div>
 
-  <!-- RESUMEN EJECUTIVO -->
-  <div class="section">
-    <h2>RESUMEN EJECUTIVO</h2>
-    <div class="summary-box">
-      <div class="summary-row">
-        <span>Total Gastos:</span>
-        <strong>L ${formatAmount(stats.total)}</strong>
-      </div>
-      <div class="summary-row">
-        <span>Número de Gastos:</span>
-        <strong>${stats.count}</strong>
-      </div>
-      <div class="summary-row">
-        <span>Promedio por Gasto:</span>
-        <strong>L ${formatAmount(averagePerExpense)}</strong>
-      </div>
-      <div class="summary-row">
-        <span>Gasto Más Alto:</span>
-        <strong>${biggestExpense ? `L ${formatAmount(biggestExpense.amount)}` : '-'}</strong>
-      </div>
-      <div class="summary-row">
-        <span>Categoría Mayor Gasto:</span>
-        <strong>${topCategory 
-          ? `${CATEGORY_LABELS[topCategory.category]} (${formatPercentage(topCategory.percentage)})`
-          : '-'
-        }</strong>
+    <!-- RESUMEN EJECUTIVO -->
+    <div class="section">
+      <h2>Resumen Ejecutivo</h2>
+      <div class="summary-box">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="summary-label">Total Gastos:</span>
+            <span class="summary-value">L ${formatAmount(stats.total)}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Número de Gastos:</span>
+            <span class="summary-value">${stats.count}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Promedio por Gasto:</span>
+            <span class="summary-value">L ${formatAmount(averagePerExpense)}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Gasto Más Alto:</span>
+            <span class="summary-value">${biggestExpense ? `L ${formatAmount(biggestExpense.amount)}` : '-'}</span>
+          </div>
+        </div>
+        <div class="summary-item summary-full">
+          <span class="summary-label">Categoría Mayor Gasto:</span>
+          <span class="summary-value">${topCategory 
+            ? `${CATEGORY_LABELS[topCategory.category]} (${formatPercentage(topCategory.percentage)})`
+            : '-'
+          }</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- GASTOS POR CATEGORÍA -->
-  <div class="section">
-    <h2>GASTOS POR CATEGORÍA</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Categoría</th>
-          <th style="text-align: right;">Monto</th>
-          <th style="text-align: right;">%</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${categoryRows}
-      </tbody>
-      <tfoot>
-        <tr class="total-row">
-          <td>TOTAL</td>
-          <td style="text-align: right;">L ${formatAmount(stats.total)}</td>
-          <td style="text-align: right;">100%</td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+    <!-- GASTOS POR CATEGORÍA -->
+    <div class="section">
+      <h2>Gastos por Categoría</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Categoría</th>
+            <th style="text-align: right; width: 120px;">Monto</th>
+            <th style="text-align: right; width: 60px;">%</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${categoryRows}
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td><strong>TOTAL</strong></td>
+            <td style="text-align: right;"><strong>L ${formatAmount(stats.total)}</strong></td>
+            <td style="text-align: right;"><strong>100%</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
 
-  <!-- DETALLE DE GASTOS -->
-  <div class="section">
-    <h2>DETALLE DE GASTOS</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Proveedor</th>
-          <th>Categoría</th>
-          <th style="text-align: right;">Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${expenseRows}
-      </tbody>
-    </table>
-  </div>
+    <!-- DETALLE DE GASTOS -->
+    <div class="section">
+      <h2>Detalle de Gastos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 70px;">Fecha</th>
+            <th>Proveedor</th>
+            <th style="width: 110px;">Categoría</th>
+            <th style="text-align: right; width: 90px;">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${expenseRows}
+        </tbody>
+      </table>
+    </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    <p>Reporte generado el ${formattedDate} a las ${formattedTime}</p>
+    <!-- FOOTER -->
+    <div class="footer">
+      Reporte generado el ${formattedDate} a las ${formattedTime}
+    </div>
   </div>
 </body>
 </html>
@@ -309,6 +391,7 @@ export async function generateDetailedReport(
     // Generate PDF using Print.printToFileAsync with HTML template
     const { uri } = await Print.printToFileAsync({
       html: htmlContent,
+      base64: false,
     });
 
     // Share PDF directly
