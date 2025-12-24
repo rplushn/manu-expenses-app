@@ -131,6 +131,7 @@
     "react-native-screens": "~4.16.0",
     "react-native-sortables": "^1.9.3",
     "react-native-svg": "15.12.1",
+    "react-native-url-polyfill": "^3.0.0",
     "react-native-view-shot": "~4.0.3",
     "react-native-vision-camera": "^4.6.4",
     "react-native-web": "^0.21.0",

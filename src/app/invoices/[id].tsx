@@ -70,43 +70,29 @@ export default function InvoiceDetailScreen() {
     }
   };
 
-  // Convert image to base64 using Canvas (more reliable for PDFs)
+  // Convert image to base64 using fetch + FileReader (works on iOS/Android)
   const imageUrlToBase64 = async (url: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new window.Image();
-      img.crossOrigin = 'anonymous';
+    try {
+      console.log('🖼️ Converting logo to Base64 for PDF...');
+      console.log('📍 Logo URL:', url);
       
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Could not get canvas context'));
-            return;
-          }
-          
-          ctx.drawImage(img, 0, 0);
-          const dataURL = canvas.toDataURL('image/png');
-          console.log('✅ Canvas conversion complete. Length:', dataURL.length);
-          resolve(dataURL);
-        } catch (error) {
-          console.error('❌ Canvas conversion error:', error);
-          reject(error);
-        }
-      };
+      const response = await fetch(url);
+      const blob = await response.blob();
       
-      img.onerror = (error) => {
-        console.error('❌ Image load error:', error);
-        reject(error);
-      };
-      
-      // Remove query parameters and add timestamp to avoid cache
-      const cleanUrl = url.split('?')[0];
-      img.src = `${cleanUrl}?nocache=${Date.now()}`;
-    });
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = reader.result as string;
+          console.log('✅ Logo Base64 ready for PDF');
+          resolve(base64data);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('❌ Error converting logo to base64:', error);
+      throw error;
+    }
   };
 
   // Generate PDF HTML
