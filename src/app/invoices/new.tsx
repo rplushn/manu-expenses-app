@@ -52,6 +52,9 @@ export default function NewInvoiceScreen() {
   const [discountAmount, setDiscountAmount] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Track if we've already shown the range alert to avoid loops
+  const [hasShownRangeAlert, setHasShownRangeAlert] = useState(false);
+
   // Initialize invoice number and check CAI
   useEffect(() => {
     if (currentUser?.facturaProximoNumero) {
@@ -65,14 +68,32 @@ export default function NewInvoiceScreen() {
           currentUser.facturaRangoFin
         );
 
-        if (!inRange) {
+        if (!inRange && !hasShownRangeAlert) {
+          setHasShownRangeAlert(true);
           Alert.alert(
             'Rango de facturas agotado',
-            'El próximo número de factura está fuera del rango autorizado. Por favor, actualiza tu rango en el perfil.',
-            [{ text: 'OK' }]
+            'El próximo número de factura está fuera del rango autorizado. Por favor, ve a Perfil > Información de empresa para actualizar el rango y el CAI.',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  // Reset flag after a delay to allow showing again if user comes back
+                  setTimeout(() => setHasShownRangeAlert(false), 5000);
+                },
+              },
+            ]
           );
+        } else if (inRange && hasShownRangeAlert) {
+          // Reset flag if number is back in range
+          setHasShownRangeAlert(false);
         }
+      } else {
+        // No range configured, reset flag
+        setHasShownRangeAlert(false);
       }
+    } else {
+      // No next number, reset flag
+      setHasShownRangeAlert(false);
     }
 
     // Check CAI expiration
@@ -95,7 +116,7 @@ export default function NewInvoiceScreen() {
         );
       }
     }
-  }, [currentUser, router]);
+  }, [currentUser, router, hasShownRangeAlert]);
 
   // Add new line item
   const handleAddLineItem = () => {

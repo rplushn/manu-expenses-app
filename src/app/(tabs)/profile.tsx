@@ -28,6 +28,7 @@ import * as FileSystem from 'expo-file-system';
 import { useAppStore } from '@/lib/store';
 import { signOut } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import { isInvoiceNumberInRange } from '@/lib/invoice-helpers';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import {
@@ -608,9 +609,57 @@ export default function ProfileScreen() {
         ? parseFloat(taxRate) / 100
         : 0.15;
 
-      let nextInvoiceNumber = currentUser?.facturaProximoNumero;
-      if (invoiceRangeStart.trim() && !nextInvoiceNumber) {
-        nextInvoiceNumber = invoiceRangeStart.trim();
+      // Validate and calculate nextInvoiceNumber
+      const rangeStart = invoiceRangeStart.trim();
+      const rangeEnd = invoiceRangeEnd.trim();
+      const currentNextNumber = currentUser?.facturaProximoNumero;
+
+      let nextInvoiceNumber: string | null = null;
+
+      // If both range start and end are provided, validate consistency
+      if (rangeStart && rangeEnd) {
+        // Validate range consistency (start <= end using string comparison)
+        // For numeric comparison, extract digits
+        const startNum = parseInt(rangeStart.replace(/\D/g, ''), 10);
+        const endNum = parseInt(rangeEnd.replace(/\D/g, ''), 10);
+        
+        if (!isNaN(startNum) && !isNaN(endNum) && startNum > endNum) {
+          Alert.alert(
+            'Error de validación',
+            'El rango de inicio debe ser menor o igual al rango de fin.'
+          );
+          setIsSavingCompanyInfo(false);
+          return;
+        }
+
+        // Check if current nextInvoiceNumber is within the new range
+        if (currentNextNumber) {
+          const inRange = isInvoiceNumberInRange(
+            currentNextNumber,
+            rangeStart,
+            rangeEnd
+          );
+
+          if (inRange) {
+            // Keep current number if it's still in range
+            nextInvoiceNumber = currentNextNumber;
+          } else {
+            // Reset to range start if current number is outside range
+            nextInvoiceNumber = rangeStart;
+          }
+        } else {
+          // No current number, use range start
+          nextInvoiceNumber = rangeStart;
+        }
+      } else if (rangeStart && !rangeEnd) {
+        // Only start provided, use it if no current number exists
+        nextInvoiceNumber = currentNextNumber || rangeStart;
+      } else if (!rangeStart && rangeEnd) {
+        // Only end provided, invalid state - clear next number
+        nextInvoiceNumber = null;
+      } else {
+        // No range provided, keep current number or null
+        nextInvoiceNumber = currentNextNumber || null;
       }
 
       const { error } = await supabase
@@ -624,9 +673,9 @@ export default function ProfileScreen() {
           empresa_telefono: companyPhone.trim() || null,
           empresa_email: companyEmail.trim() || null,
           tasa_impuesto: parsedTaxRate,
-          factura_rango_inicio: invoiceRangeStart.trim() || null,
-          factura_rango_fin: invoiceRangeEnd.trim() || null,
-          factura_proximo_numero: nextInvoiceNumber || null,
+          factura_rango_inicio: rangeStart || null,
+          factura_rango_fin: rangeEnd || null,
+          factura_proximo_numero: nextInvoiceNumber,
           cai_fecha_vencimiento: caiExpirationDate.trim() || null,
         })
         .eq('id', currentUser.id);
@@ -643,14 +692,10 @@ export default function ProfileScreen() {
         empresaTelefono: companyPhone.trim() || undefined,
         empresaEmail: companyEmail.trim() || undefined,
         tasaImpuesto: parsedTaxRate,
-        facturaRangoInicio:
-          invoiceRangeStart.trim() || undefined,
-        facturaRangoFin:
-          invoiceRangeEnd.trim() || undefined,
-        facturaProximoNumero:
-          nextInvoiceNumber || undefined,
-        caiFechaVencimiento:
-          caiExpirationDate.trim() || undefined,
+        facturaRangoInicio: rangeStart || undefined,
+        facturaRangoFin: rangeEnd || undefined,
+        facturaProximoNumero: nextInvoiceNumber || undefined,
+        caiFechaVencimiento: caiExpirationDate.trim() || undefined,
       });
 
       setShowCompanyInfoModal(false);
@@ -1308,10 +1353,10 @@ export default function ProfileScreen() {
                 className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
                 value={companyRtn}
                 onChangeText={setCompanyRtn}
-                placeholder="0801199012345"
+                placeholder="08011990123456"
                 placeholderTextColor="#999999"
                 keyboardType="numeric"
-                maxLength={13}
+                maxLength={14}
               />
             </View>
 
