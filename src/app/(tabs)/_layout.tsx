@@ -20,11 +20,12 @@ function TabIcon({ focused, icon, label }: TabIconProps) {
         numberOfLines={2}
         style={{
           marginTop: 4,
-          fontSize: 10,
+          fontSize: 11,
           lineHeight: 12,
           textAlign: 'center',
-          color: focused ? '#111111' : '#9CA3AF',
-          fontWeight: focused ? '500' : '400',
+          color: '#FFFFFF',
+          fontWeight: focused ? '600' : '500',
+          marginTop: 2,
         }}
       >
         {label}
@@ -40,12 +41,16 @@ export default function TabLayout() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#E5E5E5',
-          height: 70,
-          paddingBottom: 6,
-          paddingTop: 4,
+          backgroundColor: '#000000',
+          borderTopWidth: 0,
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
+          marginTop: 2,
         },
       }}
     >
@@ -59,7 +64,7 @@ export default function TabLayout() {
                 <Home
                   size={24}
                   strokeWidth={1.5}
-                  color={focused ? '#000000' : '#999999'}
+                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
                 />
               }
               label="Inicio"
@@ -78,7 +83,7 @@ export default function TabLayout() {
                 <Clock
                   size={24}
                   strokeWidth={1.5}
-                  color={focused ? '#000000' : '#999999'}
+                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
                 />
               }
               label="Historial"
@@ -97,7 +102,7 @@ export default function TabLayout() {
                 <FileText
                   size={24}
                   strokeWidth={1.5}
-                  color={focused ? '#000000' : '#999999'}
+                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
                 />
               }
               label="Facturas"
@@ -116,7 +121,7 @@ export default function TabLayout() {
                 <BarChart2
                   size={24}
                   strokeWidth={1.5}
-                  color={focused ? '#000000' : '#999999'}
+                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
                 />
               }
               label="Reportes"
@@ -135,7 +140,7 @@ export default function TabLayout() {
                 <User
                   size={24}
                   strokeWidth={1.5}
-                  color={focused ? '#000000' : '#999999'}
+                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
                 />
               }
               label="Perfil"

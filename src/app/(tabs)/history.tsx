@@ -24,9 +24,11 @@ import {
   ChevronRight,
   Edit3,
   Receipt,
+  Calendar,
 } from 'lucide-react-native';
 import { ExpenseCategory, CATEGORY_LABELS, Expense } from '@/lib/types';
 import { format, isToday, isYesterday, parseISO, startOfDay } from 'date-fns';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { es } from 'date-fns/locale';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -64,6 +66,10 @@ export default function HistoryScreen() {
   );
 
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  
+  // Currency symbol for the expense being edited (if any)
+  const editingExpenseCurrency = selectedExpense?.currencyCode || userCurrency;
+  const editingCurrencySymbol = editingExpenseCurrency === 'USD' ? '$' : 'L';
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,6 +81,8 @@ export default function HistoryScreen() {
   const [editProvider, setEditProvider] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [editExpenseDate, setEditExpenseDate] = useState<string>(''); // YYYY-MM-DD format
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -123,9 +131,11 @@ export default function HistoryScreen() {
     const groups: Map<string, ExpenseGroup> = new Map();
 
     sortedExpenses.forEach((expense) => {
-      const createdAt = parseISO(expense.createdAt);
-      const dateKey = format(startOfDay(createdAt), 'yyyy-MM-dd');
-      const dateLabel = formatDateLabel(startOfDay(createdAt));
+      // expenseDate viene como string 'YYYY-MM-DD'
+      const [year, month, day] = expense.expenseDate.split('-').map(Number);
+      const expenseDate = new Date(year, month - 1, day);
+      const dateKey = format(startOfDay(expenseDate), 'yyyy-MM-dd');
+      const dateLabel = formatDateLabel(startOfDay(expenseDate));
 
       if (!groups.has(dateKey)) {
         groups.set(dateKey, {
@@ -196,6 +206,13 @@ export default function HistoryScreen() {
 
     // Keep expense_date as YYYY-MM-DD string
     setEditExpenseDate(selectedExpense.expenseDate);
+    
+    // Initialize selectedDate from expense date (YYYY-MM-DD to Date)
+    // Add 'T12:00:00' to avoid timezone issues
+    const expenseDate = selectedExpense.expenseDate 
+      ? new Date(selectedExpense.expenseDate + 'T12:00:00')
+      : new Date();
+    setSelectedDate(expenseDate);
 
     setShowDetailModal(false);
     setShowEditModal(true);
@@ -214,13 +231,17 @@ export default function HistoryScreen() {
     setIsSaving(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    // editExpenseDate is already in YYYY-MM-DD format
+    // Convert selectedDate to YYYY-MM-DD format if needed
+    const fechaString = editExpenseDate || (selectedDate instanceof Date 
+      ? format(selectedDate, 'yyyy-MM-dd')
+      : selectedDate);
+
     const success = await updateExpense(selectedExpense.id, {
       amount: parsedAmount,
       category: editCategory,
       provider: editProvider || 'Sin proveedor',
       notes: editNotes.trim() || undefined,
-      expenseDate: editExpenseDate,
+      expenseDate: fechaString,
     });
 
     setIsSaving(false);
@@ -566,7 +587,9 @@ export default function HistoryScreen() {
                       Monto *
                     </Text>
                     <View className="border border-[#E5E5E5] p-4 flex-row items-center">
-                      <Text className="text-[16px] text-black mr-1">L</Text>
+                      <Text className="text-[16px] text-black mr-1">
+                        {editingCurrencySymbol}
+                      </Text>
                       <TextInput
                         className="flex-1 text-[16px] text-black"
                         placeholder="0"
@@ -649,76 +672,65 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Fecha del gasto *
                     </Text>
-
-                    {/* Quick date buttons */}
-                    <View className="flex-row mb-3" style={{ gap: 8 }}>
-                      <Pressable
-                        className="flex-1 py-3 border border-[#E5E5E5] items-center active:opacity-60"
-                        onPress={() => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          const y = today.getFullYear();
-                          const m = String(today.getMonth() + 1).padStart(2, '0');
-                          const d = String(today.getDate()).padStart(2, '0');
-                          setEditExpenseDate(`${y}-${m}-${d}`);
-                          Haptics.selectionAsync();
-                        }}
-                        disabled={isSaving}
-                      >
-                        <Text className="text-[14px] font-medium text-black">Hoy</Text>
-                      </Pressable>
-
-                      <Pressable
-                        className="flex-1 py-3 border border-[#E5E5E5] items-center active:opacity-60"
-                        onPress={() => {
-                          const yesterday = new Date();
-                          yesterday.setHours(0, 0, 0, 0);
-                          yesterday.setDate(yesterday.getDate() - 1);
-                          const y = yesterday.getFullYear();
-                          const m = String(yesterday.getMonth() + 1).padStart(2, '0');
-                          const d = String(yesterday.getDate()).padStart(2, '0');
-                          setEditExpenseDate(`${y}-${m}-${d}`);
-                          Haptics.selectionAsync();
-                        }}
-                        disabled={isSaving}
-                      >
-                        <Text className="text-[14px] font-medium text-black">Ayer</Text>
-                      </Pressable>
-
-                      <Pressable
-                        className="flex-1 py-3 border border-[#E5E5E5] items-center active:opacity-60"
-                        onPress={() => {
-                          const threeDaysAgo = new Date();
-                          threeDaysAgo.setHours(0, 0, 0, 0);
-                          threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-                          const y = threeDaysAgo.getFullYear();
-                          const m = String(threeDaysAgo.getMonth() + 1).padStart(2, '0');
-                          const d = String(threeDaysAgo.getDate()).padStart(2, '0');
-                          setEditExpenseDate(`${y}-${m}-${d}`);
-                          Haptics.selectionAsync();
-                        }}
-                        disabled={isSaving}
-                      >
-                        <Text className="text-[14px] font-medium text-black">Hace 3 días</Text>
-                      </Pressable>
-                    </View>
-
-                    {/* Selected date display */}
-                    <View className="bg-[#F5F5F5] p-3 border border-[#E5E5E5]">
-                      <Text className="text-[12px] text-[#666666] mb-1">Seleccionado:</Text>
-                      <Text className="text-[15px] text-black font-medium">
-                        {editExpenseDate ? (() => {
-                          const [year, month, day] = editExpenseDate.split('-').map(Number);
-                          const date = new Date(year, month - 1, day);
-                          return date.toLocaleDateString('es-HN', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          });
-                        })() : 'No seleccionada'}
+                    <Pressable
+                      onPress={() => setShowDatePicker(true)}
+                      className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
+                      disabled={isSaving}
+                    >
+                      <Text className="text-[16px] text-black">
+                        {format(selectedDate, 'dd/MM/yyyy')}
                       </Text>
-                    </View>
+                      <Calendar size={20} strokeWidth={1.5} color="#999999" />
+                    </Pressable>
                   </View>
+
+                  {showDatePicker && Platform.OS === 'ios' && (
+                    <View style={{ 
+                      backgroundColor: '#FFFFFF',
+                      borderWidth: 1,
+                      borderColor: '#E5E5E5',
+                      marginBottom: 20,
+                      paddingVertical: 8,
+                      borderRadius: 4
+                    }}>
+                      <DateTimePicker
+                        value={selectedDate instanceof Date ? selectedDate : new Date(selectedDate)}
+                        mode="date"
+                        display="spinner"
+                        onChange={(event, date) => {
+                          if (date) {
+                            setSelectedDate(date);
+                            const fechaString = format(date, 'yyyy-MM-dd');
+                            setEditExpenseDate(fechaString);
+                            Haptics.selectionAsync();
+                          }
+                          // Close picker after selection
+                          if (event.type === 'set') {
+                            setShowDatePicker(false);
+                          }
+                        }}
+                        maximumDate={new Date()}
+                        textColor="#000000"
+                      />
+                    </View>
+                  )}
+                  {showDatePicker && Platform.OS !== 'ios' && (
+                    <DateTimePicker
+                      value={selectedDate instanceof Date ? selectedDate : new Date(selectedDate)}
+                      mode="date"
+                      display="default"
+                      onChange={(event, date) => {
+                        setShowDatePicker(false);
+                        if (date) {
+                          setSelectedDate(date);
+                          const fechaString = format(date, 'yyyy-MM-dd');
+                          setEditExpenseDate(fechaString);
+                          Haptics.selectionAsync();
+                        }
+                      }}
+                      maximumDate={new Date()}
+                    />
+                  )}
 
                   {/* Notes Input */}
                   <View className="mb-5">
