@@ -30,6 +30,7 @@ import { format, isToday, isYesterday, parseISO, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { textStyles } from '@/theme/textStyles';
 
 const CATEGORIES: ExpenseCategory[] = [
   'mercaderia',
@@ -250,7 +251,7 @@ export default function HistoryScreen() {
           className="px-5 pt-4 pb-4"
         >
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-[24px] font-semibold text-black">
+            <Text style={textStyles.screenTitle}>
               Historial
             </Text>
             <Pressable
@@ -284,10 +285,10 @@ export default function HistoryScreen() {
             </Animated.View>
           )}
 
-          <Text className="text-[20px] font-semibold text-black mb-1">
+          <Text style={textStyles.largeNumber} className="mb-1">
             Total: L {total.toFixed(2)}
           </Text>
-          <Text className="text-[14px] text-[#666666]">
+          <Text style={textStyles.secondaryText}>
             {filteredExpenses.length} gasto{filteredExpenses.length !== 1 ? 's' : ''}
           </Text>
         </Animated.View>
@@ -301,7 +302,7 @@ export default function HistoryScreen() {
           renderItem={({ item: group }) => (
             <View className="mb-6">
               {/* Date Header */}
-              <Text className="text-[14px] font-semibold text-black mb-3 mt-2">
+              <Text style={textStyles.sectionLabel} className="mb-3 mt-2">
                 {group.dateLabel}
               </Text>
 
@@ -315,7 +316,7 @@ export default function HistoryScreen() {
                   <View className="flex-row">
                     {/* Time column */}
                     <View className="mr-3" style={{ width: 70 }}>
-                      <Text className="text-[13px] text-[#999999]">
+                      <Text style={textStyles.secondaryText}>
                         {formatTime(expense.createdAt)}
                       </Text>
                     </View>
@@ -324,23 +325,23 @@ export default function HistoryScreen() {
                     <View className="flex-1">
                       {/* Provider and amount row */}
                       <View className="flex-row justify-between items-center mb-1">
-                        <Text className="text-[16px] font-medium text-black flex-1">
+                        <Text style={textStyles.listItemTitle} className="flex-1">
                           {expense.provider || 'Sin proveedor'}
                         </Text>
-                        <Text className="text-[16px] font-semibold text-black ml-2">
+                        <Text style={textStyles.listItemAmount} className="ml-2">
                           L {expense.amount.toFixed(2)}
                         </Text>
                       </View>
 
                       {/* Category and notes row (indented) */}
                       <View className="flex-row items-center">
-                        <Text className="text-[13px] text-[#999999]">
+                        <Text style={textStyles.secondaryText}>
                           {CATEGORY_LABELS[expense.category]}
                         </Text>
                         {expense.notes && (
                           <>
-                            <Text className="text-[13px] text-[#999999] mx-1">•</Text>
-                            <Text className="text-[13px] text-[#999999]">NOTAS</Text>
+                            <Text style={textStyles.secondaryText} className="mx-1">•</Text>
+                            <Text style={textStyles.secondaryText}>NOTAS</Text>
                           </>
                         )}
                         {expense.receiptImageUrl && (
@@ -362,7 +363,7 @@ export default function HistoryScreen() {
                 <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
               </View>
               <View className="flex-row justify-end items-center mb-2">
-                <Text className="text-[14px] font-medium text-[#666666]">
+                <Text style={textStyles.secondaryText}>
                   Subtotal: L {group.subtotal.toFixed(2)}
                 </Text>
               </View>

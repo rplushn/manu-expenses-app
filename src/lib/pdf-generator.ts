@@ -2,7 +2,6 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Expense, ExpenseCategory, CATEGORY_LABELS } from './types';
 import { Period } from './store';
-import * as FileSystem from 'expo-file-system';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -63,6 +62,7 @@ function getPeriodDisplay(period: Period): string {
 
 // Convert image URL to base64 for PDF embedding
 async function imageUrlToBase64(url: string): Promise<string | null> {
+  console.log('🔍 [imageUrlToBase64] Starting conversion for:', url);
   try {
     if (typeof window !== 'undefined' && window.document) {
       // Web: Use Canvas API
@@ -101,27 +101,43 @@ async function imageUrlToBase64(url: string): Promise<string | null> {
         img.src = `${cleanUrl}?nocache=${Date.now()}`;
       });
     } else {
-      // Native: Download and convert
+      // Native: Use fetch to get blob, then convert to base64
       try {
-        // For remote URLs, download first
+        // For remote URLs, use fetch to get blob, then convert to base64
         if (url.startsWith('http://') || url.startsWith('https://')) {
-          const downloadResult = await FileSystem.downloadAsync(
-            url,
-            FileSystem.cacheDirectory + `logo_${Date.now()}.png`
-          );
+          const response = await fetch(url);
+          const blob = await response.blob();
           
-          if (downloadResult.uri) {
-            const base64 = await FileSystem.readAsStringAsync(downloadResult.uri, {
-              encoding: FileSystem.EncodingType.Base64,
-            });
-            return `data:image/png;base64,${base64}`;
-          }
-        } else {
-          // Local file
-          const base64 = await FileSystem.readAsStringAsync(url, {
-            encoding: FileSystem.EncodingType.Base64,
+          // Convert blob to base64
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64data = reader.result as string;
+              resolve(base64data);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
           });
-          return `data:image/png;base64,${base64}`;
+        } else {
+          // Local file: use fetch if possible, otherwise return null
+          try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            
+            // Convert blob to base64
+            return new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const base64data = reader.result as string;
+                resolve(base64data);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+          } catch (error) {
+            console.error('Error reading local file:', error);
+            return null;
+          }
         }
       } catch (error) {
         console.error('Error reading image file:', error);
@@ -155,7 +171,9 @@ export async function generateDetailedReport(
     // Convert logo to base64 if available
     let logoBase64: string | null = null;
     if (logoUrl) {
+      console.log('🔍 [PDF Generator] Received logo URL:', logoUrl);
       logoBase64 = await imageUrlToBase64(logoUrl);
+      console.log('🔍 [PDF Generator] Base64 result:', logoBase64 ? `Success (${logoBase64.length} chars)` : 'NULL');
     }
 
     // Sort expenses by date (most recent first)
@@ -269,8 +287,7 @@ export async function generateDetailedReport(
   <!-- HEADER -->
   <div class="header">
     ${logoBase64 ? `<img src="${logoBase64}" class="logo" alt="Logo" />` : ''}
-    <h1>MANU</h1>
-    <h2>${businessName}</h2>
+    <h1>${businessName}</h1>
     <p>Reporte de Gastos</p>
     <p style="font-size: 13px; color: #666;">Rango de fechas: ${getPeriodDisplay(period)}</p>
     <p style="font-size: 12px; color: #999;">Generado el ${formattedDate} a las ${formattedTime}</p>
@@ -350,7 +367,7 @@ export async function generateDetailedReport(
 
   <!-- FOOTER -->
   <div class="footer">
-    <p>Reporte generado por MANU el ${formattedDate} a las ${formattedTime}</p>
+    <p>Reporte generado el ${formattedDate} a las ${formattedTime}</p>
   </div>
 </body>
 </html>

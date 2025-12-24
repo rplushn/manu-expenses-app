@@ -101,6 +101,11 @@ export default function ReportsScreen() {
     try {
       const businessName = currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio';
       const logoUrl = currentUser?.empresaLogoUrl;
+      
+      // DEBUG: Log logo info
+      console.log('🔍 [PDF] Logo URL being passed:', currentUser?.empresaLogoUrl);
+      console.log('🔍 [PDF] currentUser:', JSON.stringify(currentUser, null, 2));
+      
       await generateDetailedReport(
         periodExpenses,
         businessName,
@@ -126,7 +131,6 @@ export default function ReportsScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="px-5 pt-6 pb-4 border-b border-[#E5E5E5]">
-          <Text className="text-[24px] font-bold text-black mb-1">MANU</Text>
           <Text className="text-[18px] font-semibold text-black mb-2">
             {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio'}
           </Text>
@@ -195,13 +199,18 @@ export default function ReportsScreen() {
                 {biggestExpense ? `L ${formatAmount(biggestExpense.amount)}` : '-'}
               </Text>
             </View>
-            <View className="flex-row justify-between items-center py-2">
-              <Text className="text-[14px] text-[#666666]">Categoría Mayor Gasto:</Text>
-              <Text className="text-[14px] font-semibold text-black">
-                {topCategory 
+            <View className="py-2">
+              <Text className="text-[14px] text-[#666666]">
+                Categoría Mayor Gasto:
+              </Text>
+              <Text
+                className="text-[14px] font-semibold text-black mt-1"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {topCategory
                   ? `${CATEGORY_LABELS[topCategory.category]} (${topCategory.percentage.toFixed(1)}%)`
-                  : '-'
-                }
+                  : '-'}
               </Text>
             </View>
           </View>
@@ -245,8 +254,14 @@ export default function ReportsScreen() {
                       {CATEGORY_LABELS[item.category]}
                     </Text>
                   </View>
-                  <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
-                    <Text className="text-[13px] text-black text-right">
+                  <View
+                    className="px-3 py-3 border-l border-[#E5E5E5]"
+                    style={{ minWidth: 96, alignItems: 'flex-end' }}
+                  >
+                    <Text
+                      className="text-[13px] text-black"
+                      numberOfLines={1}
+                    >
                       L {formatAmount(item.total)}
                     </Text>
                   </View>
@@ -263,8 +278,14 @@ export default function ReportsScreen() {
                 <View className="flex-1 px-3 py-3">
                   <Text className="text-[13px] font-semibold text-black">TOTAL</Text>
                 </View>
-                <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-semibold text-black text-right">
+                <View
+                  className="px-3 py-3 border-l border-[#E5E5E5]"
+                  style={{ minWidth: 96, alignItems: 'flex-end' }}
+                >
+                  <Text
+                    className="text-[13px] font-semibold text-black"
+                    numberOfLines={1}
+                  >
                     L {formatAmount(stats.total)}
                   </Text>
                 </View>

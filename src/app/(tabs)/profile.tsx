@@ -405,36 +405,17 @@ export default function ProfileScreen() {
 
       console.log('📤 Uploading to path:', filePath, 'contentType:', `image/${fileExt}`);
 
-      // Read file as base64
-      let base64Data: string;
-      
-      if (Platform.OS === 'web') {
-        // Web: Extract base64 from data URI
-        console.log('🌐 Web: Extracting base64 from data URI');
-        base64Data = asset.uri.split(',')[1];
-      } else {
-        // Native: Read file as base64
-        console.log('📱 Native: Reading file as base64');
-        base64Data = await FileSystem.readAsStringAsync(asset.uri, {
-          encoding: 'base64',
-        });
-      }
-      
-      console.log('📦 Base64 length:', base64Data.length, 'characters');
-
-      // Convert base64 to Uint8Array
-      const binaryString = atob(base64Data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      console.log('📦 File size:', bytes.length, 'bytes');
+      // Read file using fetch (works in native and web)
+      console.log('📱 Reading file using fetch');
+      const response = await fetch(asset.uri);
+      const blob = await response.blob();
+      console.log('📦 File size:', blob.size, 'bytes');
 
       // Upload to Supabase Storage
       console.log('📤 Uploading logo to:', filePath);
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('company-logos')
-        .upload(filePath, bytes.buffer, {
+        .upload(filePath, blob, {
           contentType: `image/${fileExt}`,
           upsert: true,
         });
@@ -564,6 +545,11 @@ export default function ProfileScreen() {
     setInvoiceRangeStart(currentUser?.facturaRangoInicio || '');
     setInvoiceRangeEnd(currentUser?.facturaRangoFin || '');
     setCaiExpirationDate(currentUser?.caiFechaVencimiento || '');
+    
+    // DEBUG: Log logo info
+    console.log('🔍 [Modal] Opening with logo URL:', currentUser?.empresaLogoUrl);
+    console.log('🔍 [Modal] currentUser full:', JSON.stringify(currentUser, null, 2));
+    
     setShowCompanyInfoModal(true);
   };
 

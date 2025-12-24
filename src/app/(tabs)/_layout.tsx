@@ -11,12 +11,19 @@ interface TabIconProps {
 
 function TabIcon({ focused, icon, label }: TabIconProps) {
   return (
-    <View className="items-center justify-center pt-2">
+    <View
+      className="items-center justify-center pt-1"
+      style={{ width: 70 }}
+    >
       {icon}
       <Text
-        className="text-[11px] mt-1"
+        numberOfLines={2}
         style={{
-          color: focused ? '#000000' : '#999999',
+          marginTop: 4,
+          fontSize: 10,
+          lineHeight: 12,
+          textAlign: 'center',
+          color: focused ? '#111111' : '#9CA3AF',
           fontWeight: focused ? '500' : '400',
         }}
       >
@@ -36,8 +43,9 @@ export default function TabLayout() {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E5E5E5',
-          height: 80,
-          paddingBottom: 20,
+          height: 70,
+          paddingBottom: 6,
+          paddingTop: 4,
         },
       }}
     >
@@ -59,6 +67,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="history"
         options={{
@@ -77,6 +86,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="invoices"
         options={{
@@ -95,6 +105,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="reports"
         options={{
@@ -113,6 +124,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
