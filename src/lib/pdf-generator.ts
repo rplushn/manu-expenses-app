@@ -64,88 +64,21 @@ function getPeriodDisplay(period: Period): string {
 async function imageUrlToBase64(url: string): Promise<string | null> {
   console.log('🔍 [imageUrlToBase64] Starting conversion for:', url);
   try {
-    if (typeof window !== 'undefined' && window.document) {
-      // Web: Use Canvas API
-      return new Promise((resolve) => {
-        const img = new window.Image();
-        img.crossOrigin = 'anonymous';
-        
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-              resolve(null);
-              return;
-            }
-            
-            ctx.drawImage(img, 0, 0);
-            const dataURL = canvas.toDataURL('image/png');
-            resolve(dataURL);
-          } catch (error) {
-            console.error('Canvas conversion error:', error);
-            resolve(null);
-          }
-        };
-        
-        img.onerror = () => {
-          console.error('Image load error');
-          resolve(null);
-        };
-        
-        // Remove query parameters and add timestamp to avoid cache
-        const cleanUrl = url.split('?')[0];
-        img.src = `${cleanUrl}?nocache=${Date.now()}`;
-      });
-    } else {
-      // Native: Use fetch to get blob, then convert to base64
-      try {
-        // For remote URLs, use fetch to get blob, then convert to base64
-        if (url.startsWith('http://') || url.startsWith('https://')) {
-          const response = await fetch(url);
-          const blob = await response.blob();
-          
-          // Convert blob to base64
-          return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64data = reader.result as string;
-              resolve(base64data);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-        } else {
-          // Local file: use fetch if possible, otherwise return null
-          try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            
-            // Convert blob to base64
-            return new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                const base64data = reader.result as string;
-                resolve(base64data);
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          } catch (error) {
-            console.error('Error reading local file:', error);
-            return null;
-          }
-        }
-      } catch (error) {
-        console.error('Error reading image file:', error);
-        return null;
-      }
-    }
+    const response = await fetch(url);
+    const blob = await response.blob();
+    
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result as string;
+        console.log('✅ Base64 conversion successful');
+        resolve(base64data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   } catch (error) {
-    console.error('Error converting image to base64:', error);
+    console.error('❌ Error converting image to base64:', error);
     return null;
   }
 }
