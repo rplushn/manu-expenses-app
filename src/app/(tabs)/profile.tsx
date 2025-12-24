@@ -14,7 +14,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { ChevronRight, X, Crown, Check, Upload, Image as ImageIcon } from 'lucide-react-native';
+import {
+  ChevronRight,
+  X,
+  Crown,
+  Check,
+  Upload,
+  Image as ImageIcon,
+} from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { useAppStore } from '@/lib/store';
@@ -31,6 +39,8 @@ import {
 } from '@/lib/revenuecatClient';
 import type { PurchasesPackage } from 'react-native-purchases';
 
+const systemFont = Platform.OS === 'ios' ? 'System' : undefined;
+
 interface MenuItemProps {
   label: string;
   value?: string;
@@ -38,6 +48,7 @@ interface MenuItemProps {
   showChevron?: boolean;
   isDestructive?: boolean;
   isSubtle?: boolean;
+  badge?: boolean;
 }
 
 function MenuItem({
@@ -47,29 +58,83 @@ function MenuItem({
   showChevron = true,
   isDestructive = false,
   isSubtle = false,
+  badge = false,
 }: MenuItemProps) {
   return (
     <Pressable
-      className="flex-row justify-between items-center py-4 border-b border-[#E5E5E5] active:opacity-60"
       onPress={() => {
         Haptics.selectionAsync();
         onPress?.();
       }}
+      className="active:opacity-60"
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F3F4F6',
+      }}
     >
       <Text
-        className="text-[15px]"
         style={{
-          color: isDestructive ? '#000000' : isSubtle ? '#999999' : '#000000',
+          fontFamily: systemFont,
+          fontSize: 16,
+          fontWeight: '400',
+          color: isDestructive
+            ? '#DC2626'
+            : isSubtle
+            ? '#6B7280'
+            : '#111827',
         }}
       >
         {label}
       </Text>
-      <View className="flex-row items-center">
-        {value && (
-          <Text className="text-[15px] text-[#666666] mr-2">{value}</Text>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          flexShrink: 1,
+        }}
+      >
+        {value && !badge && (
+          <Text
+            style={{
+              fontFamily: systemFont,
+              fontSize: 15,
+              fontWeight: '500',
+              color: '#111827',
+            }}
+            numberOfLines={1}
+          >
+            {value}
+          </Text>
+        )}
+        {value && badge && (
+          <View
+            style={{
+              backgroundColor: '#F3F4F6',
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              borderRadius: 12,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: systemFont,
+                fontSize: 13,
+                fontWeight: '600',
+                color: '#111827',
+              }}
+            >
+              {value}
+            </Text>
+          </View>
         )}
         {showChevron && (
-          <ChevronRight size={20} strokeWidth={1.5} color="#999999" />
+          <ChevronRight size={20} strokeWidth={1.5} color="#9CA3AF" />
         )}
       </View>
     </Pressable>
@@ -79,7 +144,7 @@ function MenuItem({
 function getInitials(name: string): string {
   return name
     .split(' ')
-    .map((word) => word[0])
+    .map((w) => w[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
@@ -135,9 +200,11 @@ export default function ProfileScreen() {
   // Load user data from Supabase
   const loadUserData = useCallback(async () => {
     try {
-      // Get authenticated user ID
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-      
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabase.auth.getUser();
+
       if (authError || !authUser) {
         console.error('Error getting auth user:', authError);
         return;
@@ -145,7 +212,6 @@ export default function ProfileScreen() {
 
       setIsLoadingUserData(true);
 
-      // Fetch full user data from usuarios table
       const { data, error } = await supabase
         .from('usuarios')
         .select('*')
@@ -158,7 +224,6 @@ export default function ProfileScreen() {
       }
 
       if (data) {
-        // Update currentUser with all fields from database
         setCurrentUser({
           id: data.id,
           email: data.email || authUser.email || '',
@@ -185,7 +250,6 @@ export default function ProfileScreen() {
     }
   }, [setCurrentUser]);
 
-  // Load user data on mount and when screen comes into focus
   useEffect(() => {
     loadUserData();
   }, [loadUserData]);
@@ -193,7 +257,7 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       loadUserData();
-    }, [loadUserData])
+    }, [loadUserData]),
   );
 
   // Check Pro status and load offerings
@@ -208,9 +272,10 @@ export default function ProfileScreen() {
 
       const offeringsResult = await getOfferings();
       if (offeringsResult.ok && offeringsResult.data.current) {
-        const monthlyPkg = offeringsResult.data.current.availablePackages.find(
-          (pkg) => pkg.identifier === '$rc_monthly'
-        );
+        const monthlyPkg =
+          offeringsResult.data.current.availablePackages.find(
+            (pkg) => pkg.identifier === '$rc_monthly',
+          );
         if (monthlyPkg) {
           setProPackage(monthlyPkg);
         }
@@ -224,21 +289,19 @@ export default function ProfileScreen() {
     checkProAndLoadOfferings();
   }, [checkProAndLoadOfferings]);
 
-  // Handle Plan press - open paywall or show pro info
   const handlePlanPress = () => {
     Haptics.selectionAsync();
     if (isPro) {
       Alert.alert(
         'Plan Pro Activo',
         'Tienes gastos ilimitados.\n\nPara cancelar tu suscripción, ve a Configuración > Tu nombre > Suscripciones en tu dispositivo.',
-        [{ text: 'OK' }]
+        [{ text: 'OK' }],
       );
     } else {
       setShowProModal(true);
     }
   };
 
-  // Handle purchase Pro
   const handlePurchasePro = async () => {
     if (!proPackage) {
       Alert.alert('Error', 'Producto no disponible. Intenta de nuevo.');
@@ -256,20 +319,26 @@ export default function ProfileScreen() {
         if (hasProNow) {
           setIsPro(true);
           setShowProModal(false);
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          Alert.alert('Bienvenido a MANU Pro', 'Ahora tienes gastos ilimitados.', [
-            { text: 'OK' },
-          ]);
+          Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success,
+          );
+          Alert.alert(
+            'Bienvenido a MANU Pro',
+            'Ahora tienes gastos ilimitados.',
+            [{ text: 'OK' }],
+          );
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo completar la compra. Intenta de nuevo.');
+      Alert.alert(
+        'Error',
+        'No se pudo completar la compra. Intenta de nuevo.',
+      );
     } finally {
       setIsProcessingPurchase(false);
     }
   };
 
-  // Handle restore purchases
   const handleRestorePurchases = async () => {
     setIsProcessingPurchase(true);
 
@@ -281,10 +350,18 @@ export default function ProfileScreen() {
         if (hasProNow) {
           setIsPro(true);
           setShowProModal(false);
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          Alert.alert('Compras restauradas', 'Tu suscripción Pro ha sido restaurada.');
+          Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success,
+          );
+          Alert.alert(
+            'Compras restauradas',
+            'Tu suscripción Pro ha sido restaurada.',
+          );
         } else {
-          Alert.alert('Sin compras', 'No se encontraron compras previas.');
+          Alert.alert(
+            'Sin compras',
+            'No se encontraron compras previas.',
+          );
         }
       }
     } catch (error) {
@@ -294,7 +371,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Handle edit business name
   const handleEditBusinessName = () => {
     setNewBusinessName(currentUser?.nombreNegocio || '');
     setShowEditNameModal(true);
@@ -319,17 +395,17 @@ export default function ProfileScreen() {
 
       if (error) throw error;
 
-      // Update local state
       setCurrentUser({
         ...currentUser,
         nombreNegocio: newBusinessName.trim(),
       });
 
       setShowEditNameModal(false);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      );
       Alert.alert('Listo', 'Nombre actualizado correctamente');
-      
-      // Reload user data to ensure sync
+
       await loadUserData();
     } catch (error) {
       console.error('Error updating business name:', error);
@@ -339,32 +415,32 @@ export default function ProfileScreen() {
     }
   };
 
-  // Handle logo upload
   const handleUploadLogo = async () => {
     if (!currentUser?.id) return;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log('🔐 Session exists:', !!session);
-    console.log('🔐 User ID:', session?.user?.id);
-    console.log('🆔 Current User ID:', currentUser?.id);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
     if (!session) {
-      Alert.alert('Error', 'No estás autenticado. Cerrá sesión y volvé a entrar.');
+      Alert.alert(
+        'Error',
+        'No estás autenticado. Cerrá sesión y volvé a entrar.',
+      );
       return;
     }
 
     try {
-      // Request permissions
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
           'Permisos requeridos',
-          'Se necesita acceso a la galería para seleccionar el logo.'
+          'Se necesita acceso a la galería para seleccionar el logo.',
         );
         return;
       }
 
-      // Pick image
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -376,8 +452,7 @@ export default function ProfileScreen() {
       if (result.canceled) return;
 
       const asset = result.assets[0];
-      
-      // Validate file size (2MB max)
+
       if (asset.fileSize && asset.fileSize > 2097152) {
         Alert.alert('Error', 'El archivo es muy grande. Máximo 2MB.');
         return;
@@ -386,83 +461,54 @@ export default function ProfileScreen() {
       setIsUploadingLogo(true);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-      // Get file extension from mimeType or URI
       let fileExt = 'jpg';
       if (asset.mimeType) {
-        // Use mimeType if available (e.g., "image/png" -> "png")
         fileExt = asset.mimeType.split('/')[1];
       } else if (Platform.OS === 'web' && asset.uri.startsWith('data:')) {
-        // Web data URI: extract from "data:image/png;base64,..."
         const match = asset.uri.match(/data:image\/(\w+);base64/);
         fileExt = match ? match[1] : 'jpg';
       } else {
-        // Native file URI: extract from file path
         fileExt = asset.uri.split('.').pop()?.toLowerCase() || 'jpg';
       }
-      
+
       const fileName = `logo.${fileExt}`;
       const filePath = `${currentUser.id}/${fileName}`;
 
-      console.log('📤 Uploading to path:', filePath, 'contentType:', `image/${fileExt}`);
-
-      // Read file using fetch (works in native and web)
-      console.log('📱 Reading file using fetch');
       const response = await fetch(asset.uri);
       const blob = await response.blob();
-      console.log('📦 File size:', blob.size, 'bytes');
 
-      // Upload to Supabase Storage
-      console.log('📤 Uploading logo to:', filePath);
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('company-logos')
         .upload(filePath, blob, {
           contentType: `image/${fileExt}`,
           upsert: true,
         });
 
-      console.log('📤 Upload response:', { data: uploadData, error: uploadError });
+      if (uploadError) throw uploadError;
 
-      if (uploadError) {
-        console.error('❌ Upload error details:', {
-          message: uploadError.message,
-          name: uploadError.name,
-          cause: uploadError.cause,
-        });
-        throw uploadError;
-      }
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('company-logos').getPublicUrl(filePath);
 
-      // Get public URL with cache-busting parameter
-      console.log('🔗 Getting public URL for:', filePath);
-      const { data: { publicUrl } } = supabase.storage
-        .from('company-logos')
-        .getPublicUrl(filePath);
-      
-      // Add timestamp to avoid browser cache
       const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`;
-      console.log('✅ Public URL with cache-buster:', cacheBustedUrl);
 
-      // Update database
-      console.log('💾 Updating database with URL:', cacheBustedUrl);
       const { error: dbError } = await supabase
         .from('usuarios')
         .update({ empresa_logo_url: cacheBustedUrl })
         .eq('id', currentUser.id);
 
-      if (dbError) {
-        console.error('❌ Database error:', dbError);
-        throw dbError;
-      }
-      console.log('✅ Database updated successfully');
+      if (dbError) throw dbError;
 
       setCompanyLogoUrl(cacheBustedUrl);
-      
-      // Update store
+
       setCurrentUser({
         ...currentUser,
         empresaLogoUrl: cacheBustedUrl,
       });
-      
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      );
       Alert.alert('Listo', 'Logo subido correctamente');
     } catch (error) {
       console.error('Error uploading logo:', error);
@@ -472,7 +518,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Handle delete logo
   const handleDeleteLogo = async () => {
     if (!currentUser?.id) return;
 
@@ -492,19 +537,16 @@ export default function ProfileScreen() {
             try {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-              // Try to remove all possible logo variants
               const filesToRemove = [
                 `${currentUser.id}/logo.png`,
                 `${currentUser.id}/logo.jpg`,
                 `${currentUser.id}/logo.jpeg`,
               ];
 
-              // Attempt to remove files (ignore errors if files don't exist)
               await supabase.storage
                 .from('company-logos')
                 .remove(filesToRemove);
 
-              // Update database
               const { error: dbError } = await supabase
                 .from('usuarios')
                 .update({ empresa_logo_url: null })
@@ -512,27 +554,29 @@ export default function ProfileScreen() {
 
               if (dbError) throw dbError;
 
-              // Update local state
               setCompanyLogoUrl('');
               setCurrentUser({
                 ...currentUser,
                 empresaLogoUrl: undefined,
               });
 
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success,
+              );
               Alert.alert('Listo', 'Logo eliminado correctamente');
             } catch (error) {
               console.error('Error deleting logo:', error);
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Error,
+              );
               Alert.alert('Error', 'No se pudo eliminar el logo');
             }
           },
         },
-      ]
+      ],
     );
   };
 
-  // Handle edit company info
   const handleEditCompanyInfo = () => {
     setCompanyName(currentUser?.empresaNombre || '');
     setCompanyLogoUrl(currentUser?.empresaLogoUrl || '');
@@ -541,15 +585,15 @@ export default function ProfileScreen() {
     setCompanyAddress(currentUser?.empresaDireccion || '');
     setCompanyPhone(currentUser?.empresaTelefono || '');
     setCompanyEmail(currentUser?.empresaEmail || '');
-    setTaxRate(currentUser?.tasaImpuesto ? (currentUser.tasaImpuesto * 100).toString() : '15');
+    setTaxRate(
+      currentUser?.tasaImpuesto
+        ? (currentUser.tasaImpuesto * 100).toString()
+        : '15',
+    );
     setInvoiceRangeStart(currentUser?.facturaRangoInicio || '');
     setInvoiceRangeEnd(currentUser?.facturaRangoFin || '');
     setCaiExpirationDate(currentUser?.caiFechaVencimiento || '');
-    
-    // DEBUG: Log logo info
-    console.log('🔍 [Modal] Opening with logo URL:', currentUser?.empresaLogoUrl);
-    console.log('🔍 [Modal] currentUser full:', JSON.stringify(currentUser, null, 2));
-    
+
     setShowCompanyInfoModal(true);
   };
 
@@ -560,13 +604,12 @@ export default function ProfileScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     try {
-      // Parse tax rate (convert from percentage to decimal)
-      const parsedTaxRate = taxRate.trim() ? parseFloat(taxRate) / 100 : 0.15;
+      const parsedTaxRate = taxRate.trim()
+        ? parseFloat(taxRate) / 100
+        : 0.15;
 
-      // Auto-calculate next invoice number if range is set
       let nextInvoiceNumber = currentUser?.facturaProximoNumero;
       if (invoiceRangeStart.trim() && !nextInvoiceNumber) {
-        // Initialize with range start if not set
         nextInvoiceNumber = invoiceRangeStart.trim();
       }
 
@@ -590,7 +633,6 @@ export default function ProfileScreen() {
 
       if (error) throw error;
 
-      // Update local state
       setCurrentUser({
         ...currentUser,
         empresaNombre: companyName.trim() || undefined,
@@ -601,17 +643,22 @@ export default function ProfileScreen() {
         empresaTelefono: companyPhone.trim() || undefined,
         empresaEmail: companyEmail.trim() || undefined,
         tasaImpuesto: parsedTaxRate,
-        facturaRangoInicio: invoiceRangeStart.trim() || undefined,
-        facturaRangoFin: invoiceRangeEnd.trim() || undefined,
-        facturaProximoNumero: nextInvoiceNumber || undefined,
-        caiFechaVencimiento: caiExpirationDate.trim() || undefined,
+        facturaRangoInicio:
+          invoiceRangeStart.trim() || undefined,
+        facturaRangoFin:
+          invoiceRangeEnd.trim() || undefined,
+        facturaProximoNumero:
+          nextInvoiceNumber || undefined,
+        caiFechaVencimiento:
+          caiExpirationDate.trim() || undefined,
       });
 
       setShowCompanyInfoModal(false);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Success,
+      );
       Alert.alert('Listo', 'Información actualizada correctamente');
-      
-      // Reload user data to ensure sync
+
       await loadUserData();
     } catch (error) {
       console.error('Error updating company info:', error);
@@ -621,7 +668,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Handle FAQ press
   const handleFAQPress = () => {
     Haptics.selectionAsync();
     Alert.alert(
@@ -631,28 +677,36 @@ export default function ProfileScreen() {
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'WhatsApp',
-          onPress: () => Linking.openURL('https://wa.me/50412345678?text=Hola, necesito ayuda con MANU'),
+          onPress: () =>
+            Linking.openURL(
+              'https://wa.me/50412345678?text=Hola, necesito ayuda con MANU',
+            ),
         },
         {
           text: 'Email',
-          onPress: () => Linking.openURL('mailto:support@manu.app?subject=Ayuda con MANU'),
+          onPress: () =>
+            Linking.openURL(
+              'mailto:support@manu.app?subject=Ayuda con MANU',
+            ),
         },
-      ]
+      ],
     );
   };
 
   const handleLogout = () => {
     Alert.alert(
-      'Cerrar sesion',
-      'Seguro que deseas cerrar sesion?',
+      'Cerrar sesión',
+      '¿Seguro que deseas cerrar sesión?',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Cerrar sesion',
+          text: 'Cerrar sesión',
           style: 'destructive',
           onPress: async () => {
             setIsLoggingOut(true);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            Haptics.impactAsync(
+              Haptics.ImpactFeedbackStyle.Medium,
+            );
 
             const result = await signOut();
 
@@ -660,20 +714,24 @@ export default function ProfileScreen() {
               clearStore();
               router.replace('/login');
             } else {
-              Alert.alert('Error', result.error?.message || 'No se pudo cerrar sesion');
+              Alert.alert(
+                'Error',
+                result.error?.message ||
+                  'No se pudo cerrar sesión',
+              );
             }
 
             setIsLoggingOut(false);
           },
         },
-      ]
+      ],
     );
   };
 
   const handleDeleteAccount = () => {
     Alert.alert(
       'Eliminar cuenta',
-      'Esta accion no se puede deshacer. Todos tus datos seran eliminados.',
+      'Esta acción no se puede deshacer. Todos tus datos serán eliminados.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
@@ -687,7 +745,7 @@ export default function ProfileScreen() {
             setIsLoggingOut(false);
           },
         },
-      ]
+      ],
     );
   };
 
@@ -695,7 +753,9 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
         <ActivityIndicator size="large" color="#000000" />
-        <Text className="text-[15px] text-[#666666] mt-4">Cerrando sesion...</Text>
+        <Text className="text-[15px] text-[#666666] mt-4">
+          Cerrando sesión...
+        </Text>
       </SafeAreaView>
     );
   }
@@ -704,57 +764,212 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
         <ActivityIndicator size="large" color="#000000" />
-        <Text className="text-[15px] text-[#666666] mt-4">Cargando perfil...</Text>
+        <Text className="text-[15px] text-[#666666] mt-4">
+          Cargando perfil...
+        </Text>
       </SafeAreaView>
     );
   }
 
+  const displayBusinessTitle =
+    currentUser?.empresaNombre ||
+    currentUser?.nombreNegocio ||
+    'Mi negocio';
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="px-5 pt-2 pb-6">
-          <Text className="text-[20px] font-semibold text-black">Perfil</Text>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Title */}
+        <View className="px-5 pt-2 pb-4">
+          <Text
+            style={{
+              fontFamily: systemFont,
+              fontSize: 32,
+              fontWeight: '700',
+              color: '#111827',
+            }}
+          >
+            Perfil
+          </Text>
         </View>
 
-        {/* Profile Avatar */}
-        <Animated.View
-          entering={FadeInDown.duration(300).delay(100)}
-          className="items-center mt-4"
+        {/* Header with gradient */}
+        <LinearGradient
+          colors={['#F9FAFB', '#FFFFFF']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ paddingTop: 24, paddingBottom: 24 }}
         >
-          <View className="w-20 h-20 border border-[#E5E5E5] items-center justify-center">
-            <Text className="text-[24px] font-semibold text-black">
-              {initials}
-            </Text>
-          </View>
-
-          <Text className="text-[20px] font-semibold text-black mt-4">
-            {currentUser?.nombreNegocio || 'Mi Negocio'}
-          </Text>
-          <Text className="text-[14px] text-[#666666] mt-1">
-            {currentUser?.email || ''}
-          </Text>
-          {isPro && (
-            <View className="mt-2 bg-black px-3 py-1 rounded">
-              <Text className="text-[11px] font-bold text-white">PRO</Text>
+          <Animated.View
+            entering={FadeInDown.duration(300).delay(100)}
+            className="items-center"
+          >
+            {/* Avatar con logo o iniciales */}
+            <View
+              style={{
+                width: 96,
+                height: 96,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                backgroundColor: '#FFFFFF',
+                overflow: 'hidden',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16,
+              }}
+            >
+              {currentUser?.empresaLogoUrl ? (
+                <View
+                  style={{
+                    width: 96,
+                    height: 96,
+                    padding: 8,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Image
+                    source={{ uri: currentUser.empresaLogoUrl }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                    }}
+                    resizeMode="contain"
+                  />
+                </View>
+              ) : (
+                <Text
+                  style={{
+                    fontFamily: systemFont,
+                    fontSize: 32,
+                    fontWeight: '600',
+                    color: '#111827',
+                  }}
+                >
+                  {initials}
+                </Text>
+              )}
             </View>
-          )}
-        </Animated.View>
 
-        {/* Menu Items */}
+            {/* Business title (legal o nombre negocio) */}
+            <Text
+              style={{
+                fontFamily: systemFont,
+                fontSize: 18,
+                fontWeight: '600',
+                color: '#111827',
+                textAlign: 'center',
+                paddingHorizontal: 32,
+              }}
+              numberOfLines={2}
+            >
+              {displayBusinessTitle}
+            </Text>
+
+            {/* Email */}
+            <Text
+              style={{
+                fontFamily: systemFont,
+                fontSize: 14,
+                fontWeight: '400',
+                color: '#6B7280',
+                marginTop: 4,
+                textAlign: 'center',
+              }}
+            >
+              {currentUser?.email || ''}
+            </Text>
+
+            {/* Badge PRO */}
+            {isPro && (
+              <View
+                style={{
+                  marginTop: 12,
+                  backgroundColor: '#000000',
+                  paddingHorizontal: 12,
+                  paddingVertical: 4,
+                  borderRadius: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: systemFont,
+                    fontSize: 11,
+                    fontWeight: '700',
+                    color: '#FFFFFF',
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  PRO
+                </Text>
+              </View>
+            )}
+          </Animated.View>
+        </LinearGradient>
+
+        {/* Section: negocio y plan */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(200)}
-          className="px-5 mt-12"
+          className="px-5 mt-6"
         >
-          <MenuItem
-            label="Nombre del negocio"
-            value={currentUser?.nombreNegocio || 'Mi Negocio'}
-            onPress={handleEditBusinessName}
-          />
+          {/* Nombre del negocio: label arriba, valor abajo */}
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: '#F3F4F6',
+              paddingVertical: 14,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: systemFont,
+                fontSize: 14,
+                fontWeight: '400',
+                color: '#6B7280',
+                marginBottom: 2,
+              }}
+            >
+              Nombre del negocio
+            </Text>
+            <Pressable
+              onPress={handleEditBusinessName}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+              className="active:opacity-60"
+            >
+              <Text
+                style={{
+                  fontFamily: systemFont,
+                  fontSize: 16,
+                  fontWeight: '500',
+                  color: '#111827',
+                  flex: 1,
+                }}
+                numberOfLines={1}
+              >
+                {currentUser?.nombreNegocio || 'Mi Negocio'}
+              </Text>
+              <ChevronRight
+                size={20}
+                strokeWidth={1.5}
+                color="#9CA3AF"
+              />
+            </Pressable>
+          </View>
+
+          {/* Plan actual con badge */}
           <MenuItem
             label="Plan actual"
             value={isPro ? 'Pro' : 'Gratis'}
             onPress={handlePlanPress}
+            badge
           />
         </Animated.View>
 
@@ -763,14 +978,86 @@ export default function ProfileScreen() {
           entering={FadeInDown.duration(300).delay(250)}
           className="px-5 mt-8"
         >
-          <Text className="text-[13px] text-[#999999] mb-3 uppercase tracking-wide">
+          <Text
+            style={{
+              fontFamily: systemFont,
+              fontSize: 12,
+              fontWeight: '600',
+              letterSpacing: 0.5,
+              color: '#9CA3AF',
+              textTransform: 'uppercase',
+              marginBottom: 8,
+            }}
+          >
             Datos de facturación
           </Text>
-          <MenuItem
-            label="Información de empresa"
-            value={currentUser?.empresaRtn ? 'Configurado' : 'Sin configurar'}
-            onPress={handleEditCompanyInfo}
-          />
+
+          {/* Información de empresa: título + estado en línea abajo */}
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: '#F3F4F6',
+              paddingVertical: 14,
+            }}
+          >
+            <Pressable
+              onPress={handleEditCompanyInfo}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+              className="active:opacity-60"
+            >
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontFamily: systemFont,
+                    fontSize: 16,
+                    fontWeight: '400',
+                    color: '#111827',
+                  }}
+                >
+                  Información de empresa
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 2,
+                  }}
+                >
+                  {currentUser?.empresaRtn && (
+                    <Check
+                      size={14}
+                      strokeWidth={2.5}
+                      color="#10B981"
+                    />
+                  )}
+                  <Text
+                    style={{
+                      fontFamily: systemFont,
+                      fontSize: 13,
+                      fontWeight: '400',
+                      color: currentUser?.empresaRtn
+                        ? '#10B981'
+                        : '#6B7280',
+                      marginLeft: currentUser?.empresaRtn ? 4 : 0,
+                    }}
+                  >
+                    {currentUser?.empresaRtn
+                      ? 'Configurado'
+                      : 'Sin configurar'}
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight
+                size={20}
+                strokeWidth={1.5}
+                color="#9CA3AF"
+              />
+            </Pressable>
+          </View>
         </Animated.View>
 
         {/* Help Section */}
@@ -778,10 +1065,7 @@ export default function ProfileScreen() {
           entering={FadeInDown.duration(300).delay(275)}
           className="px-5 mt-8"
         >
-          <MenuItem
-            label="FAQ y ayuda"
-            onPress={handleFAQPress}
-          />
+          <MenuItem label="FAQ y ayuda" onPress={handleFAQPress} />
         </Animated.View>
 
         {/* Bottom Actions */}
@@ -790,23 +1074,44 @@ export default function ProfileScreen() {
           className="px-5 mt-12"
         >
           <Pressable
-            className="py-4 active:opacity-60"
+            style={{ paddingVertical: 16 }}
+            className="active:opacity-60"
             onPress={handleLogout}
           >
-            <Text className="text-[15px] text-black">Cerrar sesion</Text>
+            <Text
+              style={{
+                fontFamily: systemFont,
+                fontSize: 16,
+                fontWeight: '400',
+                color: '#111827',
+              }}
+            >
+              Cerrar sesión
+            </Text>
           </Pressable>
 
           <Pressable
-            className="py-4 active:opacity-60"
+            style={{ paddingVertical: 16 }}
+            className="active:opacity-60"
             onPress={handleDeleteAccount}
           >
-            <Text className="text-[15px] text-[#999999]">Eliminar cuenta</Text>
+            <Text
+              style={{
+                fontFamily: systemFont,
+                fontSize: 16,
+                fontWeight: '400',
+                color: '#6B7280',
+              }}
+            >
+              Eliminar cuenta
+            </Text>
           </Pressable>
         </Animated.View>
 
         <View className="h-8" />
       </ScrollView>
 
+      {/* Modales: reusa exactamente los tuyos, solo conectados a los handlers */}
       {/* Edit Business Name Modal */}
       <Modal
         visible={showEditNameModal}
@@ -814,8 +1119,10 @@ export default function ProfileScreen() {
         presentationStyle="pageSheet"
         onRequestClose={() => setShowEditNameModal(false)}
       >
-        <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-          {/* Modal Header */}
+        <SafeAreaView
+          className="flex-1 bg-white"
+          edges={['top', 'bottom']}
+        >
           <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
             <Pressable
               onPress={() => setShowEditNameModal(false)}
@@ -849,7 +1156,10 @@ export default function ProfileScreen() {
               disabled={isSavingName || !newBusinessName.trim()}
               className="mt-6 py-4 items-center active:opacity-80"
               style={{
-                backgroundColor: isSavingName || !newBusinessName.trim() ? '#E5E5E5' : '#000000',
+                backgroundColor:
+                  isSavingName || !newBusinessName.trim()
+                    ? '#E5E5E5'
+                    : '#000000',
               }}
             >
               {isSavingName ? (
@@ -858,7 +1168,9 @@ export default function ProfileScreen() {
                 <Text
                   className="text-[16px] font-semibold"
                   style={{
-                    color: !newBusinessName.trim() ? '#666666' : '#FFFFFF',
+                    color: !newBusinessName.trim()
+                      ? '#666666'
+                      : '#FFFFFF',
                   }}
                 >
                   Guardar
@@ -876,8 +1188,10 @@ export default function ProfileScreen() {
         presentationStyle="pageSheet"
         onRequestClose={() => setShowCompanyInfoModal(false)}
       >
-        <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-          {/* Modal Header */}
+        <SafeAreaView
+          className="flex-1 bg-white"
+          edges={['top', 'bottom']}
+        >
           <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
             <Pressable
               onPress={() => setShowCompanyInfoModal(false)}
@@ -892,13 +1206,19 @@ export default function ProfileScreen() {
             <View style={{ width: 32 }} />
           </View>
 
-          <ScrollView className="flex-1 px-5 pt-6" showsVerticalScrollIndicator={false}>
-            {/* Company Logo */}
+          <ScrollView
+            className="flex-1 px-5 pt-6"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Logo de empresa */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Logo de la empresa
               </Text>
-              <View className="flex-row items-center" style={{ gap: 12 }}>
+              <View
+                className="flex-row items-center"
+                style={{ gap: 12 }}
+              >
                 {companyLogoUrl ? (
                   <View className="border border-[#E5E5E5] p-2">
                     <Image
@@ -909,7 +1229,11 @@ export default function ProfileScreen() {
                   </View>
                 ) : (
                   <View className="border border-[#E5E5E5] p-2 w-[100px] h-[100px] items-center justify-center bg-[#F9FAFB]">
-                    <ImageIcon size={40} strokeWidth={1.5} color="#CCCCCC" />
+                    <ImageIcon
+                      size={40}
+                      strokeWidth={1.5}
+                      color="#CCCCCC"
+                    />
                   </View>
                 )}
                 <View className="flex-1">
@@ -919,12 +1243,24 @@ export default function ProfileScreen() {
                     className="border border-black px-4 py-3 items-center active:opacity-60"
                   >
                     {isUploadingLogo ? (
-                      <ActivityIndicator size="small" color="#000000" />
+                      <ActivityIndicator
+                        size="small"
+                        color="#000000"
+                      />
                     ) : (
-                      <View className="flex-row items-center" style={{ gap: 8 }}>
-                        <Upload size={18} strokeWidth={1.5} color="#000000" />
+                      <View
+                        className="flex-row items-center"
+                        style={{ gap: 8 }}
+                      >
+                        <Upload
+                          size={18}
+                          strokeWidth={1.5}
+                          color="#000000"
+                        />
                         <Text className="text-[14px] text-black">
-                          {companyLogoUrl ? 'Cambiar logo' : 'Subir logo'}
+                          {companyLogoUrl
+                            ? 'Cambiar logo'
+                            : 'Subir logo'}
                         </Text>
                       </View>
                     )}
@@ -946,7 +1282,7 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            {/* Company Name */}
+            {/* El resto de campos de empresa: igual que en tu archivo original */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Nombre de la empresa *
@@ -964,7 +1300,6 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            {/* RTN */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 RTN de la empresa
@@ -980,7 +1315,6 @@ export default function ProfileScreen() {
               />
             </View>
 
-            {/* CAI */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 CAI (Código de Autorización)
@@ -995,7 +1329,6 @@ export default function ProfileScreen() {
               />
             </View>
 
-            {/* Address */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Dirección
@@ -1013,7 +1346,6 @@ export default function ProfileScreen() {
               />
             </View>
 
-            {/* Phone */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Teléfono
@@ -1029,7 +1361,6 @@ export default function ProfileScreen() {
               />
             </View>
 
-            {/* Email */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Email de facturación
@@ -1046,7 +1377,6 @@ export default function ProfileScreen() {
               />
             </View>
 
-            {/* Tax Rate */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Tasa de impuesto (%)
@@ -1065,13 +1395,11 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            {/* Section Divider */}
             <View className="my-6 border-t border-[#E5E5E5]" />
             <Text className="text-[15px] font-medium text-black mb-4">
               Rango de facturas
             </Text>
 
-            {/* Invoice Range Start */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Rango de facturas - Inicio
@@ -1089,7 +1417,6 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            {/* Invoice Range End */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Rango de facturas - Fin
@@ -1107,14 +1434,15 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            {/* Next Invoice Number (Read-only) */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Próximo número de factura
               </Text>
               <View className="border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-3">
                 <Text className="text-[16px] text-[#666666]">
-                  {currentUser?.facturaProximoNumero || invoiceRangeStart || 'Sin configurar'}
+                  {currentUser?.facturaProximoNumero ||
+                    invoiceRangeStart ||
+                    'Sin configurar'}
                 </Text>
               </View>
               <Text className="text-[12px] text-[#999999] mt-1">
@@ -1122,7 +1450,6 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            {/* CAI Expiration Date */}
             <View className="mb-5">
               <Text className="text-[13px] text-[#666666] mb-2">
                 Fecha de vencimiento del CAI
@@ -1145,7 +1472,9 @@ export default function ProfileScreen() {
               disabled={isSavingCompanyInfo}
               className="mt-4 mb-8 py-4 items-center active:opacity-80"
               style={{
-                backgroundColor: isSavingCompanyInfo ? '#E5E5E5' : '#000000',
+                backgroundColor: isSavingCompanyInfo
+                  ? '#E5E5E5'
+                  : '#000000',
               }}
             >
               {isSavingCompanyInfo ? (
@@ -1160,15 +1489,17 @@ export default function ProfileScreen() {
         </SafeAreaView>
       </Modal>
 
-      {/* Pro Subscription Modal */}
+      {/* Pro Subscription Modal (igual que antes) */}
       <Modal
         visible={showProModal}
         animationType="slide"
         presentationStyle="pageSheet"
         onRequestClose={() => setShowProModal(false)}
       >
-        <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-          {/* Modal Header */}
+        <SafeAreaView
+          className="flex-1 bg-white"
+          edges={['top', 'bottom']}
+        >
           <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
             <Pressable
               onPress={() => setShowProModal(false)}
@@ -1188,10 +1519,13 @@ export default function ProfileScreen() {
             contentContainerStyle={{ padding: 20 }}
             showsVerticalScrollIndicator={false}
           >
-            {/* Hero Section */}
             <View className="items-center mb-8">
               <View className="w-16 h-16 bg-black rounded-2xl items-center justify-center mb-4">
-                <Crown size={32} strokeWidth={1.5} color="#FFFFFF" />
+                <Crown
+                  size={32}
+                  strokeWidth={1.5}
+                  color="#FFFFFF"
+                />
               </View>
               <Text className="text-[28px] font-bold text-black mb-2">
                 MANU Pro
@@ -1201,7 +1535,6 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            {/* Price */}
             {proPackage && (
               <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-xl">
                 <Text className="text-[14px] text-[#666666] mb-1">
@@ -1216,7 +1549,6 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            {/* Features */}
             <View className="mb-8 p-5 border border-[#E5E5E5] rounded-xl">
               <Text className="text-[16px] font-semibold text-black mb-4">
                 Incluye:
@@ -1224,25 +1556,32 @@ export default function ProfileScreen() {
               <Feature text="Gastos ilimitados cada mes" />
               <Feature text="OCR ilimitado para recibos" />
               <Feature text="Almacenamiento de todas las fotos" />
-              <Feature text="Reportes completos por categoria" />
+              <Feature text="Reportes completos por categoría" />
               <Feature text="Exportar a PDF" />
               <Feature text="Historial de 12 meses" />
               <Feature text="Soporte prioritario" />
             </View>
 
-            {/* Purchase Button */}
             {proPackage ? (
               <Pressable
                 onPress={handlePurchasePro}
                 disabled={isProcessingPurchase}
                 className="py-4 items-center rounded-lg active:opacity-80"
                 style={{
-                  backgroundColor: isProcessingPurchase ? '#E5E5E5' : '#000000',
+                  backgroundColor: isProcessingPurchase
+                    ? '#E5E5E5'
+                    : '#000000',
                 }}
               >
                 {isProcessingPurchase ? (
-                  <View className="flex-row items-center" style={{ gap: 8 }}>
-                    <ActivityIndicator size="small" color="#666666" />
+                  <View
+                    className="flex-row items-center"
+                    style={{ gap: 8 }}
+                  >
+                    <ActivityIndicator
+                      size="small"
+                      color="#666666"
+                    />
                     <Text className="text-[16px] font-semibold text-[#666666]">
                       Procesando...
                     </Text>
@@ -1255,14 +1594,16 @@ export default function ProfileScreen() {
               </Pressable>
             ) : (
               <View className="py-4 items-center">
-                <ActivityIndicator size="small" color="#999999" />
+                <ActivityIndicator
+                  size="small"
+                  color="#999999"
+                />
                 <Text className="text-[14px] text-[#999999] mt-2">
                   Cargando precios...
                 </Text>
               </View>
             )}
 
-            {/* Restore Purchases */}
             <Pressable
               onPress={handleRestorePurchases}
               disabled={isProcessingPurchase}
@@ -1273,11 +1614,10 @@ export default function ProfileScreen() {
               </Text>
             </Pressable>
 
-            {/* Disclaimer */}
             <Text className="text-[12px] text-[#999999] text-center mt-6 leading-5">
-              Suscripción con renovación automática. Puedes cancelar en
-              cualquier momento desde la App Store o Google Play. El pago se
-              cargará a tu cuenta al confirmar la compra.
+              Suscripción con renovación automática. Puedes cancelar
+              en cualquier momento desde la App Store o Google Play.
+              El pago se cargará a tu cuenta al confirmar la compra.
             </Text>
           </ScrollView>
         </SafeAreaView>
