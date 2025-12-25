@@ -25,6 +25,8 @@ import {
   Edit3,
   Receipt,
   Calendar,
+  Download,
+  Check,
 } from 'lucide-react-native';
 import { ExpenseCategory, CATEGORY_LABELS, Expense } from '@/lib/types';
 import { format, isToday, isYesterday, parseISO, startOfDay } from 'date-fns';
@@ -33,6 +35,9 @@ import { es } from 'date-fns/locale';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { textStyles } from '@/theme/textStyles';
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
+import { zip } from 'react-native-zip-archive';
 
 const CATEGORIES: ExpenseCategory[] = [
   'mercaderia',
@@ -85,6 +90,21 @@ export default function HistoryScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Export modal state
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportStartDate, setExportStartDate] = useState<Date>(() => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1); // Default: last month
+    return date;
+  });
+  const [exportEndDate, setExportEndDate] = useState<Date>(new Date());
+  const [showExportStartPicker, setShowExportStartPicker] = useState(false);
+  const [showExportEndPicker, setShowExportEndPicker] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<Set<ExpenseCategory>>(new Set());
+  const [includePhotos, setIncludePhotos] = useState(false);
+  const [csvFormat, setCsvFormat] = useState<'standard' | 'excel'>('standard');
+  const [isExporting, setIsExporting] = useState(false);
 
   const filteredExpenses = searchQuery.trim()
     ? expenses.filter(
@@ -256,6 +276,227 @@ export default function HistoryScreen() {
     }
   };
 
+  // Export functions
+  const toggleCategory = (category: ExpenseCategory) => {
+    const newSet = new Set(selectedCategories);
+    if (newSet.has(category)) {
+      newSet.delete(category);
+    } else {
+      newSet.add(category);
+    }
+    setSelectedCategories(newSet);
+  };
+
+  const selectAllCategories = () => {
+    setSelectedCategories(new Set(CATEGORIES));
+  };
+
+  const clearAllCategories = () => {
+    setSelectedCategories(new Set());
+  };
+
+  const escapeCSVField = (value: string | number | undefined | null): string => {
+    if (value === null || value === undefined) return '""';
+    const str = String(value);
+    // Escape quotes by doubling them, then wrap in quotes
+    return `"${str.replace(/"/g, '""')}"`;
+  };
+
+  const generateCSV = (expensesToExport: Expense[], separator: string = ','): string => {
+    // CSV Header
+    const headers = ['expenseDate', 'category', 'amount', 'currency', 'provider', 'notes', 'createdAt'];
+    const csvRows = [headers.join(separator)];
+
+    // CSV Rows - all fields properly escaped and quoted
+    expensesToExport.forEach((expense) => {
+      const row = [
+        escapeCSVField(expense.expenseDate),
+        escapeCSVField(expense.category),
+        escapeCSVField(expense.amount),
+        escapeCSVField(expense.currencyCode || userCurrency),
+        escapeCSVField(expense.provider || ''),
+        escapeCSVField(expense.notes || ''),
+        escapeCSVField(expense.createdAt),
+      ];
+      csvRows.push(row.join(separator));
+    });
+
+    return csvRows.join('\n');
+  };
+
+  const downloadImage = async (imageUrl: string, localPath: string): Promise<boolean> => {
+    try {
+      const { uri } = await FileSystem.downloadAsync(imageUrl, localPath);
+      return !!uri;
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      return false;
+    }
+  };
+
+  const handleExport = async () => {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      // Filter expenses by date range
+      const startStr = format(exportStartDate, 'yyyy-MM-dd');
+      const endStr = format(exportEndDate, 'yyyy-MM-dd');
+      
+      let expensesToExport = expenses.filter((expense) => {
+        const expenseDateStr = expense.expenseDate;
+        return expenseDateStr >= startStr && expenseDateStr <= endStr;
+      });
+
+      // Filter by selected categories
+      if (selectedCategories.size > 0) {
+        expensesToExport = expensesToExport.filter((expense) =>
+          selectedCategories.has(expense.category)
+        );
+      }
+
+      if (expensesToExport.length === 0) {
+        Alert.alert('Sin datos', 'No hay gastos en el rango seleccionado');
+        setIsExporting(false);
+        return;
+      }
+
+      // Use documentDirectory for persistent storage
+      const documentDir = FileSystem.documentDirectory;
+      const cacheDir = FileSystem.cacheDirectory;
+      if (!documentDir || !cacheDir) {
+        throw new Error('Document or cache directory not available');
+      }
+
+      // Generate CSV with appropriate separator
+      const separator = csvFormat === 'excel' ? ';' : ',';
+      const csvContent = generateCSV(expensesToExport, separator);
+      const baseFileName = `gastos_${startStr}_${endStr}`;
+      const csvFileName = csvFormat === 'excel' 
+        ? `${baseFileName}_excel.csv` 
+        : `${baseFileName}.csv`;
+      
+      const csvFileUri = `${documentDir}${csvFileName}`;
+
+      // Write CSV file
+      await FileSystem.writeAsStringAsync(csvFileUri, csvContent, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      console.log('✅ CSV generated:', csvFileUri);
+      console.log('📊 Format:', csvFormat, 'Separator:', separator);
+
+      let fileToShare = csvFileUri;
+      let mimeType = 'text/csv';
+      let photoCount = 0;
+      let zipPath: string | null = null;
+
+      // If including photos, download them and create ZIP
+      if (includePhotos) {
+        const photosDir = `${cacheDir}manu-recibos/`;
+        
+        // Create photos directory
+        const dirInfo = await FileSystem.getInfoAsync(photosDir);
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(photosDir, { intermediates: true });
+        }
+
+        console.log('📸 Starting photo download to:', photosDir);
+
+        // Download photos
+        for (let i = 0; i < expensesToExport.length; i++) {
+          const expense = expensesToExport[i];
+          if (expense.receiptImageUrl) {
+            console.log(`📥 Downloading image ${i + 1}/${expensesToExport.length}:`, expense.receiptImageUrl);
+            
+            const sanitizedProvider = (expense.provider || 'sin_proveedor')
+              .replace(/[^a-zA-Z0-9]/g, '_')
+              .substring(0, 20);
+            const photoFileName = `${i + 1}_${expense.category}_${sanitizedProvider}.jpg`;
+            const photoPath = `${photosDir}${photoFileName}`;
+            
+            try {
+              const downloaded = await downloadImage(expense.receiptImageUrl, photoPath);
+              if (downloaded) {
+                photoCount++;
+                console.log(`✅ Downloaded: ${photoFileName}`);
+              } else {
+                console.warn(`❌ Failed to download: ${photoFileName}`);
+              }
+            } catch (error) {
+              console.error(`❌ Error downloading ${photoFileName}:`, error);
+            }
+          }
+        }
+
+        console.log(`📸 Downloaded ${photoCount} photos out of ${expensesToExport.filter(e => e.receiptImageUrl).length} available`);
+
+        // Create ZIP if we have photos
+        if (photoCount > 0) {
+          try {
+            zipPath = `${cacheDir}manu-recibos.zip`;
+            console.log('📦 Creating ZIP file:', zipPath);
+            await zip(photosDir, zipPath);
+            console.log('✅ ZIP created successfully');
+            
+            // Clean up the temporary photos directory after zipping
+            await FileSystem.deleteAsync(photosDir, { idempotent: true });
+            console.log('🗑️ Cleaned up temporary photos directory');
+          } catch (error) {
+            console.error('❌ Error creating ZIP:', error);
+            zipPath = null;
+          }
+        }
+      }
+
+      // Share files using expo-sharing
+      if (await Sharing.isAvailableAsync()) {
+        // Share CSV first
+        await Sharing.shareAsync(fileToShare, {
+          mimeType: mimeType,
+          dialogTitle: 'Exportar gastos (CSV)',
+          UTI: 'public.comma-separated-values-text', // iOS
+        });
+        
+        // Share ZIP if it exists and has photos
+        if (zipPath && photoCount > 0) {
+          const zipInfo = await FileSystem.getInfoAsync(zipPath);
+          if (zipInfo.exists) {
+            console.log('📤 Sharing ZIP file:', zipPath);
+            await Sharing.shareAsync(zipPath, {
+              mimeType: 'application/zip',
+              dialogTitle: 'Exportar fotos de recibos (ZIP)',
+              UTI: 'public.zip-archive', // iOS
+            });
+          }
+        }
+        
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        
+        // Show success message
+        let message: string;
+        if (includePhotos && photoCount > 0 && zipPath) {
+          message = `Se exportaron ${expensesToExport.length} gastos y ${photoCount} foto(s) en un archivo ZIP.`;
+        } else {
+          message = `Se exportaron ${expensesToExport.length} gastos en CSV.`;
+        }
+        
+        Alert.alert('Exportado', message);
+        setShowExportModal(false);
+      } else {
+        Alert.alert('Error', 'La función de compartir no está disponible');
+      }
+    } catch (error) {
+      console.error('Error exporting:', error);
+      Alert.alert('Error', 'No se pudo exportar los gastos');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Format date from YYYY-MM-DD string to display format
   const formatDate = (dateStr: string) => {
     // Parse YYYY-MM-DD as local date (not UTC)
@@ -279,19 +520,27 @@ export default function HistoryScreen() {
             <Text style={textStyles.screenTitle}>
               Historial
             </Text>
-            <Pressable
-              onPress={() => {
-                setShowSearch(!showSearch);
-                if (showSearch) setSearchQuery('');
-              }}
-              className="p-2 active:opacity-60"
-            >
-              {showSearch ? (
-                <X size={24} strokeWidth={1.5} color="#000000" />
-              ) : (
-                <Search size={24} strokeWidth={1.5} color="#000000" />
-              )}
-            </Pressable>
+            <View className="flex-row items-center" style={{ gap: 8 }}>
+              <Pressable
+                onPress={() => setShowExportModal(true)}
+                className="p-2 active:opacity-60"
+              >
+                <Download size={24} strokeWidth={1.5} color="#000000" />
+              </Pressable>
+              <Pressable
+                onPress={() => {
+                  setShowSearch(!showSearch);
+                  if (showSearch) setSearchQuery('');
+                }}
+                className="p-2 active:opacity-60"
+              >
+                {showSearch ? (
+                  <X size={24} strokeWidth={1.5} color="#000000" />
+                ) : (
+                  <Search size={24} strokeWidth={1.5} color="#000000" />
+                )}
+              </Pressable>
+            </View>
           </View>
 
           {showSearch && (
@@ -787,6 +1036,314 @@ export default function HistoryScreen() {
               </ScrollView>
             </KeyboardAvoidingView>
           </SafeAreaView>
+        </Modal>
+
+        {/* Export Modal */}
+        <Modal
+          visible={showExportModal}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setShowExportModal(false)}
+        >
+          <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              className="flex-1"
+            >
+              <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                {/* Header */}
+                <View className="px-5 pt-4 pb-4 border-b border-[#E5E5E5]">
+                  <View className="flex-row justify-between items-center">
+                    <Text style={textStyles.screenTitle}>Exportar gastos</Text>
+                    <Pressable
+                      onPress={() => setShowExportModal(false)}
+                      className="p-2 active:opacity-60"
+                    >
+                      <X size={24} strokeWidth={1.5} color="#000000" />
+                    </Pressable>
+                  </View>
+                </View>
+
+                <View className="px-5 pt-6">
+                  {/* Date Range */}
+                  <View className="mb-6">
+                    <Text className="text-[13px] text-[#666666] mb-2">
+                      Rango de fechas
+                    </Text>
+                    
+                    <View className="mb-3">
+                      <Text className="text-[12px] text-[#999999] mb-1">Desde</Text>
+                      <Pressable
+                        onPress={() => setShowExportStartPicker(true)}
+                        className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
+                      >
+                        <Text className="text-[16px] text-black">
+                          {format(exportStartDate, 'dd/MM/yyyy')}
+                        </Text>
+                        <Calendar size={20} strokeWidth={1.5} color="#999999" />
+                      </Pressable>
+                    </View>
+
+                    <View>
+                      <Text className="text-[12px] text-[#999999] mb-1">Hasta</Text>
+                      <Pressable
+                        onPress={() => setShowExportEndPicker(true)}
+                        className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
+                      >
+                        <Text className="text-[16px] text-black">
+                          {format(exportEndDate, 'dd/MM/yyyy')}
+                        </Text>
+                        <Calendar size={20} strokeWidth={1.5} color="#999999" />
+                      </Pressable>
+                    </View>
+                  </View>
+
+                  {/* Categories */}
+                  <View className="mb-6">
+                    <View className="flex-row justify-between items-center mb-3">
+                      <Text className="text-[13px] text-[#666666]">
+                        Categorías
+                      </Text>
+                      <View className="flex-row" style={{ gap: 8 }}>
+                        <Pressable
+                          onPress={selectAllCategories}
+                          className="px-3 py-1 border border-[#E5E5E5] active:opacity-60"
+                        >
+                          <Text className="text-[12px] text-black">Todas</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={clearAllCategories}
+                          className="px-3 py-1 border border-[#E5E5E5] active:opacity-60"
+                        >
+                          <Text className="text-[12px] text-black">Ninguna</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+
+                    <View className="border border-[#E5E5E5]">
+                      {CATEGORIES.map((category) => (
+                        <Pressable
+                          key={category}
+                          onPress={() => toggleCategory(category)}
+                          className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
+                        >
+                          <Text className="text-[15px] text-black">
+                            {CATEGORY_LABELS[category]}
+                          </Text>
+                          {selectedCategories.has(category) && (
+                            <Check size={20} strokeWidth={2} color="#000000" />
+                          )}
+                        </Pressable>
+                      ))}
+                    </View>
+                    <Text className="text-[12px] text-[#999999] mt-2">
+                      {selectedCategories.size === 0
+                        ? 'Se exportarán todas las categorías'
+                        : `${selectedCategories.size} categoría${selectedCategories.size !== 1 ? 's' : ''} seleccionada${selectedCategories.size !== 1 ? 's' : ''}`}
+                    </Text>
+                  </View>
+
+                  {/* Include Photos */}
+                  <View className="mb-6">
+                    <Pressable
+                      onPress={() => setIncludePhotos(!includePhotos)}
+                      className="flex-row items-center justify-between py-3 border-b border-[#F5F5F5] active:opacity-60"
+                    >
+                      <View className="flex-1">
+                        <Text className="text-[15px] text-black mb-1">
+                          Incluir fotos de recibos
+                        </Text>
+                        <Text className="text-[12px] text-[#999999]">
+                          Descargará las fotos en una carpeta separada
+                        </Text>
+                      </View>
+                      <View
+                        className="w-10 h-6 rounded-full items-center justify-center"
+                        style={{
+                          backgroundColor: includePhotos ? '#000000' : '#E5E5E5',
+                        }}
+                      >
+                        <View
+                          className="w-5 h-5 rounded-full bg-white"
+                          style={{
+                            transform: [{ translateX: includePhotos ? 8 : -8 }],
+                          }}
+                        />
+                      </View>
+                    </Pressable>
+                  </View>
+
+                  {/* CSV Format */}
+                  <View className="mb-6">
+                    <Text className="text-[13px] text-[#666666] mb-2">
+                      Formato CSV
+                    </Text>
+                    <View className="border border-[#E5E5E5]">
+                      <Pressable
+                        onPress={() => setCsvFormat('standard')}
+                        className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
+                      >
+                        <View className="flex-1">
+                          <Text className="text-[15px] text-black">
+                            CSV estándar (coma)
+                          </Text>
+                          <Text className="text-[12px] text-[#999999]">
+                            Compatible con la mayoría de aplicaciones
+                          </Text>
+                        </View>
+                        <View
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center"
+                          style={{
+                            borderColor: csvFormat === 'standard' ? '#000000' : '#E5E5E5',
+                          }}
+                        >
+                          {csvFormat === 'standard' && (
+                            <View className="w-3 h-3 rounded-full bg-black" />
+                          )}
+                        </View>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setCsvFormat('excel')}
+                        className="px-4 py-3 flex-row items-center justify-between active:opacity-60"
+                      >
+                        <View className="flex-1">
+                          <Text className="text-[15px] text-black">
+                            CSV para Excel (punto y coma)
+                          </Text>
+                          <Text className="text-[12px] text-[#999999]">
+                            Optimizado para Excel Web (LATAM/España)
+                          </Text>
+                        </View>
+                        <View
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center"
+                          style={{
+                            borderColor: csvFormat === 'excel' ? '#000000' : '#E5E5E5',
+                          }}
+                        >
+                          {csvFormat === 'excel' && (
+                            <View className="w-3 h-3 rounded-full bg-black" />
+                          )}
+                        </View>
+                      </Pressable>
+                    </View>
+                  </View>
+
+                  {/* Export Button */}
+                  <View className="mb-8">
+                    <Pressable
+                      onPress={handleExport}
+                      disabled={isExporting}
+                      className="py-4 items-center active:opacity-60"
+                      style={{
+                        backgroundColor: isExporting ? '#E5E5E5' : '#000000',
+                      }}
+                    >
+                      {isExporting ? (
+                        <ActivityIndicator color="#FFFFFF" />
+                      ) : (
+                        <Text className="text-[15px] font-medium text-white">
+                          Exportar
+                        </Text>
+                      )}
+                    </Pressable>
+                  </View>
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
+
+          {/* Date Pickers */}
+          {showExportStartPicker && Platform.OS === 'ios' && (
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderWidth: 1,
+                borderColor: '#E5E5E5',
+                marginBottom: 20,
+                paddingVertical: 8,
+                borderRadius: 4,
+              }}
+            >
+              <DateTimePicker
+                value={exportStartDate}
+                mode="date"
+                display="spinner"
+                onChange={(event, date) => {
+                  if (date) {
+                    setExportStartDate(date);
+                    Haptics.selectionAsync();
+                  }
+                  if (event.type === 'set') {
+                    setShowExportStartPicker(false);
+                  }
+                }}
+                maximumDate={exportEndDate}
+                textColor="#000000"
+              />
+            </View>
+          )}
+          {showExportStartPicker && Platform.OS !== 'ios' && (
+            <DateTimePicker
+              value={exportStartDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowExportStartPicker(false);
+                if (date) {
+                  setExportStartDate(date);
+                  Haptics.selectionAsync();
+                }
+              }}
+              maximumDate={exportEndDate}
+            />
+          )}
+
+          {showExportEndPicker && Platform.OS === 'ios' && (
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderWidth: 1,
+                borderColor: '#E5E5E5',
+                marginBottom: 20,
+                paddingVertical: 8,
+                borderRadius: 4,
+              }}
+            >
+              <DateTimePicker
+                value={exportEndDate}
+                mode="date"
+                display="spinner"
+                onChange={(event, date) => {
+                  if (date) {
+                    setExportEndDate(date);
+                    Haptics.selectionAsync();
+                  }
+                  if (event.type === 'set') {
+                    setShowExportEndPicker(false);
+                  }
+                }}
+                minimumDate={exportStartDate}
+                maximumDate={new Date()}
+                textColor="#000000"
+              />
+            </View>
+          )}
+          {showExportEndPicker && Platform.OS !== 'ios' && (
+            <DateTimePicker
+              value={exportEndDate}
+              mode="date"
+              display="default"
+              onChange={(event, date) => {
+                setShowExportEndPicker(false);
+                if (date) {
+                  setExportEndDate(date);
+                  Haptics.selectionAsync();
+                }
+              }}
+              minimumDate={exportStartDate}
+              maximumDate={new Date()}
+            />
+          )}
         </Modal>
       </SafeAreaView>
     </View>
