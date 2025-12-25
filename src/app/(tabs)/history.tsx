@@ -17,6 +17,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useAppStore, formatMoney } from '@/lib/store';
 import {
+  getQBConnection,
+  getQBSyncStats,
+  getQBSyncLogs,
+  type QBConnection,
+  type QBSyncStats,
+  type QBSyncLog,
+} from '@/lib/quickbooks';
+import {
   Trash2,
   Search,
   X,
@@ -27,6 +35,8 @@ import {
   Calendar,
   Download,
   Check,
+  Link2,
+  AlertCircle,
 } from 'lucide-react-native';
 import { ExpenseCategory, CATEGORY_LABELS, Expense } from '@/lib/types';
 import { format, isToday, isYesterday, parseISO, startOfDay } from 'date-fns';
@@ -63,12 +73,75 @@ export default function HistoryScreen() {
   // User currency for consistent formatting
   const userCurrency = currentUser?.currencyCode || 'HNL';
 
+  // Load QuickBooks data
+  const loadQBData = useCallback(async () => {
+    if (!currentUser?.id) return;
+
+    try {
+      const [connection, stats, logs] = await Promise.all([
+        getQBConnection(currentUser.id),
+        getQBSyncStats(currentUser.id),
+        getQBSyncLogs(currentUser.id, 1), // Just get latest for status
+      ]);
+
+      setQbConnection(connection);
+      setQbSyncStats(stats);
+      setQbSyncLogs(logs);
+    } catch (error) {
+      console.error('Error loading QB data:', error);
+    }
+  }, [currentUser?.id]);
+
   // Reload expenses when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadExpenses();
-    }, [loadExpenses])
+      loadQBData();
+    }, [loadExpenses, loadQBData])
   );
+
+  // Get QB sync status for badge
+  const getQBSyncStatus = (): {
+    status: 'connected' | 'syncing' | 'error' | 'disconnected';
+    text: string;
+    color: string;
+  } => {
+    if (!qbConnection) {
+      return {
+        status: 'disconnected',
+        text: '',
+        color: '#9CA3AF',
+      };
+    }
+
+    // Check if there's a recent failed sync
+    const latestLog = qbSyncLogs[0];
+    if (latestLog?.sync_status === 'failed') {
+      return {
+        status: 'error',
+        text: 'QB ⚠ Error',
+        color: '#DC2626',
+      };
+    }
+
+    // Check if syncing (has pending expenses)
+    if (qbSyncStats && qbSyncStats.pending_count > 0) {
+      return {
+        status: 'syncing',
+        text: 'QB ↔ Sincronizando...',
+        color: '#F59E0B',
+      };
+    }
+
+    // Connected and ready
+    return {
+      status: 'connected',
+      text: 'QB ↔ Sync ON',
+      color: '#10B981',
+    };
+  };
+
+  const qbStatus = getQBSyncStatus();
 
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   
@@ -79,6 +152,12 @@ export default function HistoryScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+
+  // QuickBooks sync state
+  const [qbConnection, setQbConnection] = useState<QBConnection | null>(null);
+  const [qbSyncStats, setQbSyncStats] = useState<QBSyncStats | null>(null);
+  const [qbSyncLogs, setQbSyncLogs] = useState<QBSyncLog[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Edit form state
   const [editAmount, setEditAmount] = useState('');
@@ -610,6 +689,42 @@ export default function HistoryScreen() {
               Historial
             </Text>
             <View className="flex-row items-center" style={{ gap: 8 }}>
+              {/* QuickBooks Sync Badge */}
+              {qbConnection && qbStatus.text && (
+                <Animated.View
+                  entering={FadeIn.duration(200)}
+                  className="flex-row items-center px-3 py-1.5 rounded-full"
+                  style={{
+                    backgroundColor: qbStatus.status === 'syncing' ? '#FEF3C7' : qbStatus.status === 'error' ? '#FEE2E2' : '#D1FAE5',
+                    borderWidth: 1,
+                    borderColor: qbStatus.status === 'syncing' ? '#FCD34D' : qbStatus.status === 'error' ? '#FCA5A5' : '#A7F3D0',
+                  }}
+                >
+                  {qbStatus.status === 'syncing' && (
+                    <ActivityIndicator
+                      size="small"
+                      color="#F59E0B"
+                      style={{ marginRight: 6 }}
+                    />
+                  )}
+                  {qbStatus.status === 'error' && (
+                    <AlertCircle size={14} strokeWidth={2} color="#DC2626" style={{ marginRight: 6 }} />
+                  )}
+                  {qbStatus.status === 'connected' && (
+                    <Link2 size={14} strokeWidth={2} color="#10B981" style={{ marginRight: 6 }} />
+                  )}
+                  <Text
+                    style={{
+                      fontFamily: Platform.OS === 'ios' ? 'System' : undefined,
+                      fontSize: 11,
+                      fontWeight: '600',
+                      color: qbStatus.color,
+                    }}
+                  >
+                    {qbStatus.text}
+                  </Text>
+                </Animated.View>
+              )}
               <Pressable
                 onPress={() => setShowExportModal(true)}
                 className="p-2 active:opacity-60"

@@ -33,6 +33,18 @@ import { isInvoiceNumberInRange } from '@/lib/invoice-helpers';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import {
+  getQBConnection,
+  disconnectQB,
+  getQBSyncStats,
+  getQBSyncLogs,
+  toggleAutoSync,
+  syncExpenseToQB,
+  type QBConnection,
+  type QBSyncStats,
+  type QBSyncLog,
+} from '@/lib/quickbooks';
+import { Switch } from 'react-native';
+import {
   isRevenueCatEnabled,
   hasEntitlement,
   getOfferings,
@@ -196,9 +208,31 @@ export default function ProfileScreen() {
   const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
 
+  // QuickBooks integration state
+  const [qbConnection, setQbConnection] = useState<QBConnection | null>(null);
+  const [qbSyncStats, setQbSyncStats] = useState<QBSyncStats | null>(null);
+  const [qbSyncLogs, setQbSyncLogs] = useState<QBSyncLog[]>([]);
+  const [loadingQB, setLoadingQB] = useState(false);
+  const [showQBSyncLogs, setShowQBSyncLogs] = useState(false);
+
   const initials = currentUser?.nombreNegocio
     ? getInitials(currentUser.nombreNegocio)
     : 'MN';
+
+  // Helper: Format time ago
+  const formatTimeAgo = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Hace un momento';
+    if (diffMins < 60) return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+    return date.toLocaleDateString('es-HN', { day: 'numeric', month: 'short' });
+  };
 
   // Load user data from Supabase
   const loadUserData = useCallback(async () => {
@@ -258,10 +292,69 @@ export default function ProfileScreen() {
     loadUserData();
   }, [loadUserData]);
 
+  // Load QuickBooks data
+  const loadQBData = useCallback(async () => {
+    if (!currentUser?.id) return;
+
+    try {
+      setLoadingQB(true);
+      const [connection, stats, logs] = await Promise.all([
+        getQBConnection(currentUser.id),
+        getQBSyncStats(currentUser.id),
+        getQBSyncLogs(currentUser.id, 5),
+      ]);
+
+      setQbConnection(connection);
+      setQbSyncStats(stats);
+      setQbSyncLogs(logs);
+    } catch (error) {
+      console.error('Error loading QB data:', error);
+    } finally {
+      setLoadingQB(false);
+    }
+  }, [currentUser?.id]);
+
+  // Handle disconnect QuickBooks
+  const handleDisconnectQB = async () => {
+    Alert.alert(
+      'Desconectar QuickBooks',
+      '¿Estás seguro de que quieres desconectar tu cuenta de QuickBooks?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Desconectar',
+          style: 'destructive',
+          onPress: async () => {
+            if (!currentUser?.id) return;
+
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            const result = await disconnectQB(currentUser.id);
+
+            if (result.success) {
+              setQbConnection(null);
+              setQbSyncStats(null);
+              setQbSyncLogs([]);
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success
+              );
+              Alert.alert('Listo', 'QuickBooks desconectado correctamente');
+            } else {
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Error
+              );
+              Alert.alert('Error', result.error || 'No se pudo desconectar');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   useFocusEffect(
     useCallback(() => {
       loadUserData();
-    }, [loadUserData]),
+      loadQBData();
+    }, [loadUserData, loadQBData]),
   );
 
   // Check Pro status and load offerings
@@ -1151,9 +1244,343 @@ export default function ProfileScreen() {
           </View>
         </Animated.View>
 
-        {/* Help Section */}
+        {/* QuickBooks Integration Section */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(275)}
+          className="px-5 mt-8"
+        >
+          <Text
+            style={{
+              fontFamily: systemFont,
+              fontSize: 12,
+              fontWeight: '600',
+              letterSpacing: 0.5,
+              color: '#9CA3AF',
+              textTransform: 'uppercase',
+              marginBottom: 8,
+            }}
+          >
+            Integraciones
+          </Text>
+
+          {/* QuickBooks Card - Naranja MANU */}
+          <Pressable
+            onPress={() => {
+              if (qbConnection) {
+                setShowQBSyncLogs(true);
+              }
+            }}
+            className="rounded-xl overflow-hidden active:opacity-95"
+            style={{
+              backgroundColor: '#FFF4ED', // Naranja suave
+              borderWidth: 1,
+              borderColor: '#FFE5D0',
+            }}
+          >
+            <View className="p-5">
+              {/* Header */}
+              <View className="flex-row justify-between items-center mb-4">
+                <View className="flex-row items-center" style={{ gap: 8 }}>
+                  <Text
+                    style={{
+                      fontFamily: systemFont,
+                      fontSize: 18,
+                      fontWeight: '600',
+                      color: '#111827',
+                    }}
+                  >
+                    🔗 QuickBooks
+                  </Text>
+                </View>
+                {qbConnection && (
+                  <View
+                    className="flex-row items-center px-3 py-1 rounded-full"
+                    style={{
+                      backgroundColor: '#10B981',
+                      gap: 6,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: '#FFFFFF',
+                      }}
+                    />
+                    <Text
+                      style={{
+                        fontFamily: systemFont,
+                        fontSize: 12,
+                        fontWeight: '600',
+                        color: '#FFFFFF',
+                      }}
+                    >
+                      Conectado
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {qbConnection ? (
+                <>
+                  {/* Status Info */}
+                  <View className="mb-4">
+                    <View className="flex-row items-center mb-2">
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#666666',
+                        }}
+                      >
+                        Estado:
+                      </Text>
+                      <View
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 4,
+                          backgroundColor: '#10B981',
+                          marginLeft: 8,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#111827',
+                          marginLeft: 6,
+                        }}
+                      >
+                        Conectado
+                      </Text>
+                    </View>
+
+                    <View className="flex-row items-center mb-2">
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#666666',
+                        }}
+                      >
+                        Auto-sync:
+                      </Text>
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: qbConnection.sync_enabled ? '#10B981' : '#DC2626',
+                          marginLeft: 8,
+                        }}
+                      >
+                        {qbConnection.sync_enabled ? 'Activado' : 'Desactivado'}
+                      </Text>
+                    </View>
+
+                    {qbSyncStats?.last_sync_at && (
+                      <View className="flex-row items-center">
+                        <Text
+                          style={{
+                            fontFamily: systemFont,
+                            fontSize: 13,
+                            fontWeight: '500',
+                            color: '#666666',
+                          }}
+                        >
+                          Última sincronización:
+                        </Text>
+                        <Text
+                          style={{
+                            fontFamily: systemFont,
+                            fontSize: 13,
+                            fontWeight: '600',
+                            color: '#111827',
+                            marginLeft: 8,
+                          }}
+                        >
+                          {formatTimeAgo(new Date(qbSyncStats.last_sync_at))}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Description */}
+                  <Text
+                    style={{
+                      fontFamily: systemFont,
+                      fontSize: 12,
+                      fontWeight: '400',
+                      color: '#666666',
+                      marginBottom: 16,
+                      lineHeight: 18,
+                    }}
+                  >
+                    Tus gastos se sincronizan automáticamente a QuickBooks
+                  </Text>
+
+                  {/* Actions */}
+                  <View className="flex-row" style={{ gap: 8 }}>
+                    <Pressable
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        router.push('/qb-category-mapping');
+                      }}
+                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        borderWidth: 1,
+                        borderColor: '#FFE5D0',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: '#111827',
+                        }}
+                      >
+                        Configuración
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={handleDisconnectQB}
+                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
+                      style={{
+                        backgroundColor: '#DC2626',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: '#FFFFFF',
+                        }}
+                      >
+                        Desconectar
+                      </Text>
+                    </Pressable>
+                  </View>
+                </>
+              ) : (
+                <>
+                  {/* Disconnected State */}
+                  <View className="mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#666666',
+                        }}
+                      >
+                        Estado:
+                      </Text>
+                      <View
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 4,
+                          backgroundColor: '#9CA3AF',
+                          marginLeft: 8,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#111827',
+                          marginLeft: 6,
+                        }}
+                      >
+                        Desconectado
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Description */}
+                  <Text
+                    style={{
+                      fontFamily: systemFont,
+                      fontSize: 12,
+                      fontWeight: '400',
+                      color: '#666666',
+                      marginBottom: 16,
+                      lineHeight: 18,
+                    }}
+                  >
+                    Conecta QuickBooks para automatizar la sincronización de gastos
+                  </Text>
+
+                  {/* Actions */}
+                  <View className="flex-row" style={{ gap: 8 }}>
+                    <Pressable
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        router.push('/qb-oauth');
+                      }}
+                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
+                      style={{
+                        backgroundColor: '#FF6B1A',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: '#FFFFFF',
+                        }}
+                      >
+                        Conectar QB
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        Alert.alert(
+                          'QuickBooks Integration',
+                          'Conecta tu cuenta de QuickBooks para sincronizar automáticamente tus gastos. Los gastos se mapean a cuentas de QuickBooks según las categorías configuradas.',
+                          [{ text: 'Entendido' }]
+                        );
+                      }}
+                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        borderWidth: 1,
+                        borderColor: '#FFE5D0',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '600',
+                          color: '#111827',
+                        }}
+                      >
+                        Más info
+                      </Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </View>
+          </Pressable>
+        </Animated.View>
+
+        {/* Help Section */}
+        <Animated.View
+          entering={FadeInDown.duration(300).delay(300)}
           className="px-5 mt-8"
         >
           <MenuItem label="FAQ y ayuda" onPress={handleFAQPress} />
@@ -1755,6 +2182,146 @@ export default function ProfileScreen() {
               en cualquier momento desde la App Store o Google Play.
               El pago se cargará a tu cuenta al confirmar la compra.
             </Text>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* QuickBooks Sync Logs Modal */}
+      <Modal
+        visible={showQBSyncLogs}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowQBSyncLogs(false)}
+      >
+        <SafeAreaView
+          className="flex-1 bg-white"
+          edges={['top', 'bottom']}
+        >
+          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+            <Text className="text-[18px] font-semibold text-black">
+              Logs de Sincronización
+            </Text>
+            <Pressable
+              onPress={() => setShowQBSyncLogs(false)}
+              className="p-1 active:opacity-60"
+            >
+              <X size={24} strokeWidth={1.5} color="#000000" />
+            </Pressable>
+          </View>
+
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{ padding: 20 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {qbSyncLogs.length === 0 ? (
+              <View className="items-center justify-center py-12">
+                <Text className="text-[14px] text-[#666666] text-center">
+                  No hay logs de sincronización aún
+                </Text>
+              </View>
+            ) : (
+              qbSyncLogs.map((log) => (
+                <View
+                  key={log.id}
+                  className="mb-4 p-4 border border-[#E5E5E5] rounded-lg"
+                >
+                  <View className="flex-row justify-between items-start mb-2">
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 14,
+                          fontWeight: '500',
+                          color: '#111827',
+                        }}
+                      >
+                        {log.sync_status === 'synced' && '✅ Sincronizado'}
+                        {log.sync_status === 'failed' && '❌ Error'}
+                        {log.sync_status === 'pending' && '⏳ Pendiente'}
+                      </Text>
+                      {log.last_sync_at && (
+                        <Text
+                          style={{
+                            fontFamily: systemFont,
+                            fontSize: 12,
+                            color: '#666666',
+                            marginTop: 4,
+                          }}
+                        >
+                          {new Date(log.last_sync_at).toLocaleString('es-HN', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </Text>
+                      )}
+                    </View>
+                    {log.qb_expense_id && (
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 11,
+                          color: '#999999',
+                        }}
+                      >
+                        QB: {log.qb_expense_id.substring(0, 8)}...
+                      </Text>
+                    )}
+                  </View>
+
+                  {log.sync_error && (
+                    <View className="mt-2 p-2 bg-[#FEE2E2] rounded">
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 12,
+                          color: '#DC2626',
+                        }}
+                      >
+                        {log.sync_error}
+                      </Text>
+                    </View>
+                  )}
+
+                  {log.sync_status === 'failed' && (
+                    <Pressable
+                      onPress={async () => {
+                        Haptics.impactAsync(
+                          Haptics.ImpactFeedbackStyle.Light
+                        );
+                        const result = await syncExpenseToQB(log.expense_id);
+                        if (result.success) {
+                          Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Success
+                          );
+                          Alert.alert('Listo', 'Gasto sincronizado correctamente');
+                          await loadQBData();
+                        } else {
+                          Haptics.notificationAsync(
+                            Haptics.NotificationFeedbackType.Error
+                          );
+                          Alert.alert('Error', result.error || 'No se pudo sincronizar');
+                        }
+                      }}
+                      className="mt-3 py-2 px-4 items-center bg-black rounded-lg active:opacity-80"
+                    >
+                      <Text
+                        style={{
+                          fontFamily: systemFont,
+                          fontSize: 13,
+                          fontWeight: '500',
+                          color: '#FFFFFF',
+                        }}
+                      >
+                        Reintentar
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              ))
+            )}
           </ScrollView>
         </SafeAreaView>
       </Modal>
