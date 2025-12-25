@@ -44,3 +44,7 @@ yarn-error.*
 expo.log
 .env
 patches/
+
+# Environment variables
+.env
+.env.local
