@@ -102,7 +102,7 @@ export default function HistoryScreen() {
   const [showExportStartPicker, setShowExportStartPicker] = useState(false);
   const [showExportEndPicker, setShowExportEndPicker] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<Set<ExpenseCategory>>(new Set());
-  const [includePhotos, setIncludePhotos] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'csv-photos' | 'csv-only' | 'photos-only'>('csv-photos');
   const [csvFormat, setCsvFormat] = useState<'standard' | 'excel'>('standard');
   const [isExporting, setIsExporting] = useState(false);
 
@@ -370,31 +370,14 @@ export default function HistoryScreen() {
         throw new Error('Document or cache directory not available');
       }
 
-      // Generate CSV with appropriate separator
-      const separator = csvFormat === 'excel' ? ';' : ',';
-      const csvContent = generateCSV(expensesToExport, separator);
-      const baseFileName = `gastos_${startStr}_${endStr}`;
-      const csvFileName = csvFormat === 'excel' 
-        ? `${baseFileName}_excel.csv` 
-        : `${baseFileName}.csv`;
-      
-      const csvFileUri = `${documentDir}${csvFileName}`;
-
-      // Write CSV file
-      await FileSystem.writeAsStringAsync(csvFileUri, csvContent, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-
-      console.log('✅ CSV generated:', csvFileUri);
-      console.log('📊 Format:', csvFormat, 'Separator:', separator);
-
-      let fileToShare = csvFileUri;
-      let mimeType = 'text/csv';
+      let fileToShare: string;
+      let mimeType: string;
       let photoCount = 0;
       let zipPath: string | null = null;
+      let message: string;
 
-      // If including photos, download them and create ZIP
-      if (includePhotos) {
+      // Helper function to download photos
+      const downloadPhotosToTemp = async (): Promise<{ count: number; photosDir: string }> => {
         const photosDir = `${cacheDir}manu-recibos/`;
         
         // Create photos directory
@@ -404,6 +387,7 @@ export default function HistoryScreen() {
         }
 
         console.log('📸 Starting photo download to:', photosDir);
+        let count = 0;
 
         // Download photos
         for (let i = 0; i < expensesToExport.length; i++) {
@@ -414,13 +398,13 @@ export default function HistoryScreen() {
             const sanitizedProvider = (expense.provider || 'sin_proveedor')
               .replace(/[^a-zA-Z0-9]/g, '_')
               .substring(0, 20);
-            const photoFileName = `${i + 1}_${expense.category}_${sanitizedProvider}.jpg`;
+            const photoFileName = `${String(i + 1).padStart(3, '0')}_${expense.category}_${sanitizedProvider}.jpg`;
             const photoPath = `${photosDir}${photoFileName}`;
             
             try {
               const downloaded = await downloadImage(expense.receiptImageUrl, photoPath);
               if (downloaded) {
-                photoCount++;
+                count++;
                 console.log(`✅ Downloaded: ${photoFileName}`);
               } else {
                 console.warn(`❌ Failed to download: ${photoFileName}`);
@@ -431,18 +415,41 @@ export default function HistoryScreen() {
           }
         }
 
-        console.log(`📸 Downloaded ${photoCount} photos out of ${expensesToExport.filter(e => e.receiptImageUrl).length} available`);
+        console.log(`📸 Downloaded ${count} photos out of ${expensesToExport.filter(e => e.receiptImageUrl).length} available`);
+        return { count, photosDir };
+      };
 
-        // Create ZIP if we have photos
+      // Handle different export formats
+      if (exportFormat === 'csv-only') {
+        // Only CSV, no ZIP
+        const separator = csvFormat === 'excel' ? ';' : ',';
+        const csvContent = generateCSV(expensesToExport, separator);
+        const baseFileName = `gastos_${startStr}_${endStr}`;
+        const csvFileName = csvFormat === 'excel' 
+          ? `${baseFileName}_excel.csv` 
+          : `${baseFileName}.csv`;
+        
+        const csvFileUri = `${documentDir}${csvFileName}`;
+        await FileSystem.writeAsStringAsync(csvFileUri, csvContent, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+
+        fileToShare = csvFileUri;
+        mimeType = 'text/csv';
+        message = `Se exportaron ${expensesToExport.length} gastos en CSV.`;
+
+      } else if (exportFormat === 'photos-only') {
+        // Only photos in ZIP
+        const { count, photosDir } = await downloadPhotosToTemp();
+        photoCount = count;
+
         if (photoCount > 0) {
           try {
-            console.log('📦 Creating ZIP file with JSZip...');
+            console.log('📦 Creating ZIP file with photos only...');
             const zip = new JSZip();
-            const folder = zip.folder('recibos');
+            const photosFolder = zip.folder('recibos');
             
-            let zipPhotoCount = 0;
-            
-            // Por cada gasto que tenga foto descargada
+            // Add photos to ZIP
             for (let i = 0; i < expensesToExport.length; i++) {
               const expense = expensesToExport[i];
               if (expense.receiptImageUrl) {
@@ -450,20 +457,81 @@ export default function HistoryScreen() {
                   const sanitizedProvider = (expense.provider || 'sin_proveedor')
                     .replace(/[^a-zA-Z0-9]/g, '_')
                     .substring(0, 20);
-                  const fileName = `${i + 1}_${expense.category}_${sanitizedProvider}.jpg`;
+                  const fileName = `${String(i + 1).padStart(3, '0')}_${expense.category}_${sanitizedProvider}.jpg`;
                   const localPath = `${photosDir}${fileName}`;
                   
-                  // Verificar que el archivo existe
                   const fileInfo = await FileSystem.getInfoAsync(localPath);
                   if (fileInfo.exists) {
-                    // Leer como base64
                     const fileContent = await FileSystem.readAsStringAsync(localPath, {
                       encoding: FileSystem.EncodingType.Base64,
                     });
-                    
-                    // Agregar al ZIP
-                    folder?.file(fileName, fileContent, { base64: true });
-                    zipPhotoCount++;
+                    photosFolder?.file(fileName, fileContent, { base64: true });
+                  }
+                } catch (err) {
+                  console.error('❌ Error agregando foto al ZIP:', err);
+                }
+              }
+            }
+
+            const zipContent = await zip.generateAsync({ type: 'base64' });
+            zipPath = `${cacheDir}manu-recibos-${startStr}.zip`;
+            await FileSystem.writeAsStringAsync(zipPath, zipContent, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+
+            console.log('✅ ZIP created successfully:', zipPath);
+            await FileSystem.deleteAsync(photosDir, { idempotent: true });
+
+            fileToShare = zipPath;
+            mimeType = 'application/zip';
+            message = `Se exportaron ${photoCount} fotos en ZIP.`;
+          } catch (error) {
+            console.error('❌ Error creating ZIP:', error);
+            Alert.alert('Error', 'No se pudo crear el archivo ZIP');
+            setIsExporting(false);
+            return;
+          }
+        } else {
+          Alert.alert('Sin fotos', 'No hay fotos de recibos en el rango seleccionado');
+          setIsExporting(false);
+          return;
+        }
+
+      } else {
+        // CSV + Photos in single ZIP (default)
+        const separator = csvFormat === 'excel' ? ';' : ',';
+        const csvContent = generateCSV(expensesToExport, separator);
+        const { count, photosDir } = await downloadPhotosToTemp();
+        photoCount = count;
+
+        try {
+          console.log('📦 Creating ZIP file with CSV + photos...');
+          const zip = new JSZip();
+          
+          // Add CSV to ZIP
+          zip.file('gastos.csv', csvContent);
+          console.log('✅ Added CSV to ZIP');
+
+          // Add photos folder if we have photos
+          if (photoCount > 0) {
+            const photosFolder = zip.folder('recibos');
+            
+            for (let i = 0; i < expensesToExport.length; i++) {
+              const expense = expensesToExport[i];
+              if (expense.receiptImageUrl) {
+                try {
+                  const sanitizedProvider = (expense.provider || 'sin_proveedor')
+                    .replace(/[^a-zA-Z0-9]/g, '_')
+                    .substring(0, 20);
+                  const fileName = `${String(i + 1).padStart(3, '0')}_${expense.category}_${sanitizedProvider}.jpg`;
+                  const localPath = `${photosDir}${fileName}`;
+                  
+                  const fileInfo = await FileSystem.getInfoAsync(localPath);
+                  if (fileInfo.exists) {
+                    const fileContent = await FileSystem.readAsStringAsync(localPath, {
+                      encoding: FileSystem.EncodingType.Base64,
+                    });
+                    photosFolder?.file(fileName, fileContent, { base64: true });
                     console.log(`✅ Added to ZIP: ${fileName}`);
                   }
                 } catch (err) {
@@ -471,67 +539,39 @@ export default function HistoryScreen() {
                 }
               }
             }
-            
-            // Solo genera ZIP si hay fotos
-            if (zipPhotoCount > 0) {
-              // Generar el ZIP en base64
-              console.log(`📦 Generating ZIP with ${zipPhotoCount} photos...`);
-              const zipContent = await zip.generateAsync({ type: 'base64' });
-              
-              // Guardar en filesystem
-              zipPath = `${cacheDir}manu-recibos.zip`;
-              await FileSystem.writeAsStringAsync(zipPath, zipContent, {
-                encoding: FileSystem.EncodingType.Base64,
-              });
-              
-              console.log('✅ ZIP created successfully:', zipPath);
-              
-              // Clean up the temporary photos directory after zipping
-              await FileSystem.deleteAsync(photosDir, { idempotent: true });
-              console.log('🗑️ Cleaned up temporary photos directory');
-            } else {
-              console.warn('⚠️ No photos were added to ZIP');
-              zipPath = null;
-            }
-          } catch (error) {
-            console.error('❌ Error creating ZIP:', error);
-            zipPath = null;
           }
+
+          const zipContent = await zip.generateAsync({ type: 'base64' });
+          zipPath = `${cacheDir}manu-export-${startStr}.zip`;
+          await FileSystem.writeAsStringAsync(zipPath, zipContent, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+
+          console.log('✅ ZIP created successfully:', zipPath);
+          await FileSystem.deleteAsync(photosDir, { idempotent: true });
+
+          fileToShare = zipPath;
+          mimeType = 'application/zip';
+          message = photoCount > 0
+            ? `Se exportaron ${expensesToExport.length} gastos y ${photoCount} fotos en ZIP.`
+            : `Se exportaron ${expensesToExport.length} gastos en ZIP.`;
+        } catch (error) {
+          console.error('❌ Error creating ZIP:', error);
+          Alert.alert('Error', 'No se pudo crear el archivo ZIP');
+          setIsExporting(false);
+          return;
         }
       }
 
-      // Share files using expo-sharing
+      // Share file using expo-sharing
       if (await Sharing.isAvailableAsync()) {
-        // Share CSV first
         await Sharing.shareAsync(fileToShare, {
           mimeType: mimeType,
-          dialogTitle: 'Exportar gastos (CSV)',
-          UTI: 'public.comma-separated-values-text', // iOS
+          dialogTitle: exportFormat === 'csv-only' ? 'Exportar gastos (CSV)' : 'Exportar gastos',
+          UTI: mimeType === 'text/csv' ? 'public.comma-separated-values-text' : 'public.zip-archive', // iOS
         });
         
-        // Share ZIP if it exists and has photos
-        if (zipPath && photoCount > 0) {
-          const zipInfo = await FileSystem.getInfoAsync(zipPath);
-          if (zipInfo.exists) {
-            console.log('📤 Sharing ZIP file:', zipPath);
-            await Sharing.shareAsync(zipPath, {
-              mimeType: 'application/zip',
-              dialogTitle: 'Guardar recibos',
-              UTI: 'public.zip-archive', // iOS
-            });
-          }
-        }
-        
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        
-        // Show success message
-        let message: string;
-        if (zipPath && photoCount > 0) {
-          message = `Se exportaron ${expensesToExport.length} gastos y ${photoCount} fotos en ZIP.`;
-        } else {
-          message = `Se exportaron ${expensesToExport.length} gastos en CSV.`;
-        }
-        
         Alert.alert('Exportado', message);
         setShowExportModal(false);
       } else {
@@ -1192,37 +1232,86 @@ export default function HistoryScreen() {
                     </Text>
                   </View>
 
-                  {/* Include Photos */}
+                  {/* Export Format */}
                   <View className="mb-6">
-                    <Pressable
-                      onPress={() => setIncludePhotos(!includePhotos)}
-                      className="flex-row items-center justify-between py-3 border-b border-[#F5F5F5] active:opacity-60"
-                    >
-                      <View className="flex-1">
-                        <Text className="text-[15px] text-black mb-1">
-                          Incluir fotos de recibos
-                        </Text>
-                        <Text className="text-[12px] text-[#999999]">
-                          Descargará las fotos en una carpeta separada
-                        </Text>
-                      </View>
-                      <View
-                        className="w-10 h-6 rounded-full items-center justify-center"
-                        style={{
-                          backgroundColor: includePhotos ? '#000000' : '#E5E5E5',
-                        }}
+                    <Text className="text-[13px] text-[#666666] mb-2">
+                      Formato de exportación
+                    </Text>
+                    <View className="border border-[#E5E5E5]">
+                      <Pressable
+                        onPress={() => setExportFormat('csv-photos')}
+                        className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
                       >
+                        <View className="flex-1">
+                          <Text className="text-[15px] text-black">
+                            CSV + Imágenes (ZIP)
+                          </Text>
+                          <Text className="text-[12px] text-[#999999]">
+                            Recomendado: CSV y fotos en un solo archivo
+                          </Text>
+                        </View>
                         <View
-                          className="w-5 h-5 rounded-full bg-white"
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center"
                           style={{
-                            transform: [{ translateX: includePhotos ? 8 : -8 }],
+                            borderColor: exportFormat === 'csv-photos' ? '#000000' : '#E5E5E5',
                           }}
-                        />
-                      </View>
-                    </Pressable>
+                        >
+                          {exportFormat === 'csv-photos' && (
+                            <View className="w-3 h-3 rounded-full bg-black" />
+                          )}
+                        </View>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setExportFormat('csv-only')}
+                        className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
+                      >
+                        <View className="flex-1">
+                          <Text className="text-[15px] text-black">
+                            Solo CSV
+                          </Text>
+                          <Text className="text-[12px] text-[#999999]">
+                            Solo archivo CSV sin imágenes
+                          </Text>
+                        </View>
+                        <View
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center"
+                          style={{
+                            borderColor: exportFormat === 'csv-only' ? '#000000' : '#E5E5E5',
+                          }}
+                        >
+                          {exportFormat === 'csv-only' && (
+                            <View className="w-3 h-3 rounded-full bg-black" />
+                          )}
+                        </View>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setExportFormat('photos-only')}
+                        className="px-4 py-3 flex-row items-center justify-between active:opacity-60"
+                      >
+                        <View className="flex-1">
+                          <Text className="text-[15px] text-black">
+                            Solo imágenes (ZIP)
+                          </Text>
+                          <Text className="text-[12px] text-[#999999]">
+                            Solo fotos de recibos en ZIP
+                          </Text>
+                        </View>
+                        <View
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center"
+                          style={{
+                            borderColor: exportFormat === 'photos-only' ? '#000000' : '#E5E5E5',
+                          }}
+                        >
+                          {exportFormat === 'photos-only' && (
+                            <View className="w-3 h-3 rounded-full bg-black" />
+                          )}
+                        </View>
+                      </Pressable>
+                    </View>
                   </View>
 
-                  {/* CSV Format */}
+                  {/* CSV Format - Only show if CSV is included */}
+                  {exportFormat !== 'photos-only' && (
                   <View className="mb-6">
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Formato CSV
@@ -1276,6 +1365,7 @@ export default function HistoryScreen() {
                       </Pressable>
                     </View>
                   </View>
+                  )}
 
                   {/* Export Button */}
                   <View className="mb-8">
