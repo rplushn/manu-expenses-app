@@ -15,7 +15,8 @@
       }
     },
     "android": {
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.flowmati.com.vibecode"
     },
     "plugins": [
       "expo-router",

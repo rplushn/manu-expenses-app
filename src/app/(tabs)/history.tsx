@@ -37,7 +37,7 @@ import * as Haptics from 'expo-haptics';
 import { textStyles } from '@/theme/textStyles';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
-import { zip } from 'react-native-zip-archive';
+import JSZip from 'jszip';
 
 const CATEGORIES: ExpenseCategory[] = [
   'mercaderia',
@@ -436,14 +436,63 @@ export default function HistoryScreen() {
         // Create ZIP if we have photos
         if (photoCount > 0) {
           try {
-            zipPath = `${cacheDir}manu-recibos.zip`;
-            console.log('📦 Creating ZIP file:', zipPath);
-            await zip(photosDir, zipPath);
-            console.log('✅ ZIP created successfully');
+            console.log('📦 Creating ZIP file with JSZip...');
+            const zip = new JSZip();
+            const folder = zip.folder('recibos');
             
-            // Clean up the temporary photos directory after zipping
-            await FileSystem.deleteAsync(photosDir, { idempotent: true });
-            console.log('🗑️ Cleaned up temporary photos directory');
+            let zipPhotoCount = 0;
+            
+            // Por cada gasto que tenga foto descargada
+            for (let i = 0; i < expensesToExport.length; i++) {
+              const expense = expensesToExport[i];
+              if (expense.receiptImageUrl) {
+                try {
+                  const sanitizedProvider = (expense.provider || 'sin_proveedor')
+                    .replace(/[^a-zA-Z0-9]/g, '_')
+                    .substring(0, 20);
+                  const fileName = `${i + 1}_${expense.category}_${sanitizedProvider}.jpg`;
+                  const localPath = `${photosDir}${fileName}`;
+                  
+                  // Verificar que el archivo existe
+                  const fileInfo = await FileSystem.getInfoAsync(localPath);
+                  if (fileInfo.exists) {
+                    // Leer como base64
+                    const fileContent = await FileSystem.readAsStringAsync(localPath, {
+                      encoding: FileSystem.EncodingType.Base64,
+                    });
+                    
+                    // Agregar al ZIP
+                    folder?.file(fileName, fileContent, { base64: true });
+                    zipPhotoCount++;
+                    console.log(`✅ Added to ZIP: ${fileName}`);
+                  }
+                } catch (err) {
+                  console.error('❌ Error agregando foto al ZIP:', err);
+                }
+              }
+            }
+            
+            // Solo genera ZIP si hay fotos
+            if (zipPhotoCount > 0) {
+              // Generar el ZIP en base64
+              console.log(`📦 Generating ZIP with ${zipPhotoCount} photos...`);
+              const zipContent = await zip.generateAsync({ type: 'base64' });
+              
+              // Guardar en filesystem
+              zipPath = `${cacheDir}manu-recibos.zip`;
+              await FileSystem.writeAsStringAsync(zipPath, zipContent, {
+                encoding: FileSystem.EncodingType.Base64,
+              });
+              
+              console.log('✅ ZIP created successfully:', zipPath);
+              
+              // Clean up the temporary photos directory after zipping
+              await FileSystem.deleteAsync(photosDir, { idempotent: true });
+              console.log('🗑️ Cleaned up temporary photos directory');
+            } else {
+              console.warn('⚠️ No photos were added to ZIP');
+              zipPath = null;
+            }
           } catch (error) {
             console.error('❌ Error creating ZIP:', error);
             zipPath = null;
@@ -467,7 +516,7 @@ export default function HistoryScreen() {
             console.log('📤 Sharing ZIP file:', zipPath);
             await Sharing.shareAsync(zipPath, {
               mimeType: 'application/zip',
-              dialogTitle: 'Exportar fotos de recibos (ZIP)',
+              dialogTitle: 'Guardar recibos',
               UTI: 'public.zip-archive', // iOS
             });
           }
@@ -477,8 +526,8 @@ export default function HistoryScreen() {
         
         // Show success message
         let message: string;
-        if (includePhotos && photoCount > 0 && zipPath) {
-          message = `Se exportaron ${expensesToExport.length} gastos y ${photoCount} foto(s) en un archivo ZIP.`;
+        if (zipPath && photoCount > 0) {
+          message = `Se exportaron ${expensesToExport.length} gastos y ${photoCount} fotos en ZIP.`;
         } else {
           message = `Se exportaron ${expensesToExport.length} gastos en CSV.`;
         }
