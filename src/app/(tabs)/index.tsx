@@ -59,7 +59,7 @@ const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
 const Feature = ({ text }: { text: string }) => (
   <View className="flex-row items-center mb-3" style={{ gap: 10 }}>
     <Check size={18} strokeWidth={2} color="#000000" />
-    <Text className="text-[15px] text-[#333333] flex-1">{text}</Text>
+    <Text className="text-[15px] font-light text-[#333333] flex-1">{text}</Text>
   </View>
 );
 
@@ -239,7 +239,7 @@ export default function HomeScreen() {
       return (
         <View className="flex-row items-center mt-2">
           <Minus size={14} strokeWidth={1.5} color="#999999" />
-          <Text className="text-[13px] text-[#999999] ml-1">
+          <Text className="text-[13px] font-light text-[#999999] ml-1">
             Sin cambio vs periodo anterior
           </Text>
         </View>
@@ -255,7 +255,7 @@ export default function HomeScreen() {
           <TrendingDown size={14} strokeWidth={1.5} color="#16A34A" />
         )}
         <Text
-          className="text-[13px] ml-1"
+          className="text-[13px] font-light ml-1"
           style={{ color: isUp ? '#DC2626' : '#16A34A' }}
         >
           {isUp ? '+' : ''}{formatMoney(stats.change, userCurrency)} (
@@ -358,7 +358,7 @@ export default function HomeScreen() {
               onPress={() => handlePeriodChange(period)}
             >
               <Text
-                className="text-[14px] font-medium"
+                className="text-[14px] font-normal"
                 style={{
                   color: selectedPeriod === period ? '#FFFFFF' : '#666666',
                 }}
@@ -374,7 +374,7 @@ export default function HomeScreen() {
           entering={FadeInDown.duration(300).delay(100)}
           className="px-5 mt-8"
         >
-          <Text className="text-[14px] text-[#666666] mb-1">
+          <Text className="text-[14px] font-light text-[#666666] mb-1">
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
           </Text>
           <Text
@@ -385,7 +385,7 @@ export default function HomeScreen() {
           >
             {formatMoney(stats.total, userCurrency)}
           </Text>
-          <Text className="text-[14px] text-[#666666] mt-1">
+          <Text className="text-[14px] font-light text-[#666666] mt-1">
             {stats.count} {stats.count === 1 ? 'gasto' : 'gastos'}
             {selectedPeriod !== 'today' &&
               ` · ${formatMoney(stats.averageDaily, userCurrency)}/dia`}
@@ -399,17 +399,17 @@ export default function HomeScreen() {
             entering={FadeIn.duration(300).delay(200)}
             className="px-5 mt-8"
           >
-            <Text className="text-[16px] font-medium text-black mb-4">
+            <Text className="text-[16px] font-normal text-black mb-4">
               Por categoria
             </Text>
             <View className="border border-[#E5E5E5] p-4">
               {categorySummary.map((cat, index) => (
                 <View key={cat.category} className={index > 0 ? 'mt-4' : ''}>
                   <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-[14px] text-black">
+                    <Text className="text-[14px] font-light text-black">
                       {CATEGORY_LABELS[cat.category]}
                     </Text>
-                    <Text className="text-[14px] text-[#666666]">
+                    <Text className="text-[14px] font-light text-[#666666]">
                       {formatMoney(cat.total, userCurrency)} ({cat.percentage.toFixed(0)}%)
                     </Text>
                   </View>
@@ -434,27 +434,27 @@ export default function HomeScreen() {
 
         {/* Recent Expenses */}
         <View className="px-5 mt-6">
-          <Text className="text-[16px] font-medium text-black mb-4">
+          <Text className="text-[16px] font-normal text-black mb-4">
             Ultimos gastos
           </Text>
 
           {isLoading ? (
             <View className="py-8 items-center">
               <ActivityIndicator size="large" color="#000000" />
-              <Text className="text-[14px] text-[#666666] mt-3">
+              <Text className="text-[14px] font-light text-[#666666] mt-3">
                 Cargando gastos...
               </Text>
             </View>
           ) : recentExpenses.length === 0 ? (
             <View className="py-8 items-center">
-              <Text className="text-[15px] text-[#999999]">
+              <Text className="text-[15px] font-light text-[#999999]">
                 Sin gastos en este periodo
               </Text>
               <Pressable
                 onPress={handleAddExpense}
                 className="mt-4 border border-black px-6 py-3 active:opacity-60"
               >
-                <Text className="text-[14px] text-black">Agregar gasto</Text>
+                <Text className="text-[14px] font-light text-black">Agregar gasto</Text>
               </Pressable>
             </View>
           ) : (
@@ -466,10 +466,10 @@ export default function HomeScreen() {
                 <View className="border border-[#E5E5E5] p-4 mb-3">
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
-                      <Text className="text-[16px] text-black font-medium">
+                      <Text className="text-[16px] text-black font-normal">
                         {expense.provider}
                       </Text>
-                      <Text className="text-[13px] text-[#999999] mt-1">
+                      <Text className="text-[13px] font-light text-[#999999] mt-1">
                         {CATEGORY_LABELS[expense.category]} · {new Date(expense.createdAt).toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                       </Text>
                     </View>
@@ -491,7 +491,7 @@ export default function HomeScreen() {
               className="mt-2 active:opacity-60"
             >
               <Text
-                className="text-[14px] text-black"
+                className="text-[14px] font-light text-black"
                 style={{ textDecorationLine: 'underline' }}
               >
                 Ver todos ({periodExpenses.length})
@@ -520,7 +520,7 @@ export default function HomeScreen() {
             >
               <X size={24} strokeWidth={1.5} color="#000000" />
             </Pressable>
-            <Text className="text-[18px] font-semibold text-black">
+            <Text className="text-[18px] font-medium text-black">
               MANU Pro
             </Text>
             <View style={{ width: 32 }} />
@@ -536,10 +536,10 @@ export default function HomeScreen() {
               <View className="w-16 h-16 bg-black rounded-2xl items-center justify-center mb-4">
                 <Crown size={32} strokeWidth={1.5} color="#FFFFFF" />
               </View>
-              <Text className="text-[28px] font-bold text-black mb-2">
+              <Text className="text-[28px] font-semibold text-black mb-2">
                 MANU Pro
               </Text>
-              <Text className="text-[15px] text-[#666666] text-center">
+              <Text className="text-[15px] font-light text-[#666666] text-center">
                 Lleva tu negocio al siguiente nivel
               </Text>
             </View>
@@ -553,7 +553,7 @@ export default function HomeScreen() {
                 <Text className="text-[36px] font-bold text-black">
                   {proPackage.product.priceString}
                 </Text>
-                <Text className="text-[13px] text-[#999999] mt-1">
+                <Text className="text-[13px] font-light text-[#999999] mt-1">
                   por mes
                 </Text>
               </View>
@@ -561,7 +561,7 @@ export default function HomeScreen() {
 
             {/* Features */}
             <View className="mb-8 p-5 border border-[#E5E5E5] rounded-xl">
-              <Text className="text-[16px] font-semibold text-black mb-4">
+              <Text className="text-[16px] font-medium text-black mb-4">
                 Incluye:
               </Text>
               <Feature text="Gastos ilimitados cada mes" />
@@ -586,12 +586,12 @@ export default function HomeScreen() {
                 {isProcessingPurchase ? (
                   <View className="flex-row items-center" style={{ gap: 8 }}>
                     <ActivityIndicator size="small" color="#666666" />
-                    <Text className="text-[16px] font-semibold text-[#666666]">
+                    <Text className="text-[16px] font-medium text-[#666666]">
                       Procesando...
                     </Text>
                   </View>
                 ) : (
-                  <Text className="text-[16px] font-semibold text-white">
+                  <Text className="text-[16px] font-medium text-white">
                     Suscribirse por {proPackage.product.priceString}/mes
                   </Text>
                 )}
@@ -599,7 +599,7 @@ export default function HomeScreen() {
             ) : (
               <View className="py-4 items-center">
                 <ActivityIndicator size="small" color="#999999" />
-                <Text className="text-[14px] text-[#999999] mt-2">
+                <Text className="text-[14px] font-light text-[#999999] mt-2">
                   Cargando precios...
                 </Text>
               </View>
@@ -611,13 +611,13 @@ export default function HomeScreen() {
               disabled={isProcessingPurchase}
               className="mt-4 py-3 items-center active:opacity-60"
             >
-              <Text className="text-[14px] text-[#666666] underline">
+              <Text className="text-[14px] font-light text-[#666666] underline">
                 Restaurar compras anteriores
               </Text>
             </Pressable>
 
             {/* Disclaimer */}
-            <Text className="text-[12px] text-[#999999] text-center mt-6 leading-5">
+            <Text className="text-[12px] font-light text-[#999999] text-center mt-6 leading-5">
               Suscripción con renovación automática. Puedes cancelar en
               cualquier momento desde la App Store o Google Play. El pago se
               cargará a tu cuenta al confirmar la compra.
