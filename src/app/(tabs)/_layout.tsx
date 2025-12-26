@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Clock, Receipt, BarChart3, User } from 'lucide-react-native';
+import { Home, Clock, Receipt, BarChart3, User, Wallet } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -57,6 +57,16 @@ export default function TabLayout() {
           title: 'Reportes',
           tabBarIcon: ({ color }) => (
             <BarChart3 size={18} color={color} strokeWidth={1.2} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          title: 'Presupuestos',
+          tabBarIcon: ({ color }) => (
+            <Wallet size={18} color={color} strokeWidth={1.2} />
           ),
         }}
       />
