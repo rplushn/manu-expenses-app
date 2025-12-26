@@ -104,29 +104,41 @@ export function BudgetModal({
       <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         <View className="flex-1">
           {/* Header */}
-          <View className="flex-row justify-between items-center px-6 pt-4 pb-6 border-b border-[#2A2A2A]">
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingHorizontal: 24,
+              paddingTop: 16,
+              paddingBottom: 24,
+              borderBottomWidth: 1.5,
+              borderBottomColor: '#1A1A1A',
+            }}
+          >
             <Text
               style={{
-                fontSize: 24,
+                fontSize: 28,
                 fontWeight: '700',
-                color: '#000000',
+                color: '#1A1A1A',
+                letterSpacing: -0.5,
               }}
             >
               {budget ? 'Editar Presupuesto' : 'Nuevo Presupuesto'}
             </Text>
-            <Pressable onPress={onClose} className="p-2 active:opacity-60">
-              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
+            <Pressable onPress={onClose} style={{ padding: 8 }}>
+              <X size={28} strokeWidth={2} color="#1A1A1A" />
             </Pressable>
           </View>
 
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-            <View className="px-6 pt-6">
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+            <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
               {/* Category */}
-              <View className="mb-6">
+              <View style={{ marginBottom: 24 }}>
                 <Text
                   style={{
-                    fontSize: 13,
-                    fontWeight: '500',
+                    fontSize: 16,
+                    fontWeight: '600',
                     color: '#666666',
                     marginBottom: 8,
                   }}
@@ -136,10 +148,11 @@ export function BudgetModal({
                 <Pressable
                   onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                   style={{
-                    borderWidth: 1.8,
-                    borderColor: '#2A2A2A',
-                    borderRadius: 8,
-                    padding: 16,
+                    borderWidth: 2,
+                    borderColor: '#1A1A1A',
+                    borderRadius: 0,
+                    paddingVertical: 16,
+                    paddingHorizontal: 16,
                     backgroundColor: '#FFFFFF',
                   }}
                 >
@@ -147,7 +160,7 @@ export function BudgetModal({
                     style={{
                       fontSize: 16,
                       fontWeight: '400',
-                      color: category ? '#000000' : '#999999',
+                      color: category ? '#1A1A1A' : '#CCCCCC',
                     }}
                   >
                     {category ? CATEGORY_LABELS[category] : 'Selecciona una categoría'}
@@ -157,9 +170,9 @@ export function BudgetModal({
                 {showCategoryPicker && (
                   <View
                     style={{
-                      borderWidth: 1.5,
+                      borderWidth: 2,
                       borderColor: '#1A1A1A',
-                      borderRadius: 8,
+                      borderRadius: 0,
                       marginTop: 8,
                       backgroundColor: '#FFFFFF',
                     }}
@@ -172,16 +185,17 @@ export function BudgetModal({
                           setShowCategoryPicker(false);
                         }}
                         style={{
-                          padding: 16,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#F0F0F0',
+                          paddingVertical: 16,
+                          paddingHorizontal: 16,
+                          borderBottomWidth: 2,
+                          borderBottomColor: '#1A1A1A',
                         }}
                       >
                         <Text
                           style={{
                             fontSize: 16,
                             fontWeight: '400',
-                            color: '#000000',
+                            color: '#1A1A1A',
                           }}
                         >
                           {CATEGORY_LABELS[cat]}
@@ -193,11 +207,11 @@ export function BudgetModal({
               </View>
 
               {/* Amount */}
-              <View className="mb-6">
+              <View style={{ marginBottom: 24 }}>
                 <Text
                   style={{
-                    fontSize: 13,
-                    fontWeight: '500',
+                    fontSize: 16,
+                    fontWeight: '600',
                     color: '#666666',
                     marginBottom: 8,
                   }}
@@ -206,19 +220,20 @@ export function BudgetModal({
                 </Text>
                 <View
                   style={{
-                    borderWidth: 1.8,
-                    borderColor: '#2A2A2A',
-                    borderRadius: 8,
-                    padding: 16,
+                    borderWidth: 2,
+                    borderColor: '#1A1A1A',
+                    borderRadius: 0,
+                    paddingVertical: 16,
+                    paddingHorizontal: 16,
                     flexDirection: 'row',
                     alignItems: 'center',
                   }}
                 >
                   <Text
                     style={{
-                      fontSize: 16,
-                      fontWeight: '400',
-                      color: '#000000',
+                      fontSize: 18,
+                      fontWeight: '600',
+                      color: '#1A1A1A',
                       marginRight: 8,
                     }}
                   >
@@ -228,47 +243,47 @@ export function BudgetModal({
                     value={amount}
                     onChangeText={setAmount}
                     placeholder="0.00"
-                    placeholderTextColor="#999999"
+                    placeholderTextColor="#CCCCCC"
                     keyboardType="decimal-pad"
                     style={{
                       flex: 1,
-                      fontSize: 16,
-                      fontWeight: '400',
-                      color: '#000000',
+                      fontSize: 18,
+                      fontWeight: '600',
+                      color: '#1A1A1A',
                     }}
                   />
                 </View>
               </View>
 
               {/* Period */}
-              <View className="mb-8">
+              <View style={{ marginBottom: 32 }}>
                 <Text
                   style={{
-                    fontSize: 13,
-                    fontWeight: '500',
+                    fontSize: 16,
+                    fontWeight: '600',
                     color: '#666666',
                     marginBottom: 8,
                   }}
                 >
                   Período *
                 </Text>
-                <View className="flex-row" style={{ gap: 12 }}>
+                <View style={{ flexDirection: 'row', gap: 12 }}>
                   <Pressable
                     onPress={() => setPeriod('mensual')}
                     style={{
                       flex: 1,
-                      borderWidth: 1.5,
-                      borderColor: period === 'mensual' ? '#2A2A2A' : '#2A2A2A',
-                      borderRadius: 8,
-                      padding: 16,
-                      backgroundColor: period === 'mensual' ? '#000000' : '#FFFFFF',
+                      borderWidth: 2,
+                      borderColor: '#1A1A1A',
+                      borderRadius: 0,
+                      paddingVertical: 16,
+                      backgroundColor: period === 'mensual' ? '#1A1A1A' : '#FFFFFF',
                     }}
                   >
                     <Text
                       style={{
                         fontSize: 16,
-                        fontWeight: '400',
-                        color: period === 'mensual' ? '#FFFFFF' : '#000000',
+                        fontWeight: '600',
+                        color: period === 'mensual' ? '#FFFFFF' : '#666666',
                         textAlign: 'center',
                       }}
                     >
@@ -279,18 +294,18 @@ export function BudgetModal({
                     onPress={() => setPeriod('anual')}
                     style={{
                       flex: 1,
-                      borderWidth: 1.5,
-                      borderColor: period === 'anual' ? '#2A2A2A' : '#2A2A2A',
-                      borderRadius: 8,
-                      padding: 16,
-                      backgroundColor: period === 'anual' ? '#000000' : '#FFFFFF',
+                      borderWidth: 2,
+                      borderColor: '#1A1A1A',
+                      borderRadius: 0,
+                      paddingVertical: 16,
+                      backgroundColor: period === 'anual' ? '#1A1A1A' : '#FFFFFF',
                     }}
                   >
                     <Text
                       style={{
                         fontSize: 16,
-                        fontWeight: '400',
-                        color: period === 'anual' ? '#FFFFFF' : '#000000',
+                        fontWeight: '600',
+                        color: period === 'anual' ? '#FFFFFF' : '#666666',
                         textAlign: 'center',
                       }}
                     >
@@ -303,7 +318,15 @@ export function BudgetModal({
           </ScrollView>
 
           {/* Footer */}
-          <View className="px-6 pt-4 pb-6 border-t border-[#2A2A2A]">
+          <View
+            style={{
+              paddingHorizontal: 24,
+              paddingTop: 16,
+              paddingBottom: 24,
+              borderTopWidth: 1.5,
+              borderTopColor: '#1A1A1A',
+            }}
+          >
             {budget && onDelete && (
               <Pressable
                 onPress={() => {
@@ -312,18 +335,19 @@ export function BudgetModal({
                 }}
                 disabled={isSaving}
                 style={{
-                  borderWidth: 1.8,
+                  borderWidth: 2,
                   borderColor: '#FF3B30',
-                  borderRadius: 8,
-                  padding: 16,
+                  borderRadius: 0,
+                  paddingVertical: 16,
+                  paddingHorizontal: 16,
                   backgroundColor: '#FFFFFF',
                   marginBottom: 12,
                 }}
               >
                 <Text
                   style={{
-                    fontSize: 16,
-                    fontWeight: '600',
+                    fontSize: 18,
+                    fontWeight: '700',
                     color: '#FF3B30',
                     textAlign: 'center',
                   }}
@@ -332,24 +356,24 @@ export function BudgetModal({
                 </Text>
               </Pressable>
             )}
-            <View className="flex-row" style={{ gap: 12 }}>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
               <Pressable
                 onPress={onClose}
                 disabled={isSaving}
                 style={{
                   flex: 1,
-                  borderWidth: 1.5,
+                  borderWidth: 2,
                   borderColor: '#1A1A1A',
-                  borderRadius: 8,
-                  padding: 16,
-                  backgroundColor: '#F5F5F5',
+                  borderRadius: 0,
+                  paddingVertical: 16,
+                  backgroundColor: '#FFFFFF',
                 }}
               >
                 <Text
                   style={{
-                    fontSize: 16,
-                    fontWeight: '600',
-                    color: '#000000',
+                    fontSize: 18,
+                    fontWeight: '700',
+                    color: '#1A1A1A',
                     textAlign: 'center',
                   }}
                 >
@@ -361,12 +385,11 @@ export function BudgetModal({
                 disabled={isSaving || !category || !amount}
                 style={{
                   flex: 1,
-                  borderWidth: 1.5,
+                  borderWidth: 2,
                   borderColor: '#1A1A1A',
-                  borderRadius: 8,
-                  padding: 16,
-                  backgroundColor: '#000000',
-                  opacity: isSaving || !category || !amount ? 0.5 : 1,
+                  borderRadius: 0,
+                  paddingVertical: 16,
+                  backgroundColor: isSaving || !category || !amount ? '#CCCCCC' : '#1A1A1A',
                 }}
               >
                 {isSaving ? (
@@ -374,8 +397,8 @@ export function BudgetModal({
                 ) : (
                   <Text
                     style={{
-                      fontSize: 16,
-                      fontWeight: '600',
+                      fontSize: 18,
+                      fontWeight: '700',
                       color: '#FFFFFF',
                       textAlign: 'center',
                     }}
