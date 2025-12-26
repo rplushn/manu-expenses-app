@@ -1022,7 +1022,7 @@ export default function ProfileScreen() {
               style={{
                 width: 96,
                 height: 96,
-                borderRadius: 20,
+                borderRadius: 24,
                 borderWidth: 1,
                 borderColor: '#E5E7EB',
                 backgroundColor: '#FFFFFF',
@@ -1103,7 +1103,7 @@ export default function ProfileScreen() {
                   backgroundColor: '#000000',
                   paddingHorizontal: 12,
                   paddingVertical: 4,
-                  borderRadius: 8,
+                  borderRadius: 12,
                 }}
               >
                 <Text
@@ -1892,7 +1892,7 @@ export default function ProfileScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View className="items-center mb-8">
-              <View className="w-16 h-16 bg-black rounded-2xl items-center justify-center mb-4">
+              <View className="w-16 h-16 bg-black rounded-3xl items-center justify-center mb-4">
                 <Crown
                   size={32}
                   strokeWidth={1.5}
@@ -1908,7 +1908,7 @@ export default function ProfileScreen() {
             </View>
 
             {proPackage && (
-              <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-xl">
+              <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-2xl">
                 <Text className="text-[14px] font-light text-[#666666] mb-1">
                   Suscripción mensual
                 </Text>
@@ -1921,7 +1921,7 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            <View className="mb-8 p-5 border border-[#E5E5E5] rounded-xl">
+            <View className="mb-8 p-5 border border-[#E5E5E5] rounded-2xl">
               <Text className="text-[16px] font-medium text-black mb-4">
                 Incluye:
               </Text>
@@ -1938,7 +1938,7 @@ export default function ProfileScreen() {
               <Pressable
                 onPress={handlePurchasePro}
                 disabled={isProcessingPurchase}
-                className="py-4 items-center rounded-lg active:opacity-80"
+                className="py-4 items-center rounded-xl active:opacity-80"
                 style={{
                   backgroundColor: isProcessingPurchase
                     ? '#E5E5E5'
@@ -2033,7 +2033,7 @@ export default function ProfileScreen() {
               qbSyncLogs.map((log) => (
                 <View
                   key={log.id}
-                  className="mb-4 p-4 border border-[#E5E5E5] rounded-lg"
+                  className="mb-4 p-4 border border-[#E5E5E5] rounded-2xl"
                 >
                   <View className="flex-row justify-between items-start mb-2">
                     <View style={{ flex: 1 }}>
@@ -2114,7 +2114,7 @@ export default function ProfileScreen() {
                           Alert.alert('Error', result.error || 'No se pudo sincronizar');
                         }
                       }}
-                      className="mt-3 py-2 px-4 items-center bg-black rounded-lg active:opacity-80"
+                      className="mt-3 py-2 px-4 items-center bg-black rounded-xl active:opacity-80"
                     >
                       <Text
                         style={{

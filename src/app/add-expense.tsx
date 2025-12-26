@@ -590,7 +590,7 @@ export default function AddExpenseScreen() {
             style={{
               width: '90%',
               backgroundColor: '#FFFFFF',
-              borderRadius: 16,
+              borderRadius: 24,
               padding: 20,
             }}
             onPress={(e) => e.stopPropagation()}

@@ -377,7 +377,7 @@ export default function ReportsScreen() {
               backgroundColor: isGeneratingPDF ? '#666666' : '#000000',
               paddingVertical: 16,
               paddingHorizontal: 24,
-              borderRadius: 8,
+              borderRadius: 12,
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',

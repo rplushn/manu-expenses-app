@@ -1144,7 +1144,7 @@ export default function HistoryScreen() {
                       borderColor: '#E5E5E5',
                       marginBottom: 20,
                       paddingVertical: 8,
-                      borderRadius: 4
+                      borderRadius: 8
                     }}>
                       <DateTimePicker
                         value={selectedDate instanceof Date ? selectedDate : new Date(selectedDate)}

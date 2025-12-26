@@ -533,7 +533,7 @@ export default function HomeScreen() {
           >
             {/* Hero Section */}
             <View className="items-center mb-8">
-              <View className="w-16 h-16 bg-black rounded-2xl items-center justify-center mb-4">
+              <View className="w-16 h-16 bg-black rounded-3xl items-center justify-center mb-4">
                 <Crown size={32} strokeWidth={1.5} color="#FFFFFF" />
               </View>
               <Text className="text-[28px] font-semibold text-black mb-2">
@@ -546,7 +546,7 @@ export default function HomeScreen() {
 
             {/* Price */}
             {proPackage && (
-              <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-xl">
+              <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-2xl">
                 <Text className="text-[14px] text-[#666666] mb-1">
                   Suscripción mensual
                 </Text>
@@ -560,7 +560,7 @@ export default function HomeScreen() {
             )}
 
             {/* Features */}
-            <View className="mb-8 p-5 border border-[#E5E5E5] rounded-xl">
+            <View className="mb-8 p-5 border border-[#E5E5E5] rounded-2xl">
               <Text className="text-[16px] font-medium text-black mb-4">
                 Incluye:
               </Text>
@@ -578,7 +578,7 @@ export default function HomeScreen() {
               <Pressable
                 onPress={handlePurchasePro}
                 disabled={isProcessingPurchase}
-                className="py-4 items-center rounded-lg active:opacity-80"
+                className="py-4 items-center rounded-xl active:opacity-80"
                 style={{
                   backgroundColor: isProcessingPurchase ? '#E5E5E5' : '#000000',
                 }}
