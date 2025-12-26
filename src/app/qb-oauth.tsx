@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { WebView } from 'react-native-webview';
 import { X } from 'lucide-react-native';
 import { useAppStore } from '@/lib/store';
-import { saveQBConnection } from '@/lib/quickbooks';
+import { saveQBToken } from '../../lib/quickbooks/token-manager';
 import * as Haptics from 'expo-haptics';
 
 // QuickBooks OAuth URLs
@@ -27,6 +27,7 @@ export default function QBOAuthScreen() {
   const currentUser = useAppStore((state) => state.currentUser);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [qbConnected, setQBConnected] = useState(false);
 
   const handleNavigationStateChange = async (navState: any) => {
     const { url } = navState;
@@ -86,20 +87,22 @@ export default function QBOAuthScreen() {
           return;
         }
 
-        // Save connection
+        // Save connection using token manager
         if (currentUser?.id) {
-          const result = await saveQBConnection(
+          const connection = await saveQBToken(
             currentUser.id,
             data.accessToken,
-            data.refreshToken,
             realmId,
+            'sandbox', // or 'production' based on your environment
+            data.refreshToken,
             data.companyName
           );
 
-          if (result.success) {
+          if (connection) {
+            setQBConnected(true);
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             Alert.alert(
-              '¡Conectado!',
+              '✅ QuickBooks conectado',
               'QuickBooks se ha conectado correctamente.',
               [
                 {
@@ -109,7 +112,7 @@ export default function QBOAuthScreen() {
               ]
             );
           } else {
-            setError(result.error || 'Error al guardar la conexión');
+            setError('Error al guardar la conexión');
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           }
         }

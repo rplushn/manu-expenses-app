@@ -14,21 +14,18 @@ import { useRouter } from 'expo-router';
 import { X, ChevronRight, Check } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { CATEGORY_LABELS, ExpenseCategory } from '@/lib/types';
+import { useAppStore } from '@/lib/store';
 import * as Haptics from 'expo-haptics';
 
 interface CategoryMapping {
   id: string;
+  usuario_id: string;
   manu_category: ExpenseCategory;
+  qb_account_id: string;
   qb_account_name: string;
-  qb_account_type: string;
-  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
-
-const QB_ACCOUNT_TYPES = [
-  'Expense',
-  'Cost of Goods Sold',
-  'Other Expense',
-];
 
 const DEFAULT_QB_ACCOUNTS: Record<ExpenseCategory, string> = {
   mercaderia: 'Cost of Goods Sold',
@@ -46,23 +43,29 @@ const DEFAULT_QB_ACCOUNTS: Record<ExpenseCategory, string> = {
 
 export default function QBCategoryMappingScreen() {
   const router = useRouter();
+  const currentUser = useAppStore((s) => s.currentUser);
   const [mappings, setMappings] = useState<CategoryMapping[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ExpenseCategory | null>(null);
   const [editAccountName, setEditAccountName] = useState('');
-  const [editAccountType, setEditAccountType] = useState('Expense');
+  const [editAccountId, setEditAccountId] = useState('');
 
   useEffect(() => {
-    loadMappings();
-  }, []);
+    if (currentUser?.id) {
+      loadMappings();
+    }
+  }, [currentUser?.id]);
 
   const loadMappings = async () => {
+    if (!currentUser?.id) return;
+
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('category_mapping')
-        .select('*')
+        .from('category_qb_mapping')
+        .select('id, usuario_id, manu_category, qb_account_id, qb_account_name, created_at, updated_at')
+        .eq('usuario_id', currentUser.id)
         .order('manu_category');
 
       if (error) throw error;
@@ -84,17 +87,19 @@ export default function QBCategoryMappingScreen() {
   };
 
   const createDefaultMappings = async () => {
+    if (!currentUser?.id) return;
+
     const defaultMappings = Object.entries(DEFAULT_QB_ACCOUNTS).map(
       ([category, accountName]) => ({
+        usuario_id: currentUser.id,
         manu_category: category as ExpenseCategory,
+        qb_account_id: '', // Will be set later when user selects from QB accounts
         qb_account_name: accountName,
-        qb_account_type: 'Expense',
-        is_active: true,
       })
     );
 
     const { error } = await supabase
-      .from('category_mapping')
+      .from('category_qb_mapping')
       .insert(defaultMappings);
 
     if (error) {
@@ -106,11 +111,11 @@ export default function QBCategoryMappingScreen() {
   const handleEdit = (mapping: CategoryMapping) => {
     setEditingCategory(mapping.manu_category);
     setEditAccountName(mapping.qb_account_name);
-    setEditAccountType(mapping.qb_account_type);
+    setEditAccountId(mapping.qb_account_id);
   };
 
   const handleSave = async () => {
-    if (!editingCategory || !editAccountName.trim()) {
+    if (!editingCategory || !editAccountName.trim() || !currentUser?.id) {
       Alert.alert('Error', 'Completa todos los campos');
       return;
     }
@@ -120,11 +125,12 @@ export default function QBCategoryMappingScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
       const { error } = await supabase
-        .from('category_mapping')
+        .from('category_qb_mapping')
         .update({
+          qb_account_id: editAccountId.trim(),
           qb_account_name: editAccountName.trim(),
-          qb_account_type: editAccountType,
         })
+        .eq('usuario_id', currentUser.id)
         .eq('manu_category', editingCategory);
 
       if (error) throw error;
@@ -199,6 +205,16 @@ export default function QBCategoryMappingScreen() {
               {editingCategory === mapping.manu_category && (
                 <View className="mt-3 pt-3 border-t border-[#E5E5E5]">
                   <Text className="text-[13px] text-[#666666] mb-2">
+                    ID de cuenta QB
+                  </Text>
+                  <TextInput
+                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] text-black mb-3"
+                    value={editAccountId}
+                    onChangeText={setEditAccountId}
+                    placeholder="Ej: 123"
+                  />
+
+                  <Text className="text-[13px] text-[#666666] mb-2">
                     Nombre de cuenta QB
                   </Text>
                   <TextInput
@@ -207,31 +223,6 @@ export default function QBCategoryMappingScreen() {
                     onChangeText={setEditAccountName}
                     placeholder="Ej: Office Expenses"
                   />
-
-                  <Text className="text-[13px] text-[#666666] mb-2">
-                    Tipo de cuenta
-                  </Text>
-                  <View className="flex-row flex-wrap" style={{ gap: 8 }}>
-                    {QB_ACCOUNT_TYPES.map((type) => (
-                      <Pressable
-                        key={type}
-                        onPress={() => setEditAccountType(type)}
-                        className={`px-4 py-2 rounded-lg border ${
-                          editAccountType === type
-                            ? 'bg-black border-black'
-                            : 'bg-white border-[#E5E5E5]'
-                        } active:opacity-80`}
-                      >
-                        <Text
-                          className={`text-[13px] font-medium ${
-                            editAccountType === type ? 'text-white' : 'text-black'
-                          }`}
-                        >
-                          {type}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
 
                   <View className="flex-row mt-4" style={{ gap: 8 }}>
                     <Pressable

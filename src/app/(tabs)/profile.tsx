@@ -34,7 +34,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import {
   getQBConnection,
-  disconnectQB,
   getQBSyncStats,
   getQBSyncLogs,
   toggleAutoSync,
@@ -43,6 +42,10 @@ import {
   type QBSyncStats,
   type QBSyncLog,
 } from '@/lib/quickbooks';
+import {
+  isQBConnected,
+  disconnectQB as disconnectQBToken,
+} from '../../../lib/quickbooks/token-manager';
 import { Switch } from 'react-native';
 import {
   isRevenueCatEnabled,
@@ -214,6 +217,7 @@ export default function ProfileScreen() {
   const [qbSyncLogs, setQbSyncLogs] = useState<QBSyncLog[]>([]);
   const [loadingQB, setLoadingQB] = useState(false);
   const [showQBSyncLogs, setShowQBSyncLogs] = useState(false);
+  const [qbConnected, setQBConnected] = useState(false);
 
   const initials = currentUser?.nombreNegocio
     ? getInitials(currentUser.nombreNegocio)
@@ -292,21 +296,42 @@ export default function ProfileScreen() {
     loadUserData();
   }, [loadUserData]);
 
+  // Check QB connection status on mount
+  useEffect(() => {
+    const checkQBConnection = async () => {
+      console.log('[QB DEBUG] currentUser from useAuthContext:', currentUser);
+      console.log('[QB DEBUG] currentUser.id:', currentUser?.id);
+      if (currentUser?.id) {
+        console.log('[QB DEBUG] User ID:', currentUser?.id);
+        const connected = await isQBConnected(currentUser.id);
+        console.log('[QB DEBUG] Connection result:', connected);
+        setQBConnected(connected);
+      }
+    };
+    checkQBConnection();
+  }, [currentUser?.id]);
+
   // Load QuickBooks data
   const loadQBData = useCallback(async () => {
+    console.log('[QB DEBUG] currentUser from useAuthContext:', currentUser);
+    console.log('[QB DEBUG] currentUser.id:', currentUser?.id);
     if (!currentUser?.id) return;
 
     try {
       setLoadingQB(true);
-      const [connection, stats, logs] = await Promise.all([
+      console.log('[QB DEBUG] Loading QB data for User ID:', currentUser.id);
+      const [connection, stats, logs, connected] = await Promise.all([
         getQBConnection(currentUser.id),
         getQBSyncStats(currentUser.id),
         getQBSyncLogs(currentUser.id, 5),
+        isQBConnected(currentUser.id),
       ]);
 
+      console.log('[QB DEBUG] Connection result from loadQBData:', connected);
       setQbConnection(connection);
       setQbSyncStats(stats);
       setQbSyncLogs(logs);
+      setQBConnected(connected);
     } catch (error) {
       console.error('Error loading QB data:', error);
     } finally {
@@ -328,12 +353,13 @@ export default function ProfileScreen() {
             if (!currentUser?.id) return;
 
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            const result = await disconnectQB(currentUser.id);
+            const success = await disconnectQBToken(currentUser.id);
 
-            if (result.success) {
+            if (success) {
               setQbConnection(null);
               setQbSyncStats(null);
               setQbSyncLogs([]);
+              setQBConnected(false);
               Haptics.notificationAsync(
                 Haptics.NotificationFeedbackType.Success
               );
@@ -342,7 +368,7 @@ export default function ProfileScreen() {
               Haptics.notificationAsync(
                 Haptics.NotificationFeedbackType.Error
               );
-              Alert.alert('Error', result.error || 'No se pudo desconectar');
+              Alert.alert('Error', 'No se pudo desconectar');
             }
           },
         },
@@ -1322,7 +1348,7 @@ export default function ProfileScreen() {
                 )}
               </View>
 
-              {qbConnection ? (
+              {(qbConnection || qbConnected) ? (
                 <>
                   {/* Status Info */}
                   <View className="mb-4">
@@ -1375,11 +1401,11 @@ export default function ProfileScreen() {
                           fontFamily: systemFont,
                           fontSize: 13,
                           fontWeight: '600',
-                          color: qbConnection.sync_enabled ? '#10B981' : '#DC2626',
+                          color: qbConnection?.sync_enabled ? '#10B981' : '#DC2626',
                           marginLeft: 8,
                         }}
                       >
-                        {qbConnection.sync_enabled ? 'Activado' : 'Desactivado'}
+                        {qbConnection?.sync_enabled ? 'Activado' : 'Desactivado'}
                       </Text>
                     </View>
 

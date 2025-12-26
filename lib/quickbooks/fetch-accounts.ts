@@ -32,7 +32,7 @@ async function fetchAllAccounts(): Promise<QBAccount[]> {
       throw new Error('QB_REALM_ID not found in .env file');
     }
     
-    const respons= await axios.get(
+    const response = await axios.get(
       `${QBO_API_BASE}/${REALM_ID}/query`,
       {
         params: {
@@ -89,7 +89,7 @@ function generateUpdateSQL(accounts: QBAccount[]): string {
 
 async function main() {
   try {
-    console.log('╔════════════════════);
+    console.log('╔════════════════════════════════════════════════════════════╗');
     console.log('║       QuickBooks Account Fetcher & SQL Generator         ║');
     console.log('╚════════════════════════════════════════════════════════════╝\n');
     
@@ -113,8 +113,11 @@ async function main() {
     });
     
     console.log('═'.repeat(80));
+    console.log('GENERATED SQL');
+    console.log('═'.repeat(80) + '\n');
     
-   le.log(sql);
+    const sql = generateUpdateSQL(accounts);
+    console.log(sql);
     console.log('═'.repeat(80));
     
     console.log('\n✅ Copy the SQL above and run it in Supabase SQL Editor\n');
