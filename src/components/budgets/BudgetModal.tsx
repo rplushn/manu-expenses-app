@@ -148,7 +148,7 @@ export function BudgetModal({
                 <Pressable
                   onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                   style={{
-                    borderWidth: 2,
+                    borderWidth: 1,
                     borderColor: '#1A1A1A',
                     borderRadius: 0,
                     paddingVertical: 12,
@@ -170,7 +170,7 @@ export function BudgetModal({
                 {showCategoryPicker && (
                   <View
                     style={{
-                      borderWidth: 2,
+                      borderWidth: 1,
                       borderColor: '#1A1A1A',
                       borderRadius: 0,
                       marginTop: 6,
@@ -187,7 +187,7 @@ export function BudgetModal({
                         style={{
                           paddingVertical: 12,
                           paddingHorizontal: 12,
-                          borderBottomWidth: 2,
+                          borderBottomWidth: 1,
                           borderBottomColor: '#1A1A1A',
                         }}
                       >
@@ -220,7 +220,7 @@ export function BudgetModal({
                 </Text>
                 <View
                   style={{
-                    borderWidth: 2,
+                    borderWidth: 1,
                     borderColor: '#1A1A1A',
                     borderRadius: 0,
                     paddingVertical: 12,
@@ -272,7 +272,7 @@ export function BudgetModal({
                     onPress={() => setPeriod('mensual')}
                     style={{
                       flex: 1,
-                      borderWidth: 2,
+                      borderWidth: 1,
                       borderColor: '#1A1A1A',
                       borderRadius: 0,
                       paddingVertical: 12,
@@ -294,7 +294,7 @@ export function BudgetModal({
                     onPress={() => setPeriod('anual')}
                     style={{
                       flex: 1,
-                      borderWidth: 2,
+                      borderWidth: 1,
                       borderColor: '#1A1A1A',
                       borderRadius: 0,
                       paddingVertical: 12,
@@ -335,7 +335,7 @@ export function BudgetModal({
                 }}
                 disabled={isSaving}
                 style={{
-                  borderWidth: 2,
+                  borderWidth: 1,
                   borderColor: '#FF3B30',
                   borderRadius: 0,
                   paddingVertical: 12,
@@ -362,7 +362,7 @@ export function BudgetModal({
                 disabled={isSaving}
                 style={{
                   flex: 1,
-                  borderWidth: 2,
+                  borderWidth: 1,
                   borderColor: '#1A1A1A',
                   borderRadius: 0,
                   paddingVertical: 12,
@@ -385,7 +385,7 @@ export function BudgetModal({
                 disabled={isSaving || !category || !amount}
                 style={{
                   flex: 1,
-                  borderWidth: 2,
+                  borderWidth: 1,
                   borderColor: '#1A1A1A',
                   borderRadius: 0,
                   paddingVertical: 12,
