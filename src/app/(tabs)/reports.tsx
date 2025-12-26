@@ -134,7 +134,7 @@ export default function ReportsScreen() {
           <Text className="text-[18px] font-semibold text-black mb-2">
             {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio'}
           </Text>
-          <Text className="text-[16px] font-normal text-[#666666] mb-3">
+          <Text className="text-[16px] font-normal text-[#666666] mb-4">
             Reporte de Gastos
           </Text>
           <Text className="text-[13px] font-light text-[#999999] mb-1">
@@ -169,8 +169,8 @@ export default function ReportsScreen() {
         </View>
 
         {/* Resumen Ejecutivo */}
-        <View className="px-6 mt-6">
-          <Text className="text-[18px] font-bold text-black mb-4">
+        <View className="px-6 mt-8">
+          <Text className="text-[18px] font-bold text-black mb-6">
             RESUMEN EJECUTIVO
           </Text>
           
@@ -217,8 +217,8 @@ export default function ReportsScreen() {
         </View>
 
         {/* Gastos por Categoría */}
-        <View className="px-6 mt-6">
-          <Text className="text-[18px] font-bold text-black mb-4">
+        <View className="px-6 mt-8">
+          <Text className="text-[18px] font-bold text-black mb-6">
             GASTOS POR CATEGORÍA
           </Text>
 
@@ -300,8 +300,8 @@ export default function ReportsScreen() {
         </View>
 
         {/* Detalle de Gastos */}
-        <View className="px-6 mt-6">
-          <Text className="text-[18px] font-bold text-black mb-4">
+        <View className="px-6 mt-8">
+          <Text className="text-[18px] font-bold text-black mb-6">
             DETALLE DE GASTOS
           </Text>
 
@@ -362,14 +362,14 @@ export default function ReportsScreen() {
         </View>
 
         {/* Footer */}
-        <View className="px-6 mt-6 mb-8 pt-4 border-t border-[#E5E5E5]">
+        <View className="px-6 mt-8 mb-8 pt-4 border-t border-[#E5E5E5]">
           <Text className="text-[12px] text-[#999999] text-center">
             Reporte generado por MANU el {formattedDate} a las {formattedTime}
           </Text>
         </View>
 
         {/* Download PDF Button */}
-        <View className="px-6 mt-4 mb-8">
+        <View className="px-6 mt-6 mb-8">
           <Pressable
             onPress={handleDownloadPDF}
             disabled={isGeneratingPDF}

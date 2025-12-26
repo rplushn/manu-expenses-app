@@ -100,7 +100,7 @@ export default function InvoicesScreen() {
         entering={FadeInDown.duration(300).delay(index * 50)}
       >
         <Pressable
-          className="border border-[#E5E5E5] rounded-2xl p-5 mb-3 active:opacity-60"
+          className="border border-[#E5E5E5] rounded-2xl p-5 mb-4 active:opacity-60"
           onPress={() => handleInvoicePress(item)}
         >
           <View className="flex-row justify-between items-start mb-2">
@@ -143,13 +143,13 @@ export default function InvoicesScreen() {
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#000000" />
-            <Text className="text-[14px] font-light text-[#666666] mt-3">
+            <Text className="text-[14px] font-light text-[#666666] mt-4">
               Cargando facturas...
             </Text>
           </View>
         ) : invoices.length === 0 ? (
           <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-[16px] font-light text-[#999999] text-center mb-4">
+            <Text className="text-[16px] font-light text-[#999999] text-center mb-6">
               No tienes facturas aún
             </Text>
             <Pressable

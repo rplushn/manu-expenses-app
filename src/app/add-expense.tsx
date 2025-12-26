@@ -287,7 +287,7 @@ export default function AddExpenseScreen() {
               {showOcrSuccess && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-5 mb-4 border border-[#E5E5E5]"
+                  className="flex-row items-center bg-[#F5F5F5] p-5 mb-6 border border-[#E5E5E5]"
                 >
                   <CheckCircle size={20} strokeWidth={1.5} color="#000000" />
                   <Text className="text-[14px] font-light text-black ml-2 flex-1">
@@ -300,7 +300,7 @@ export default function AddExpenseScreen() {
               {isProcessing && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-3 mb-4"
+                  className="flex-row items-center bg-[#F5F5F5] p-3 mb-6"
                 >
                   <ActivityIndicator size="small" color="#000000" />
                   <Text className="text-[14px] font-light text-[#666666] ml-2">
@@ -312,13 +312,13 @@ export default function AddExpenseScreen() {
               {/* Photo Options */}
               <Animated.View
                 entering={SlideInDown.duration(300).delay(100)}
-                className="flex-row mb-4"
-                style={{ gap: 12 }}
+                className="flex-row mb-6"
+                style={{ gap: 16 }}
               >
                 {/* Take Photo Button */}
                 <Pressable
                   className="flex-1 flex-row items-center justify-center border border-[#E5E5E5] py-3.5 active:opacity-60"
-                  style={{ gap: 8, backgroundColor: receiptImageUrl ? '#F5F5F5' : '#FFFFFF' }}
+                  style={{ gap: 12, backgroundColor: receiptImageUrl ? '#F5F5F5' : '#FFFFFF' }}
                   onPress={handleTakePhoto}
                   disabled={isSaving || isProcessing}
                 >
@@ -331,7 +331,7 @@ export default function AddExpenseScreen() {
                 {/* Pick from Gallery Button */}
                 <Pressable
                   className="flex-1 flex-row items-center justify-center border border-[#E5E5E5] py-3.5 active:opacity-60"
-                  style={{ gap: 8, backgroundColor: '#FFFFFF' }}
+                  style={{ gap: 12, backgroundColor: '#FFFFFF' }}
                   onPress={handlePickImage}
                   disabled={isSaving || isProcessing}
                 >
@@ -346,7 +346,7 @@ export default function AddExpenseScreen() {
               {receiptImageUrl && !isProcessing && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-3 mb-4"
+                  className="flex-row items-center bg-[#F5F5F5] p-3 mb-6"
                 >
                   <CheckCircle size={18} strokeWidth={1.5} color="#000000" />
                   <Text className="text-[13px] font-light text-[#666666] ml-2 flex-1">
@@ -535,7 +535,7 @@ export default function AddExpenseScreen() {
               {/* Save Button */}
               <Animated.View
                 entering={SlideInDown.duration(300).delay(500)}
-                className="mt-8"
+                className="mt-10"
               >
                 <Pressable
                   className="py-5 items-center active:opacity-60"
@@ -595,7 +595,7 @@ export default function AddExpenseScreen() {
             }}
             onPress={(e) => e.stopPropagation()}
           >
-            <Text className="text-[18px] font-medium text-black mb-4">
+            <Text className="text-[18px] font-medium text-black mb-6">
               Fecha del gasto
             </Text>
 
@@ -622,7 +622,7 @@ export default function AddExpenseScreen() {
               />
             </View>
 
-            <View className="flex-row mt-4" style={{ gap: 12 }}>
+            <View className="flex-row mt-6" style={{ gap: 16 }}>
               <Pressable
                 onPress={() => {
                   setIsDatePickerVisible(false);

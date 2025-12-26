@@ -688,7 +688,7 @@ export default function HistoryScreen() {
             <Text style={textStyles.screenTitle}>
               Historial
             </Text>
-            <View className="flex-row items-center" style={{ gap: 8 }}>
+            <View className="flex-row items-center" style={{ gap: 12 }}>
               {/* QuickBooks Sync Badge */}
               {qbConnection && qbStatus.text && (
                 <Animated.View
@@ -778,9 +778,9 @@ export default function HistoryScreen() {
           contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           renderItem={({ item: group }) => (
-            <View className="mb-6">
+            <View className="mb-8">
               {/* Date Header */}
-              <Text style={textStyles.sectionLabel} className="mb-3 mt-2">
+              <Text style={textStyles.sectionLabel} className="mb-4 mt-2">
                 {group.dateLabel}
               </Text>
 
@@ -887,7 +887,7 @@ export default function HistoryScreen() {
 
                 <View className="px-6">
                   {/* Amount */}
-                  <View className="mb-6">
+                  <View className="mb-8">
                     <Text className="text-[13px] font-light text-[#666666] mb-1">Monto</Text>
                     <Text className="text-[32px] font-semibold text-black">
                       {formatMoney(selectedExpense.amount, selectedExpense.currencyCode || userCurrency)}
@@ -941,7 +941,7 @@ export default function HistoryScreen() {
 
                   {/* Receipt Image */}
                   {selectedExpense.receiptImageUrl && (
-                    <View className="mb-6">
+                    <View className="mb-8">
                       <Text className="text-[13px] font-light text-[#666666] mb-2">
                         Foto del recibo
                       </Text>
@@ -956,7 +956,7 @@ export default function HistoryScreen() {
                   )}
 
                   {/* Action Buttons */}
-                  <View className="flex-row mt-4 mb-8">
+                  <View className="flex-row mt-6 mb-8">
                     <Pressable
                       onPress={openEditModal}
                       className="flex-1 py-5 bg-black items-center mr-2 active:opacity-80"
@@ -1212,7 +1212,7 @@ export default function HistoryScreen() {
                   </View>
 
                   {/* Save Button */}
-                  <View className="mt-4 mb-8">
+                  <View className="mt-6 mb-8">
                     <Pressable
                       className="py-5 items-center active:opacity-60"
                       style={{
@@ -1270,12 +1270,12 @@ export default function HistoryScreen() {
 
                 <View className="px-6 pt-6">
                   {/* Date Range */}
-                  <View className="mb-6">
+                  <View className="mb-8">
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Rango de fechas
                     </Text>
                     
-                    <View className="mb-3">
+                    <View className="mb-4">
                       <Text className="text-[12px] text-[#999999] mb-1">Desde</Text>
                       <Pressable
                         onPress={() => setShowExportStartPicker(true)}
@@ -1303,12 +1303,12 @@ export default function HistoryScreen() {
                   </View>
 
                   {/* Categories */}
-                  <View className="mb-6">
-                    <View className="flex-row justify-between items-center mb-3">
+                  <View className="mb-8">
+                    <View className="flex-row justify-between items-center mb-4">
                       <Text className="text-[13px] text-[#666666]">
                         Categorías
                       </Text>
-                      <View className="flex-row" style={{ gap: 8 }}>
+                      <View className="flex-row" style={{ gap: 12 }}>
                         <Pressable
                           onPress={selectAllCategories}
                           className="px-3 py-1 border border-[#E5E5E5] active:opacity-60"
@@ -1348,7 +1348,7 @@ export default function HistoryScreen() {
                   </View>
 
                   {/* Export Format */}
-                  <View className="mb-6">
+                  <View className="mb-8">
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Formato de exportación
                     </Text>
@@ -1427,7 +1427,7 @@ export default function HistoryScreen() {
 
                   {/* CSV Format - Only show if CSV is included */}
                   {exportFormat !== 'photos-only' && (
-                  <View className="mb-6">
+                  <View className="mb-8">
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Formato CSV
                     </Text>

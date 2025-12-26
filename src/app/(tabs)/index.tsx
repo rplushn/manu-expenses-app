@@ -346,7 +346,7 @@ export default function HomeScreen() {
         )}
 
         {/* Period Selector */}
-        <View className="flex-row mx-5 mt-6 border border-[#E5E5E5]">
+        <View className="flex-row mx-5 mt-8 border border-[#E5E5E5]">
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
@@ -372,7 +372,7 @@ export default function HomeScreen() {
         {/* Period Total */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(100)}
-          className="px-6 mt-8"
+          className="px-6 mt-10"
         >
           <Text className="text-[14px] font-light text-[#666666] mb-1">
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
@@ -397,14 +397,14 @@ export default function HomeScreen() {
         {categorySummary.length > 0 && (
           <Animated.View
             entering={FadeIn.duration(300).delay(200)}
-            className="px-6 mt-8"
+            className="px-6 mt-10"
           >
-            <Text className="text-[16px] font-normal text-black mb-4">
+            <Text className="text-[16px] font-normal text-black mb-6">
               Por categoria
             </Text>
             <View className="border border-[#E5E5E5] p-5">
               {categorySummary.map((cat, index) => (
-                <View key={cat.category} className={index > 0 ? 'mt-4' : ''}>
+                <View key={cat.category} className={index > 0 ? 'mt-6' : ''}>
                   <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-[14px] font-light text-black">
                       {CATEGORY_LABELS[cat.category]}
@@ -430,10 +430,10 @@ export default function HomeScreen() {
         )}
 
         {/* Divider */}
-        <View className="mx-5 mt-8 h-[1px] bg-[#E5E5E5]" />
+        <View className="mx-5 mt-10 h-[1px] bg-[#E5E5E5]" />
 
         {/* Recent Expenses */}
-        <View className="px-6 mt-6">
+        <View className="px-6 mt-8">
           <Text className="text-[16px] font-normal text-black mb-4">
             Ultimos gastos
           </Text>
@@ -452,7 +452,7 @@ export default function HomeScreen() {
               </Text>
               <Pressable
                 onPress={handleAddExpense}
-                className="mt-4 border border-black px-6 py-4 active:opacity-60"
+                className="mt-6 border border-black px-6 py-4 active:opacity-60"
               >
                 <Text className="text-[14px] font-light text-black">Agregar gasto</Text>
               </Pressable>
@@ -463,7 +463,7 @@ export default function HomeScreen() {
                 key={expense.id}
                 entering={FadeInDown.duration(300).delay(200 + index * 100)}
               >
-                <View className="border border-[#E5E5E5] p-5 mb-3">
+                <View className="border border-[#E5E5E5] p-5 mb-4">
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
                       <Text className="text-[16px] text-black font-normal">
@@ -561,7 +561,7 @@ export default function HomeScreen() {
 
             {/* Features */}
             <View className="mb-8 p-6 border border-[#E5E5E5] rounded-2xl">
-              <Text className="text-[16px] font-medium text-black mb-4">
+              <Text className="text-[16px] font-medium text-black mb-6">
                 Incluye:
               </Text>
               <Feature text="Gastos ilimitados cada mes" />
@@ -584,7 +584,7 @@ export default function HomeScreen() {
                 }}
               >
                 {isProcessingPurchase ? (
-                  <View className="flex-row items-center" style={{ gap: 8 }}>
+                  <View className="flex-row items-center" style={{ gap: 12 }}>
                     <ActivityIndicator size="small" color="#666666" />
                     <Text className="text-[16px] font-medium text-[#666666]">
                       Procesando...
@@ -609,7 +609,7 @@ export default function HomeScreen() {
             <Pressable
               onPress={handleRestorePurchases}
               disabled={isProcessingPurchase}
-              className="mt-4 py-3 items-center active:opacity-60"
+              className="mt-6 py-3 items-center active:opacity-60"
             >
               <Text className="text-[14px] font-light text-[#666666] underline">
                 Restaurar compras anteriores
@@ -617,7 +617,7 @@ export default function HomeScreen() {
             </Pressable>
 
             {/* Disclaimer */}
-            <Text className="text-[12px] font-light text-[#999999] text-center mt-6 leading-5">
+            <Text className="text-[12px] font-light text-[#999999] text-center mt-8 leading-5">
               Suscripción con renovación automática. Puedes cancelar en
               cualquier momento desde la App Store o Google Play. El pago se
               cargará a tu cuenta al confirmar la compra.

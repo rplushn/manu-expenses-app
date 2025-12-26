@@ -1125,7 +1125,7 @@ export default function ProfileScreen() {
         {/* Section: negocio y plan */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(200)}
-          className="px-6 mt-6"
+          className="px-6 mt-10"
         >
           {/* Nombre del negocio: label arriba, valor abajo */}
           <View
@@ -1187,7 +1187,7 @@ export default function ProfileScreen() {
         {/* Company Info Section */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(250)}
-          className="px-6 mt-8"
+          className="px-6 mt-10"
         >
           <Text
             style={{
@@ -1274,7 +1274,7 @@ export default function ProfileScreen() {
         {/* INTEGRACIONES SECTION */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(250)}
-          className="px-6 mt-8"
+          className="px-6 mt-10"
         >
           <Text className="text-[13px] text-[#999999] mb-4 uppercase tracking-wide">
             INTEGRACIONES
@@ -1293,7 +1293,7 @@ export default function ProfileScreen() {
             }}
           >
             {/* Header: Lock + Logo - REDUCIDO 20% */}
-            <View className="flex-row items-center mb-4">
+            <View className="flex-row items-center mb-6">
               <Lock size={16} color="#2CA01C" strokeWidth={2} />
               <View 
                 className="w-7 h-7 bg-[#2CA01C] rounded-xl items-center justify-center mx-2"
@@ -1306,7 +1306,7 @@ export default function ProfileScreen() {
 
             {/* Badge Conectado - REDUCIDO 20% - SIN BORDE */}
             <View 
-              className="bg-[#F0FDF4] rounded-xl px-3 py-2.5 mb-4 flex-row items-center"
+              className="bg-[#F0FDF4] rounded-xl px-3 py-2.5 mb-6 flex-row items-center"
               style={{ 
                 gap: 6,
                 borderWidth: 0
@@ -1324,7 +1324,7 @@ export default function ProfileScreen() {
             </View>
 
             {/* Info Minimalista - REDUCIDO 20% */}
-            <View className="mb-4" style={{ gap: 6 }}>
+            <View className="mb-6" style={{ gap: 6 }}>
               <View className="flex-row items-center justify-between">
                 <Text className="text-[11px] text-[#666666]">Auto-sync:</Text>
                 <Text className="text-[11px] font-normal text-[#666666]">Desactivado</Text>
@@ -1336,7 +1336,7 @@ export default function ProfileScreen() {
             </View>
 
             {/* Botones - REDUCIDO 20% - SIN BORDES FORZADO */}
-            <View className="flex-row" style={{ gap: 8 }}>
+            <View className="flex-row" style={{ gap: 12 }}>
               <Pressable
                 onPress={() => {
                   Haptics.selectionAsync();
@@ -1390,7 +1390,7 @@ export default function ProfileScreen() {
         {/* Help Section */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(300)}
-          className="px-6 mt-8"
+          className="px-6 mt-10"
         >
           <MenuItem label="FAQ y ayuda" onPress={handleFAQPress} />
         </Animated.View>
@@ -1481,7 +1481,7 @@ export default function ProfileScreen() {
             <Pressable
               onPress={handleSaveBusinessName}
               disabled={isSavingName || !newBusinessName.trim()}
-              className="mt-6 py-4 items-center active:opacity-80"
+              className="mt-8 py-4 items-center active:opacity-80"
               style={{
                 backgroundColor:
                   isSavingName || !newBusinessName.trim()
@@ -1577,7 +1577,7 @@ export default function ProfileScreen() {
                     ) : (
                       <View
                         className="flex-row items-center"
-                        style={{ gap: 8 }}
+                        style={{ gap: 12 }}
                       >
                         <Upload
                           size={18}
@@ -1768,7 +1768,7 @@ export default function ProfileScreen() {
             </View>
 
             <View className="my-6 border-t border-[#E5E5E5]" />
-            <Text className="text-[15px] font-normal text-black mb-4">
+            <Text className="text-[15px] font-normal text-black mb-6">
               Rango de facturas
             </Text>
 
@@ -1842,7 +1842,7 @@ export default function ProfileScreen() {
             <Pressable
               onPress={handleSaveCompanyInfo}
               disabled={isSavingCompanyInfo}
-              className="mt-4 mb-8 py-5 items-center active:opacity-80"
+              className="mt-6 mb-8 py-5 items-center active:opacity-80"
               style={{
                 backgroundColor: isSavingCompanyInfo
                   ? '#E5E5E5'
@@ -1922,7 +1922,7 @@ export default function ProfileScreen() {
             )}
 
             <View className="mb-8 p-6 border border-[#E5E5E5] rounded-2xl">
-              <Text className="text-[16px] font-medium text-black mb-4">
+              <Text className="text-[16px] font-medium text-black mb-6">
                 Incluye:
               </Text>
               <Feature text="Gastos ilimitados cada mes" />
@@ -1986,7 +1986,7 @@ export default function ProfileScreen() {
               </Text>
             </Pressable>
 
-            <Text className="text-[12px] font-light text-[#999999] text-center mt-6 leading-5">
+            <Text className="text-[12px] font-light text-[#999999] text-center mt-8 leading-5">
               Suscripción con renovación automática. Puedes cancelar
               en cualquier momento desde la App Store o Google Play.
               El pago se cargará a tu cuenta al confirmar la compra.
@@ -2033,7 +2033,7 @@ export default function ProfileScreen() {
               qbSyncLogs.map((log) => (
                 <View
                   key={log.id}
-                  className="mb-4 p-5 border border-[#E5E5E5] rounded-2xl"
+                  className="mb-6 p-5 border border-[#E5E5E5] rounded-2xl"
                 >
                   <View className="flex-row justify-between items-start mb-2">
                     <View style={{ flex: 1 }}>
@@ -2114,7 +2114,7 @@ export default function ProfileScreen() {
                           Alert.alert('Error', result.error || 'No se pudo sincronizar');
                         }
                       }}
-                      className="mt-3 py-3 px-5 items-center bg-black rounded-xl active:opacity-80"
+                      className="mt-4 py-3 px-5 items-center bg-black rounded-xl active:opacity-80"
                     >
                       <Text
                         style={{
