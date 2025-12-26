@@ -22,6 +22,7 @@ import {
   Check,
   Upload,
   Image as ImageIcon,
+  Lock,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
@@ -1270,338 +1271,120 @@ export default function ProfileScreen() {
           </View>
         </Animated.View>
 
-        {/* QuickBooks Integration Section */}
+        {/* INTEGRACIONES SECTION */}
         <Animated.View
-          entering={FadeInDown.duration(300).delay(275)}
+          entering={FadeInDown.duration(300).delay(250)}
           className="px-5 mt-8"
         >
-          <Text
-            style={{
-              fontFamily: systemFont,
-              fontSize: 12,
-              fontWeight: '600',
-              letterSpacing: 0.5,
-              color: '#9CA3AF',
-              textTransform: 'uppercase',
-              marginBottom: 8,
-            }}
-          >
-            Integraciones
+          <Text className="text-[13px] text-[#999999] mb-4 uppercase tracking-wide">
+            INTEGRACIONES
           </Text>
-
-          {/* QuickBooks Card - Naranja MANU */}
-          <Pressable
-            onPress={() => {
-              if (qbConnection) {
-                setShowQBSyncLogs(true);
-              }
-            }}
-            className="rounded-xl overflow-hidden active:opacity-95"
+          
+          {/* QuickBooks Card - 20% más pequeño */}
+          <View
+            className="bg-[#EBEBEB] rounded-2xl p-6 mb-5"
             style={{
-              backgroundColor: '#FFF4ED', // Naranja suave
-              borderWidth: 1,
-              borderColor: '#FFE5D0',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.05,
+              shadowRadius: 2,
+              elevation: 1,
+              borderWidth: 0
             }}
           >
-            <View className="p-5">
-              {/* Header */}
-              <View className="flex-row justify-between items-center mb-4">
-                <View className="flex-row items-center" style={{ gap: 8 }}>
-                  <Text
-                    style={{
-                      fontFamily: systemFont,
-                      fontSize: 18,
-                      fontWeight: '600',
-                      color: '#111827',
-                    }}
-                  >
-                    🔗 QuickBooks
-                  </Text>
-                </View>
-                {qbConnection && (
-                  <View
-                    className="flex-row items-center px-3 py-1 rounded-full"
-                    style={{
-                      backgroundColor: '#10B981',
-                      gap: 6,
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: '#FFFFFF',
-                      }}
-                    />
-                    <Text
-                      style={{
-                        fontFamily: systemFont,
-                        fontSize: 12,
-                        fontWeight: '600',
-                        color: '#FFFFFF',
-                      }}
-                    >
-                      Conectado
-                    </Text>
-                  </View>
-                )}
+            {/* Header: Lock + Logo - REDUCIDO 20% */}
+            <View className="flex-row items-center mb-4">
+              <Lock size={16} color="#2CA01C" strokeWidth={2} />
+              <View 
+                className="w-7 h-7 bg-[#2CA01C] rounded-lg items-center justify-center mx-2"
+                style={{ borderWidth: 0 }}
+              >
+                <Text className="text-white font-bold text-[14px]">qb</Text>
               </View>
-
-              {(qbConnection || qbConnected) ? (
-                <>
-                  {/* Status Info */}
-                  <View className="mb-4">
-                    <View className="flex-row items-center mb-2">
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          color: '#666666',
-                        }}
-                      >
-                        Estado:
-                      </Text>
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: '#10B981',
-                          marginLeft: 8,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          color: '#111827',
-                          marginLeft: 6,
-                        }}
-                      >
-                        Conectado
-                      </Text>
-                    </View>
-
-                    <View className="flex-row items-center mb-2">
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          color: '#666666',
-                        }}
-                      >
-                        Auto-sync:
-                      </Text>
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '600',
-                          color: qbConnection?.sync_enabled ? '#10B981' : '#DC2626',
-                          marginLeft: 8,
-                        }}
-                      >
-                        {qbConnection?.sync_enabled ? 'Activado' : 'Desactivado'}
-                      </Text>
-                    </View>
-
-                    {qbSyncStats?.last_sync_at && (
-                      <View className="flex-row items-center">
-                        <Text
-                          style={{
-                            fontFamily: systemFont,
-                            fontSize: 13,
-                            fontWeight: '500',
-                            color: '#666666',
-                          }}
-                        >
-                          Última sincronización:
-                        </Text>
-                        <Text
-                          style={{
-                            fontFamily: systemFont,
-                            fontSize: 13,
-                            fontWeight: '600',
-                            color: '#111827',
-                            marginLeft: 8,
-                          }}
-                        >
-                          {formatTimeAgo(new Date(qbSyncStats.last_sync_at))}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-
-                  {/* Description */}
-                  <Text
-                    style={{
-                      fontFamily: systemFont,
-                      fontSize: 12,
-                      fontWeight: '400',
-                      color: '#666666',
-                      marginBottom: 16,
-                      lineHeight: 18,
-                    }}
-                  >
-                    Tus gastos se sincronizan automáticamente a QuickBooks
-                  </Text>
-
-                  {/* Actions */}
-                  <View className="flex-row" style={{ gap: 8 }}>
-                    <Pressable
-                      onPress={() => {
-                        Haptics.selectionAsync();
-                        router.push('/qb-category-mapping');
-                      }}
-                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
-                      style={{
-                        backgroundColor: '#FFFFFF',
-                        borderWidth: 1,
-                        borderColor: '#FFE5D0',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '600',
-                          color: '#111827',
-                        }}
-                      >
-                        Configuración
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={handleDisconnectQB}
-                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
-                      style={{
-                        backgroundColor: '#DC2626',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '600',
-                          color: '#FFFFFF',
-                        }}
-                      >
-                        Desconectar
-                      </Text>
-                    </Pressable>
-                  </View>
-                </>
-              ) : (
-                <>
-                  {/* Disconnected State */}
-                  <View className="mb-4">
-                    <View className="flex-row items-center mb-3">
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          color: '#666666',
-                        }}
-                      >
-                        Estado:
-                      </Text>
-                      <View
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 4,
-                          backgroundColor: '#9CA3AF',
-                          marginLeft: 8,
-                        }}
-                      />
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '500',
-                          color: '#111827',
-                          marginLeft: 6,
-                        }}
-                      >
-                        Desconectado
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Description */}
-                  <Text
-                    style={{
-                      fontFamily: systemFont,
-                      fontSize: 12,
-                      fontWeight: '400',
-                      color: '#666666',
-                      marginBottom: 16,
-                      lineHeight: 18,
-                    }}
-                  >
-                    Conecta QuickBooks para automatizar la sincronización de gastos
-                  </Text>
-
-                  {/* Actions */}
-                  <View className="flex-row" style={{ gap: 8 }}>
-                    <Pressable
-                      onPress={() => {
-                        Haptics.selectionAsync();
-                        router.push('/qb-oauth');
-                      }}
-                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
-                      style={{
-                        backgroundColor: '#FF6B1A',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '600',
-                          color: '#FFFFFF',
-                        }}
-                      >
-                        Conectar QB
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => {
-                        Haptics.selectionAsync();
-                        Alert.alert(
-                          'QuickBooks Integration',
-                          'Conecta tu cuenta de QuickBooks para sincronizar automáticamente tus gastos. Los gastos se mapean a cuentas de QuickBooks según las categorías configuradas.',
-                          [{ text: 'Entendido' }]
-                        );
-                      }}
-                      className="flex-1 py-3 px-4 items-center rounded-lg active:opacity-80"
-                      style={{
-                        backgroundColor: '#FFFFFF',
-                        borderWidth: 1,
-                        borderColor: '#FFE5D0',
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: systemFont,
-                          fontSize: 13,
-                          fontWeight: '600',
-                          color: '#111827',
-                        }}
-                      >
-                        Más info
-                      </Text>
-                    </Pressable>
-                  </View>
-                </>
-              )}
+              <Text className="text-[18px] font-medium text-black">quickbooks</Text>
             </View>
-          </Pressable>
+
+            {/* Badge Conectado - REDUCIDO 20% - SIN BORDE */}
+            <View 
+              className="bg-[#F0FDF4] rounded-lg px-3 py-2.5 mb-4 flex-row items-center"
+              style={{ 
+                gap: 6,
+                borderWidth: 0
+              }}
+            >
+              <View 
+                className="w-4 h-4 bg-[#16A34A] rounded-full items-center justify-center"
+                style={{ borderWidth: 0 }}
+              >
+                <Text className="text-white text-[10px] font-bold">✓</Text>
+              </View>
+              <Text className="text-[11px] font-medium text-[#16A34A]">
+                Conectado de forma segura
+              </Text>
+            </View>
+
+            {/* Info Minimalista - REDUCIDO 20% */}
+            <View className="mb-4" style={{ gap: 6 }}>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-[11px] text-[#666666]">Auto-sync:</Text>
+                <Text className="text-[11px] font-normal text-[#666666]">Desactivado</Text>
+              </View>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-[11px] text-[#666666]">Última sync:</Text>
+                <Text className="text-[11px] font-normal text-[#666666]">Hace 2 horas</Text>
+              </View>
+            </View>
+
+            {/* Botones - REDUCIDO 20% - SIN BORDES FORZADO */}
+            <View className="flex-row" style={{ gap: 8 }}>
+              <Pressable
+                onPress={() => {
+                  Haptics.selectionAsync();
+                  router.push('/qb-category-mapping');
+                }}
+                className="flex-1 bg-[#2CA01C] rounded-lg py-2.5 items-center active:opacity-80"
+                style={{
+                  borderWidth: 0,
+                  borderColor: 'transparent',
+                  overflow: 'hidden',
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 2,
+                  elevation: 0
+                }}
+              >
+                <Text 
+                  className="text-[11px] font-normal text-white"
+                  style={{ borderWidth: 0 }}
+                >
+                  Configuración
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleDisconnectQB}
+                className="flex-1 bg-[#DC2626] rounded-lg py-2.5 items-center active:opacity-80"
+                style={{
+                  borderWidth: 0,
+                  borderColor: 'transparent',
+                  overflow: 'hidden',
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 2,
+                  elevation: 0
+                }}
+              >
+                <Text 
+                  className="text-[11px] font-normal text-white"
+                  style={{ borderWidth: 0 }}
+                >
+                  Desconectar
+                </Text>
+              </Pressable>
+            </View>
+          </View>
         </Animated.View>
 
         {/* Help Section */}

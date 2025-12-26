@@ -1,74 +1,32 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { View, Text } from 'react-native';
-import { Home, Clock, FileText, BarChart2, User } from 'lucide-react-native';
-
-interface TabIconProps {
-  focused: boolean;
-  icon: React.ReactNode;
-  label: string;
-}
-
-function TabIcon({ focused, icon, label }: TabIconProps) {
-  return (
-    <View
-      className="items-center justify-center pt-1"
-      style={{ width: 70 }}
-    >
-      {icon}
-      <Text
-        numberOfLines={2}
-        style={{
-          marginTop: 4,
-          fontSize: 11,
-          lineHeight: 12,
-          textAlign: 'center',
-          color: '#FFFFFF',
-          fontWeight: focused ? '600' : '500',
-          marginTop: 2,
-        }}
-      >
-        {label}
-      </Text>
-    </View>
-  );
-}
+import { Home, Clock, Receipt, BarChart3, User } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
+        tabBarActiveTintColor: '#FF6B2C',
+        tabBarInactiveTintColor: '#999999',
         tabBarStyle: {
           backgroundColor: '#000000',
           borderTopWidth: 0,
-          height: 60,
-          paddingBottom: 8,
+          height: 70,
+          paddingBottom: 24,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-          marginTop: 2,
+          fontSize: 9,
+          fontWeight: '300',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <Home
-                  size={24}
-                  strokeWidth={1.5}
-                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
-                />
-              }
-              label="Inicio"
-            />
+          title: 'Inicio',
+          tabBarIcon: ({ color }) => (
+            <Home size={18} color={color} strokeWidth={1.2} />
           ),
         }}
       />
@@ -76,18 +34,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <Clock
-                  size={24}
-                  strokeWidth={1.5}
-                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
-                />
-              }
-              label="Historial"
-            />
+          title: 'Historial',
+          tabBarIcon: ({ color }) => (
+            <Clock size={18} color={color} strokeWidth={1.2} />
           ),
         }}
       />
@@ -95,18 +44,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="invoices"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <FileText
-                  size={24}
-                  strokeWidth={1.5}
-                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
-                />
-              }
-              label="Facturas"
-            />
+          title: 'Facturas',
+          tabBarIcon: ({ color }) => (
+            <Receipt size={18} color={color} strokeWidth={1.2} />
           ),
         }}
       />
@@ -114,18 +54,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="reports"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <BarChart2
-                  size={24}
-                  strokeWidth={1.5}
-                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
-                />
-              }
-              label="Reportes"
-            />
+          title: 'Reportes',
+          tabBarIcon: ({ color }) => (
+            <BarChart3 size={18} color={color} strokeWidth={1.2} />
           ),
         }}
       />
@@ -133,18 +64,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <User
-                  size={24}
-                  strokeWidth={1.5}
-                  color={focused ? '#FF6B1A' : 'rgba(255,255,255,0.7)'}
-                />
-              }
-              label="Perfil"
-            />
+          title: 'Perfil',
+          tabBarIcon: ({ color }) => (
+            <User size={18} color={color} strokeWidth={1.2} />
           ),
         }}
       />

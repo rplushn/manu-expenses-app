@@ -378,8 +378,10 @@ export default function HomeScreen() {
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
           </Text>
           <Text
-            className="text-[48px] font-bold text-black tracking-[-1px]"
+            className="text-[56px] font-bold text-black tracking-[-1px]"
             style={{ fontFamily: 'System' }}
+            numberOfLines={1}
+            adjustsFontSizeToFit
           >
             {formatMoney(stats.total, userCurrency)}
           </Text>
