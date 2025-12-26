@@ -372,7 +372,7 @@ export default function HomeScreen() {
         {/* Period Total */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(100)}
-          className="px-5 mt-8"
+          className="px-6 mt-8"
         >
           <Text className="text-[14px] font-light text-[#666666] mb-1">
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
@@ -397,12 +397,12 @@ export default function HomeScreen() {
         {categorySummary.length > 0 && (
           <Animated.View
             entering={FadeIn.duration(300).delay(200)}
-            className="px-5 mt-8"
+            className="px-6 mt-8"
           >
             <Text className="text-[16px] font-normal text-black mb-4">
               Por categoria
             </Text>
-            <View className="border border-[#E5E5E5] p-4">
+            <View className="border border-[#E5E5E5] p-5">
               {categorySummary.map((cat, index) => (
                 <View key={cat.category} className={index > 0 ? 'mt-4' : ''}>
                   <View className="flex-row justify-between items-center mb-2">
@@ -433,7 +433,7 @@ export default function HomeScreen() {
         <View className="mx-5 mt-8 h-[1px] bg-[#E5E5E5]" />
 
         {/* Recent Expenses */}
-        <View className="px-5 mt-6">
+        <View className="px-6 mt-6">
           <Text className="text-[16px] font-normal text-black mb-4">
             Ultimos gastos
           </Text>
@@ -452,7 +452,7 @@ export default function HomeScreen() {
               </Text>
               <Pressable
                 onPress={handleAddExpense}
-                className="mt-4 border border-black px-6 py-3 active:opacity-60"
+                className="mt-4 border border-black px-6 py-4 active:opacity-60"
               >
                 <Text className="text-[14px] font-light text-black">Agregar gasto</Text>
               </Pressable>
@@ -463,7 +463,7 @@ export default function HomeScreen() {
                 key={expense.id}
                 entering={FadeInDown.duration(300).delay(200 + index * 100)}
               >
-                <View className="border border-[#E5E5E5] p-4 mb-3">
+                <View className="border border-[#E5E5E5] p-5 mb-3">
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
                       <Text className="text-[16px] text-black font-normal">
@@ -528,7 +528,7 @@ export default function HomeScreen() {
 
           <ScrollView
             className="flex-1"
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
             {/* Hero Section */}
@@ -546,7 +546,7 @@ export default function HomeScreen() {
 
             {/* Price */}
             {proPackage && (
-              <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-2xl">
+              <View className="items-center mb-8 p-7 bg-[#F9F9F9] rounded-2xl">
                 <Text className="text-[14px] text-[#666666] mb-1">
                   Suscripción mensual
                 </Text>
@@ -560,7 +560,7 @@ export default function HomeScreen() {
             )}
 
             {/* Features */}
-            <View className="mb-8 p-5 border border-[#E5E5E5] rounded-2xl">
+            <View className="mb-8 p-6 border border-[#E5E5E5] rounded-2xl">
               <Text className="text-[16px] font-medium text-black mb-4">
                 Incluye:
               </Text>
@@ -578,7 +578,7 @@ export default function HomeScreen() {
               <Pressable
                 onPress={handlePurchasePro}
                 disabled={isProcessingPurchase}
-                className="py-4 items-center rounded-xl active:opacity-80"
+                className="py-5 items-center rounded-xl active:opacity-80"
                 style={{
                   backgroundColor: isProcessingPurchase ? '#E5E5E5' : '#000000',
                 }}

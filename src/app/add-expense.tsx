@@ -267,7 +267,7 @@ export default function AddExpenseScreen() {
             {/* Header */}
             <Animated.View
               entering={FadeIn.duration(200)}
-              className="flex-row justify-between items-center px-5 pt-4 pb-6"
+              className="flex-row justify-between items-center px-6 pt-4 pb-6"
             >
               <Text className="text-[20px] font-medium text-black">
                 Nuevo gasto
@@ -282,12 +282,12 @@ export default function AddExpenseScreen() {
               </Pressable>
             </Animated.View>
 
-            <View className="px-5">
+            <View className="px-6">
               {/* OCR Success Message */}
               {showOcrSuccess && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-4 mb-4 border border-[#E5E5E5]"
+                  className="flex-row items-center bg-[#F5F5F5] p-5 mb-4 border border-[#E5E5E5]"
                 >
                   <CheckCircle size={20} strokeWidth={1.5} color="#000000" />
                   <Text className="text-[14px] font-light text-black ml-2 flex-1">
@@ -368,7 +368,7 @@ export default function AddExpenseScreen() {
               <Animated.View entering={SlideInDown.duration(300).delay(200)}>
                 <Text className="text-[13px] font-light text-[#666666] mb-2">Monto *</Text>
                 <View
-                  className="border p-4 flex-row items-center"
+                  className="border p-5 flex-row items-center"
                   style={{
                     borderColor: amountFocused ? '#000000' : '#E5E5E5',
                   }}
@@ -400,7 +400,7 @@ export default function AddExpenseScreen() {
                   Categoría *
                 </Text>
                 <Pressable
-                  className="border border-[#E5E5E5] p-4 flex-row items-center justify-between active:opacity-60"
+                  className="border border-[#E5E5E5] p-5 flex-row items-center justify-between active:opacity-60"
                   onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                   disabled={isSaving || isProcessing}
                 >
@@ -418,7 +418,7 @@ export default function AddExpenseScreen() {
                     {CATEGORIES.map((cat) => (
                       <Pressable
                         key={cat}
-                        className="p-4 border-b border-[#F5F5F5] active:bg-[#F5F5F5]"
+                        className="p-5 border-b border-[#F5F5F5] active:bg-[#F5F5F5]"
                         onPress={() => {
                           setCategory(cat);
                           setShowCategoryPicker(false);
@@ -449,7 +449,7 @@ export default function AddExpenseScreen() {
                   Proveedor (opcional)
                 </Text>
                 <View
-                  className="border p-4"
+                  className="border p-5"
                   style={{
                     borderColor: providerFocused ? '#000000' : '#E5E5E5',
                   }}
@@ -505,7 +505,7 @@ export default function AddExpenseScreen() {
                   Notas (opcional)
                 </Text>
                 <View
-                  className="border p-4"
+                  className="border p-5"
                   style={{
                     borderColor: notesFocused ? '#000000' : '#E5E5E5',
                   }}
@@ -538,7 +538,7 @@ export default function AddExpenseScreen() {
                 className="mt-8"
               >
                 <Pressable
-                  className="py-4 items-center active:opacity-60"
+                  className="py-5 items-center active:opacity-60"
                   style={{
                     backgroundColor: isValid && !isSaving && !isProcessing ? '#000000' : '#E5E5E5',
                   }}
@@ -591,7 +591,7 @@ export default function AddExpenseScreen() {
               width: '90%',
               backgroundColor: '#FFFFFF',
               borderRadius: 24,
-              padding: 20,
+              padding: 24,
             }}
             onPress={(e) => e.stopPropagation()}
           >

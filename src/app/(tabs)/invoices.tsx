@@ -100,7 +100,7 @@ export default function InvoicesScreen() {
         entering={FadeInDown.duration(300).delay(index * 50)}
       >
         <Pressable
-          className="border border-[#E5E5E5] rounded-2xl p-4 mb-3 active:opacity-60"
+          className="border border-[#E5E5E5] rounded-2xl p-5 mb-3 active:opacity-60"
           onPress={() => handleInvoicePress(item)}
         >
           <View className="flex-row justify-between items-start mb-2">
@@ -128,7 +128,7 @@ export default function InvoicesScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <View className="flex-1">
         {/* Header */}
-        <View className="px-5 pt-2 pb-4 flex-row justify-between items-center">
+        <View className="px-6 pt-2 pb-4 flex-row justify-between items-center">
           <Text className="text-[20px] font-medium text-black">Facturas</Text>
           <Pressable
             onPress={handleCreateInvoice}
@@ -148,13 +148,13 @@ export default function InvoicesScreen() {
             </Text>
           </View>
         ) : invoices.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-5">
+          <View className="flex-1 items-center justify-center px-6">
             <Text className="text-[16px] font-light text-[#999999] text-center mb-4">
               No tienes facturas aún
             </Text>
             <Pressable
               onPress={handleCreateInvoice}
-              className="border border-black px-6 py-3 active:opacity-60"
+              className="border border-black px-6 py-4 active:opacity-60"
             >
               <Text className="text-[14px] font-light text-black">Crear primera factura</Text>
             </Pressable>
@@ -164,7 +164,7 @@ export default function InvoicesScreen() {
             data={invoices}
             renderItem={renderInvoice}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
             showsVerticalScrollIndicator={false}
           />
         )}

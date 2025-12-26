@@ -993,7 +993,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Title */}
-        <View className="px-5 pt-2 pb-4">
+        <View className="px-6 pt-2 pb-4">
           <Text
             style={{
               fontFamily: systemFont,
@@ -1125,7 +1125,7 @@ export default function ProfileScreen() {
         {/* Section: negocio y plan */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(200)}
-          className="px-5 mt-6"
+          className="px-6 mt-6"
         >
           {/* Nombre del negocio: label arriba, valor abajo */}
           <View
@@ -1187,7 +1187,7 @@ export default function ProfileScreen() {
         {/* Company Info Section */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(250)}
-          className="px-5 mt-8"
+          className="px-6 mt-8"
         >
           <Text
             style={{
@@ -1274,7 +1274,7 @@ export default function ProfileScreen() {
         {/* INTEGRACIONES SECTION */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(250)}
-          className="px-5 mt-8"
+          className="px-6 mt-8"
         >
           <Text className="text-[13px] text-[#999999] mb-4 uppercase tracking-wide">
             INTEGRACIONES
@@ -1282,7 +1282,7 @@ export default function ProfileScreen() {
           
           {/* QuickBooks Card - 20% más pequeño */}
           <View
-            className="bg-[#EBEBEB] rounded-3xl p-6 mb-5"
+            className="bg-[#EBEBEB] rounded-3xl p-7 mb-5"
             style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 1 },
@@ -1390,7 +1390,7 @@ export default function ProfileScreen() {
         {/* Help Section */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(300)}
-          className="px-5 mt-8"
+          className="px-6 mt-8"
         >
           <MenuItem label="FAQ y ayuda" onPress={handleFAQPress} />
         </Animated.View>
@@ -1398,7 +1398,7 @@ export default function ProfileScreen() {
         {/* Bottom Actions */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(300)}
-          className="px-5 mt-12"
+          className="px-6 mt-12"
         >
           <Pressable
             style={{ paddingVertical: 16 }}
@@ -1450,7 +1450,7 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
             <Pressable
               onPress={() => setShowEditNameModal(false)}
               className="p-1 active:opacity-60"
@@ -1464,7 +1464,7 @@ export default function ProfileScreen() {
             <View style={{ width: 32 }} />
           </View>
 
-          <View className="flex-1 px-5 pt-8">
+          <View className="flex-1 px-6 pt-8">
             <Text className="text-[14px] font-light text-[#666666] mb-2">
               Nombre del negocio
             </Text>
@@ -1519,7 +1519,7 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
             <Pressable
               onPress={() => setShowCompanyInfoModal(false)}
               className="p-1 active:opacity-60"
@@ -1567,7 +1567,7 @@ export default function ProfileScreen() {
                   <Pressable
                     onPress={handleUploadLogo}
                     disabled={isUploadingLogo}
-                    className="border border-black px-4 py-3 items-center active:opacity-60"
+                    className="border border-black px-5 py-4 items-center active:opacity-60"
                   >
                     {isUploadingLogo ? (
                       <ActivityIndicator
@@ -1640,7 +1640,7 @@ export default function ProfileScreen() {
                     );
                   }
                 }}
-                className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
+                className="border border-[#E5E5E5] px-5 py-4 flex-row justify-between items-center"
                 style={{ minHeight: 50 }}
               >
                 <Text className="text-[16px] font-light text-black">
@@ -1660,7 +1660,7 @@ export default function ProfileScreen() {
                 Nombre de la empresa *
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={companyName}
                 onChangeText={setCompanyName}
                 placeholder="RPLUS INVERSIONES S DE RL"
@@ -1677,7 +1677,7 @@ export default function ProfileScreen() {
                 RTN de la empresa
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={companyRtn}
                 onChangeText={setCompanyRtn}
                 placeholder="08011990123456"
@@ -1692,7 +1692,7 @@ export default function ProfileScreen() {
                 CAI (Código de Autorización)
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={companyCai}
                 onChangeText={setCompanyCai}
                 placeholder="CAI-123456-789012-345678"
@@ -1706,7 +1706,7 @@ export default function ProfileScreen() {
                 Dirección
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={companyAddress}
                 onChangeText={setCompanyAddress}
                 placeholder="Calle Principal, Col. Centro"
@@ -1723,7 +1723,7 @@ export default function ProfileScreen() {
                 Teléfono
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={companyPhone}
                 onChangeText={setCompanyPhone}
                 placeholder="+504 1234-5678"
@@ -1738,7 +1738,7 @@ export default function ProfileScreen() {
                 Email de facturación
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={companyEmail}
                 onChangeText={setCompanyEmail}
                 placeholder="facturacion@empresa.com"
@@ -1754,7 +1754,7 @@ export default function ProfileScreen() {
                 Tasa de impuesto (%)
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={taxRate}
                 onChangeText={setTaxRate}
                 placeholder="15"
@@ -1777,7 +1777,7 @@ export default function ProfileScreen() {
                 Rango de facturas - Inicio
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={invoiceRangeStart}
                 onChangeText={setInvoiceRangeStart}
                 placeholder="000-001-01-00000001"
@@ -1794,7 +1794,7 @@ export default function ProfileScreen() {
                 Rango de facturas - Fin
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={invoiceRangeEnd}
                 onChangeText={setInvoiceRangeEnd}
                 placeholder="000-001-01-00005000"
@@ -1810,7 +1810,7 @@ export default function ProfileScreen() {
               <Text className="text-[13px] font-light text-[#666666] mb-2">
                 Próximo número de factura
               </Text>
-              <View className="border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-3">
+              <View className="border border-[#E5E5E5] bg-[#F5F5F5] px-5 py-4">
                 <Text className="text-[16px] text-[#666666]">
                   {currentUser?.facturaProximoNumero ||
                     invoiceRangeStart ||
@@ -1827,7 +1827,7 @@ export default function ProfileScreen() {
                 Fecha de vencimiento del CAI
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
                 value={caiExpirationDate}
                 onChangeText={setCaiExpirationDate}
                 placeholder="YYYY-MM-DD"
@@ -1842,7 +1842,7 @@ export default function ProfileScreen() {
             <Pressable
               onPress={handleSaveCompanyInfo}
               disabled={isSavingCompanyInfo}
-              className="mt-4 mb-8 py-4 items-center active:opacity-80"
+              className="mt-4 mb-8 py-5 items-center active:opacity-80"
               style={{
                 backgroundColor: isSavingCompanyInfo
                   ? '#E5E5E5'
@@ -1872,7 +1872,7 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
             <Pressable
               onPress={() => setShowProModal(false)}
               className="p-1 active:opacity-60"
@@ -1888,7 +1888,7 @@ export default function ProfileScreen() {
 
           <ScrollView
             className="flex-1"
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
             <View className="items-center mb-8">
@@ -1908,7 +1908,7 @@ export default function ProfileScreen() {
             </View>
 
             {proPackage && (
-              <View className="items-center mb-8 p-6 bg-[#F9F9F9] rounded-2xl">
+              <View className="items-center mb-8 p-7 bg-[#F9F9F9] rounded-2xl">
                 <Text className="text-[14px] font-light text-[#666666] mb-1">
                   Suscripción mensual
                 </Text>
@@ -1921,7 +1921,7 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            <View className="mb-8 p-5 border border-[#E5E5E5] rounded-2xl">
+            <View className="mb-8 p-6 border border-[#E5E5E5] rounded-2xl">
               <Text className="text-[16px] font-medium text-black mb-4">
                 Incluye:
               </Text>
@@ -1938,7 +1938,7 @@ export default function ProfileScreen() {
               <Pressable
                 onPress={handlePurchasePro}
                 disabled={isProcessingPurchase}
-                className="py-4 items-center rounded-xl active:opacity-80"
+                className="py-5 items-center rounded-xl active:opacity-80"
                 style={{
                   backgroundColor: isProcessingPurchase
                     ? '#E5E5E5'
@@ -2006,7 +2006,7 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
             <Text className="text-[18px] font-semibold text-black">
               Logs de Sincronización
             </Text>
@@ -2020,7 +2020,7 @@ export default function ProfileScreen() {
 
           <ScrollView
             className="flex-1"
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
             {qbSyncLogs.length === 0 ? (
@@ -2033,7 +2033,7 @@ export default function ProfileScreen() {
               qbSyncLogs.map((log) => (
                 <View
                   key={log.id}
-                  className="mb-4 p-4 border border-[#E5E5E5] rounded-2xl"
+                  className="mb-4 p-5 border border-[#E5E5E5] rounded-2xl"
                 >
                   <View className="flex-row justify-between items-start mb-2">
                     <View style={{ flex: 1 }}>
@@ -2114,7 +2114,7 @@ export default function ProfileScreen() {
                           Alert.alert('Error', result.error || 'No se pudo sincronizar');
                         }
                       }}
-                      className="mt-3 py-2 px-4 items-center bg-black rounded-xl active:opacity-80"
+                      className="mt-3 py-3 px-5 items-center bg-black rounded-xl active:opacity-80"
                     >
                       <Text
                         style={{
