@@ -25,9 +25,9 @@ const ManuTheme = {
     ...DefaultTheme.colors,
     background: '#FFFFFF',
     card: '#FFFFFF',
-    text: '#000000',
-    border: '#E5E5E5',
-    primary: '#000000',
+    text: '#1A1A1A',
+    border: '#F0F0F0',
+    primary: '#1A1A1A',
   },
 };
 

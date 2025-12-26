@@ -42,9 +42,9 @@ const PERIOD_LABELS: Record<Period, string> = {
 };
 
 const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
-  mercaderia: '#000000',
+  mercaderia: '#1A1A1A',
   servicios: '#1A1A1A',
-  marketing: '#333333',
+  marketing: '#1A1A1A',
   transporte: '#4D4D4D',
   operacion: '#666666',
   personal: '#737373',
@@ -58,8 +58,8 @@ const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
 // Feature item component
 const Feature = ({ text }: { text: string }) => (
   <View className="flex-row items-center mb-3" style={{ gap: 10 }}>
-    <Check size={18} strokeWidth={2} color="#000000" />
-    <Text className="text-[15px] font-light text-[#333333] flex-1">{text}</Text>
+    <Check size={18} strokeWidth={2} color="#1A1A1A" />
+    <Text className="text-[15px] font-light text-[#1A1A1A] flex-1">{text}</Text>
   </View>
 );
 
@@ -317,7 +317,7 @@ export default function HomeScreen() {
             className="p-2 active:opacity-60"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Plus size={24} strokeWidth={1.5} color="#000000" />
+            <Plus size={24} strokeWidth={1.5} color="#1A1A1A" />
           </Pressable>
         </View>
 
@@ -346,14 +346,14 @@ export default function HomeScreen() {
         )}
 
         {/* Period Selector */}
-        <View className="flex-row mx-5 mt-8 border border-[#E5E5E5]">
+        <View className="flex-row mx-5 mt-8 border border-[#F0F0F0]">
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
               className="flex-1 py-3 items-center active:opacity-60"
               style={{
                 backgroundColor:
-                  selectedPeriod === period ? '#000000' : '#FFFFFF',
+                  selectedPeriod === period ? '#1A1A1A' : '#FFFFFF',
               }}
               onPress={() => handlePeriodChange(period)}
             >
@@ -378,7 +378,7 @@ export default function HomeScreen() {
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
           </Text>
           <Text
-            className="text-[56px] font-bold text-black tracking-[-1px]"
+            className="text-[56px] font-bold text-[#1A1A1A] tracking-[-1px]"
             style={{ fontFamily: 'System' }}
             numberOfLines={1}
             adjustsFontSizeToFit
@@ -399,21 +399,21 @@ export default function HomeScreen() {
             entering={FadeIn.duration(300).delay(200)}
             className="px-6 mt-10"
           >
-            <Text className="text-[16px] font-normal text-black mb-6">
+            <Text className="text-[16px] font-normal text-[#1A1A1A] mb-6">
               Por categoria
             </Text>
-            <View className="border border-[#E5E5E5] p-5">
+            <View className="border border-[#F0F0F0] p-5">
               {categorySummary.map((cat, index) => (
                 <View key={cat.category} className={index > 0 ? 'mt-6' : ''}>
                   <View className="flex-row justify-between items-center mb-2">
-                    <Text className="text-[14px] font-light text-black">
+                    <Text className="text-[14px] font-light text-[#1A1A1A]">
                       {CATEGORY_LABELS[cat.category]}
                     </Text>
                     <Text className="text-[14px] font-light text-[#666666]">
                       {formatMoney(cat.total, userCurrency)} ({cat.percentage.toFixed(0)}%)
                     </Text>
                   </View>
-                  <View className="h-2 bg-[#F5F5F5] overflow-hidden">
+                  <View className="h-2 bg-[#FAFAFA] overflow-hidden">
                     <Animated.View
                       entering={FadeIn.duration(500).delay(300 + index * 100)}
                       className="h-full"
@@ -430,17 +430,17 @@ export default function HomeScreen() {
         )}
 
         {/* Divider */}
-        <View className="mx-5 mt-10 h-[1px] bg-[#E5E5E5]" />
+        <View className="mx-5 mt-10 h-[1px] bg-[#F0F0F0]" />
 
         {/* Recent Expenses */}
         <View className="px-6 mt-8">
-          <Text className="text-[16px] font-normal text-black mb-4">
+          <Text className="text-[16px] font-normal text-[#1A1A1A] mb-4">
             Ultimos gastos
           </Text>
 
           {isLoading ? (
             <View className="py-8 items-center">
-              <ActivityIndicator size="large" color="#000000" />
+              <ActivityIndicator size="large" color="#1A1A1A" />
               <Text className="text-[14px] font-light text-[#666666] mt-3">
                 Cargando gastos...
               </Text>
@@ -454,7 +454,7 @@ export default function HomeScreen() {
                 onPress={handleAddExpense}
                 className="mt-6 border border-black px-6 py-4 active:opacity-60"
               >
-                <Text className="text-[14px] font-light text-black">Agregar gasto</Text>
+                <Text className="text-[14px] font-light text-[#1A1A1A]">Agregar gasto</Text>
               </Pressable>
             </View>
           ) : (
@@ -463,10 +463,10 @@ export default function HomeScreen() {
                 key={expense.id}
                 entering={FadeInDown.duration(300).delay(200 + index * 100)}
               >
-                <View className="border border-[#E5E5E5] p-5 mb-4">
+                <View className="border border-[#F0F0F0] p-5 mb-4">
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
-                      <Text className="text-[16px] text-black font-normal">
+                      <Text className="text-[16px] text-[#1A1A1A] font-normal">
                         {expense.provider}
                       </Text>
                       <Text className="text-[13px] font-light text-[#999999] mt-1">
@@ -474,7 +474,7 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                     <Text
-                      className="text-[16px] text-black font-medium"
+                      className="text-[16px] text-[#1A1A1A] font-medium"
                       style={{ fontFamily: 'System' }}
                     >
                       {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
@@ -491,7 +491,7 @@ export default function HomeScreen() {
               className="mt-2 active:opacity-60"
             >
               <Text
-                className="text-[14px] font-light text-black"
+                className="text-[14px] font-light text-[#1A1A1A]"
                 style={{ textDecorationLine: 'underline' }}
               >
                 Ver todos ({periodExpenses.length})
@@ -512,15 +512,15 @@ export default function HomeScreen() {
       >
         <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
           {/* Modal Header */}
-          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#F0F0F0]">
             <Pressable
               onPress={() => setShowProModal(false)}
               className="p-1 active:opacity-60"
               disabled={isProcessingPurchase}
             >
-              <X size={24} strokeWidth={1.5} color="#000000" />
+              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
             </Pressable>
-            <Text className="text-[18px] font-medium text-black">
+            <Text className="text-[18px] font-medium text-[#1A1A1A]">
               MANU Pro
             </Text>
             <View style={{ width: 32 }} />
@@ -536,7 +536,7 @@ export default function HomeScreen() {
               <View className="w-16 h-16 bg-black rounded-3xl items-center justify-center mb-4">
                 <Crown size={32} strokeWidth={1.5} color="#FFFFFF" />
               </View>
-              <Text className="text-[28px] font-semibold text-black mb-2">
+              <Text className="text-[28px] font-semibold text-[#1A1A1A] mb-2">
                 MANU Pro
               </Text>
               <Text className="text-[15px] font-light text-[#666666] text-center">
@@ -550,7 +550,7 @@ export default function HomeScreen() {
                 <Text className="text-[14px] text-[#666666] mb-1">
                   Suscripción mensual
                 </Text>
-                <Text className="text-[36px] font-bold text-black">
+                <Text className="text-[36px] font-bold text-[#1A1A1A]">
                   {proPackage.product.priceString}
                 </Text>
                 <Text className="text-[13px] font-light text-[#999999] mt-1">
@@ -560,8 +560,8 @@ export default function HomeScreen() {
             )}
 
             {/* Features */}
-            <View className="mb-8 p-6 border border-[#E5E5E5] rounded-2xl">
-              <Text className="text-[16px] font-medium text-black mb-6">
+            <View className="mb-8 p-6 border border-[#F0F0F0] rounded-2xl">
+              <Text className="text-[16px] font-medium text-[#1A1A1A] mb-6">
                 Incluye:
               </Text>
               <Feature text="Gastos ilimitados cada mes" />
@@ -580,7 +580,7 @@ export default function HomeScreen() {
                 disabled={isProcessingPurchase}
                 className="py-5 items-center rounded-xl active:opacity-80"
                 style={{
-                  backgroundColor: isProcessingPurchase ? '#E5E5E5' : '#000000',
+                  backgroundColor: isProcessingPurchase ? '#E5E5E5' : '#1A1A1A',
                 }}
               >
                 {isProcessingPurchase ? (

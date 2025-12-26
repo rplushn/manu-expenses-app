@@ -151,7 +151,7 @@ export default function QBCategoryMappingScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#000000" />
+          <ActivityIndicator size="large" color="#1A1A1A" />
           <Text className="text-[14px] text-[#666666] mt-4">
             Cargando mapeos...
           </Text>
@@ -162,15 +162,15 @@ export default function QBCategoryMappingScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
-        <Text className="text-[18px] font-medium text-black">
+      <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#F0F0F0]">
+        <Text className="text-[18px] font-medium text-[#1A1A1A]">
           Mapeo de Categorías
         </Text>
         <Pressable
           onPress={() => router.back()}
           className="p-1 active:opacity-60"
         >
-          <X size={24} strokeWidth={1.5} color="#000000" />
+          <X size={24} strokeWidth={1.5} color="#1A1A1A" />
         </Pressable>
       </View>
 
@@ -183,11 +183,11 @@ export default function QBCategoryMappingScreen() {
           {mappings.map((mapping) => (
             <View
               key={mapping.id}
-              className="mb-4 p-4 border border-[#E5E5E5] rounded-lg"
+              className="mb-4 p-4 border border-[#F0F0F0] rounded-lg"
             >
               <View className="flex-row justify-between items-center mb-3">
                 <View>
-                  <Text className="text-[16px] font-medium text-black">
+                  <Text className="text-[16px] font-medium text-[#1A1A1A]">
                     {CATEGORY_LABELS[mapping.manu_category]}
                   </Text>
                   <Text className="text-[12px] font-light text-[#666666] mt-1">
@@ -203,12 +203,12 @@ export default function QBCategoryMappingScreen() {
               </View>
 
               {editingCategory === mapping.manu_category && (
-                <View className="mt-3 pt-3 border-t border-[#E5E5E5]">
+                <View className="mt-3 pt-3 border-t border-[#F0F0F0]">
                   <Text className="text-[13px] font-light text-[#666666] mb-2">
                     ID de cuenta QB
                   </Text>
                   <TextInput
-                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] font-light text-black mb-3"
+                    className="border border-[#F0F0F0] px-3 py-2 text-[14px] font-light text-[#1A1A1A] mb-3"
                     value={editAccountId}
                     onChangeText={setEditAccountId}
                     placeholder="Ej: 123"
@@ -218,7 +218,7 @@ export default function QBCategoryMappingScreen() {
                     Nombre de cuenta QB
                   </Text>
                   <TextInput
-                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] font-light text-black mb-3"
+                    className="border border-[#F0F0F0] px-3 py-2 text-[14px] font-light text-[#1A1A1A] mb-3"
                     value={editAccountName}
                     onChangeText={setEditAccountName}
                     placeholder="Ej: Office Expenses"
@@ -227,9 +227,9 @@ export default function QBCategoryMappingScreen() {
                   <View className="flex-row mt-4" style={{ gap: 8 }}>
                     <Pressable
                       onPress={() => setEditingCategory(null)}
-                      className="flex-1 py-2 items-center border border-[#E5E5E5] rounded-lg active:opacity-80"
+                      className="flex-1 py-2 items-center border border-[#F0F0F0] rounded-lg active:opacity-80"
                     >
-                      <Text className="text-[14px] font-normal text-black">
+                      <Text className="text-[14px] font-normal text-[#1A1A1A]">
                         Cancelar
                       </Text>
                     </Pressable>

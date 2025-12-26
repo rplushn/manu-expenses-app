@@ -373,9 +373,9 @@ export default function NewInvoiceScreen() {
           {/* Header */}
           <Animated.View
             entering={FadeIn.duration(200)}
-            className="flex-row justify-between items-center px-5 pt-4 pb-6 border-b border-[#E5E5E5]"
+            className="flex-row justify-between items-center px-5 pt-4 pb-6 border-b border-[#F0F0F0]"
           >
-            <Text className="text-[20px] font-semibold text-black">
+            <Text className="text-[20px] font-semibold text-[#1A1A1A]">
               Nueva Factura
             </Text>
             <Pressable
@@ -384,7 +384,7 @@ export default function NewInvoiceScreen() {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               disabled={isSaving}
             >
-              <X size={24} strokeWidth={1.5} color="#000000" />
+              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
             </Pressable>
           </Animated.View>
 
@@ -399,7 +399,7 @@ export default function NewInvoiceScreen() {
                 <Text className="text-[13px] text-[#666666] mb-2">
                   Número de factura
                 </Text>
-                <View className="border border-[#E5E5E5] bg-[#F5F5F5] px-4 py-3">
+                <View className="border border-[#F0F0F0] bg-[#FAFAFA] px-4 py-3">
                   <Text className="text-[16px] text-[#666666]">
                     {invoiceNumber || 'Sin configurar'}
                   </Text>
@@ -412,7 +412,7 @@ export default function NewInvoiceScreen() {
                   Nombre del cliente *
                 </Text>
                 <TextInput
-                  className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                  className="border border-[#F0F0F0] px-4 py-3 text-[16px] text-[#1A1A1A]"
                   value={clientName}
                   onChangeText={setClientName}
                   placeholder="Nombre completo o empresa"
@@ -428,7 +428,7 @@ export default function NewInvoiceScreen() {
                   RTN del cliente (opcional)
                 </Text>
                 <TextInput
-                  className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                  className="border border-[#F0F0F0] px-4 py-3 text-[16px] text-[#1A1A1A]"
                   value={clientRtn}
                   onChangeText={setClientRtn}
                   placeholder="0801199012345"
@@ -445,7 +445,7 @@ export default function NewInvoiceScreen() {
                   Dirección del cliente (opcional)
                 </Text>
                 <TextInput
-                  className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                  className="border border-[#F0F0F0] px-4 py-3 text-[16px] text-[#1A1A1A]"
                   value={clientAddress}
                   onChangeText={setClientAddress}
                   placeholder="Dirección completa"
@@ -467,8 +467,8 @@ export default function NewInvoiceScreen() {
                   <Pressable
                     className="flex-1 py-2 border items-center active:opacity-60"
                     style={{
-                      borderColor: '#E5E5E5',
-                      backgroundColor: discountType === 'percentage' ? '#000000' : '#FFFFFF',
+                      borderColor: '#F0F0F0',
+                      backgroundColor: discountType === 'percentage' ? '#1A1A1A' : '#FFFFFF',
                     }}
                     onPress={() => {
                       setDiscountType('percentage');
@@ -478,7 +478,7 @@ export default function NewInvoiceScreen() {
                   >
                     <Text
                       className="text-[14px]"
-                      style={{ color: discountType === 'percentage' ? '#FFFFFF' : '#000000' }}
+                      style={{ color: discountType === 'percentage' ? '#FFFFFF' : '#1A1A1A' }}
                     >
                       Porcentaje
                     </Text>
@@ -486,8 +486,8 @@ export default function NewInvoiceScreen() {
                   <Pressable
                     className="flex-1 py-2 border items-center active:opacity-60"
                     style={{
-                      borderColor: '#E5E5E5',
-                      backgroundColor: discountType === 'amount' ? '#000000' : '#FFFFFF',
+                      borderColor: '#F0F0F0',
+                      backgroundColor: discountType === 'amount' ? '#1A1A1A' : '#FFFFFF',
                     }}
                     onPress={() => {
                       setDiscountType('amount');
@@ -497,7 +497,7 @@ export default function NewInvoiceScreen() {
                   >
                     <Text
                       className="text-[14px]"
-                      style={{ color: discountType === 'amount' ? '#FFFFFF' : '#000000' }}
+                      style={{ color: discountType === 'amount' ? '#FFFFFF' : '#1A1A1A' }}
                     >
                       Monto fijo
                     </Text>
@@ -505,7 +505,7 @@ export default function NewInvoiceScreen() {
                 </View>
                 {discountType === 'percentage' ? (
                   <TextInput
-                    className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                    className="border border-[#F0F0F0] px-4 py-3 text-[16px] text-[#1A1A1A]"
                     value={discountPercentage}
                     onChangeText={setDiscountPercentage}
                     placeholder="0"
@@ -516,7 +516,7 @@ export default function NewInvoiceScreen() {
                   />
                 ) : (
                   <TextInput
-                    className="border border-[#E5E5E5] px-4 py-3 text-[16px] text-black"
+                    className="border border-[#F0F0F0] px-4 py-3 text-[16px] text-[#1A1A1A]"
                     value={discountAmount}
                     onChangeText={setDiscountAmount}
                     placeholder="0.00"
@@ -533,9 +533,9 @@ export default function NewInvoiceScreen() {
               </View>
 
               {/* Divider */}
-              <View className="my-4 border-t border-[#E5E5E5]" />
+              <View className="my-4 border-t border-[#F0F0F0]" />
               <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-[15px] font-medium text-black">
+                <Text className="text-[15px] font-medium text-[#1A1A1A]">
                   Artículos
                 </Text>
                 <Pressable
@@ -543,8 +543,8 @@ export default function NewInvoiceScreen() {
                   className="flex-row items-center active:opacity-60"
                   disabled={isSaving}
                 >
-                  <Plus size={18} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] text-black ml-1">Agregar</Text>
+                  <Plus size={18} strokeWidth={1.5} color="#1A1A1A" />
+                  <Text className="text-[14px] text-[#1A1A1A] ml-1">Agregar</Text>
                 </Pressable>
               </View>
 
@@ -553,10 +553,10 @@ export default function NewInvoiceScreen() {
                 <Animated.View
                   key={item.id}
                   entering={SlideInDown.duration(300).delay(index * 50)}
-                  className="mb-4 border border-[#E5E5E5] p-4"
+                  className="mb-4 border border-[#F0F0F0] p-4"
                 >
                   <View className="flex-row justify-between items-center mb-3">
-                    <Text className="text-[14px] font-medium text-black">
+                    <Text className="text-[14px] font-medium text-[#1A1A1A]">
                       Artículo {index + 1}
                     </Text>
                     {lineItems.length > 1 && (
@@ -575,7 +575,7 @@ export default function NewInvoiceScreen() {
                       Descripción *
                     </Text>
                     <TextInput
-                      className="border border-[#E5E5E5] px-3 py-2 text-[15px] text-black"
+                      className="border border-[#F0F0F0] px-3 py-2 text-[15px] text-[#1A1A1A]"
                       value={item.description}
                       onChangeText={(value) =>
                         updateLineItem(item.id, 'description', value)
@@ -592,7 +592,7 @@ export default function NewInvoiceScreen() {
                         Cantidad *
                       </Text>
                       <TextInput
-                        className="border border-[#E5E5E5] px-3 py-2 text-[15px] text-black"
+                        className="border border-[#F0F0F0] px-3 py-2 text-[15px] text-[#1A1A1A]"
                         value={item.quantity}
                         onChangeText={(value) =>
                           updateLineItem(item.id, 'quantity', value)
@@ -609,7 +609,7 @@ export default function NewInvoiceScreen() {
                         Precio unitario *
                       </Text>
                       <TextInput
-                        className="border border-[#E5E5E5] px-3 py-2 text-[15px] text-black"
+                        className="border border-[#F0F0F0] px-3 py-2 text-[15px] text-[#1A1A1A]"
                         value={item.unit_price}
                         onChangeText={(value) =>
                           updateLineItem(item.id, 'unit_price', value)
@@ -638,10 +638,10 @@ export default function NewInvoiceScreen() {
               ))}
 
               {/* Totals */}
-              <View className="mt-4 border-t border-[#E5E5E5] pt-4">
+              <View className="mt-4 border-t border-[#F0F0F0] pt-4">
                 <View className="flex-row justify-between items-center mb-2">
                   <Text className="text-[15px] text-[#666666]">Subtotal</Text>
-                  <Text className="text-[15px] text-black">
+                  <Text className="text-[15px] text-[#1A1A1A]">
                     {formatCurrency(subtotal)}
                   </Text>
                 </View>
@@ -656,7 +656,7 @@ export default function NewInvoiceScreen() {
                 {discount > 0 && (
                   <View className="flex-row justify-between items-center mb-2">
                     <Text className="text-[15px] text-[#666666]">Subtotal con descuento</Text>
-                    <Text className="text-[15px] text-black">
+                    <Text className="text-[15px] text-[#1A1A1A]">
                       {formatCurrency(taxableAmount)}
                     </Text>
                   </View>
@@ -665,13 +665,13 @@ export default function NewInvoiceScreen() {
                   <Text className="text-[15px] text-[#666666]">
                     ISV ({((currentUser?.tasaImpuesto || 0.15) * 100).toFixed(0)}%)
                   </Text>
-                  <Text className="text-[15px] text-black">
+                  <Text className="text-[15px] text-[#1A1A1A]">
                     {formatCurrency(taxAmount)}
                   </Text>
                 </View>
-                <View className="flex-row justify-between items-center pt-2 border-t border-[#E5E5E5]">
-                  <Text className="text-[18px] font-semibold text-black">Total</Text>
-                  <Text className="text-[18px] font-semibold text-black">
+                <View className="flex-row justify-between items-center pt-2 border-t border-[#F0F0F0]">
+                  <Text className="text-[18px] font-semibold text-[#1A1A1A]">Total</Text>
+                  <Text className="text-[18px] font-semibold text-[#1A1A1A]">
                     {formatCurrency(total)}
                   </Text>
                 </View>
@@ -682,7 +682,7 @@ export default function NewInvoiceScreen() {
                 <Pressable
                   className="py-4 items-center active:opacity-60"
                   style={{
-                    backgroundColor: isValid && !isSaving ? '#000000' : '#E5E5E5',
+                    backgroundColor: isValid && !isSaving ? '#1A1A1A' : '#F0F0F0',
                   }}
                   onPress={handleSave}
                   disabled={!isValid || isSaving}

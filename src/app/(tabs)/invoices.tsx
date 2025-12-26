@@ -100,19 +100,19 @@ export default function InvoicesScreen() {
         entering={FadeInDown.duration(300).delay(index * 50)}
       >
         <Pressable
-          className="border border-[#E5E5E5] rounded-2xl p-5 mb-4 active:opacity-60"
+          className="border border-[#F0F0F0] rounded-2xl p-5 mb-4 active:opacity-60"
           onPress={() => handleInvoicePress(item)}
         >
           <View className="flex-row justify-between items-start mb-2">
             <View className="flex-1">
-              <Text className="text-[16px] font-normal text-black">
+              <Text className="text-[16px] font-normal text-[#1A1A1A]">
                 {item.invoice_number}
               </Text>
               <Text className="text-[14px] font-light text-[#666666] mt-1">
                 {item.client_name}
               </Text>
             </View>
-            <Text className="text-[18px] font-semibold text-black">
+            <Text className="text-[18px] font-semibold text-[#1A1A1A]">
               {formatCurrency(item.total)}
             </Text>
           </View>
@@ -129,20 +129,20 @@ export default function InvoicesScreen() {
       <View className="flex-1">
         {/* Header */}
         <View className="px-6 pt-2 pb-4 flex-row justify-between items-center">
-          <Text className="text-[20px] font-medium text-black">Facturas</Text>
+          <Text className="text-[20px] font-medium text-[#1A1A1A]">Facturas</Text>
           <Pressable
             onPress={handleCreateInvoice}
             className="p-2 active:opacity-60"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Plus size={24} strokeWidth={1.5} color="#000000" />
+            <Plus size={24} strokeWidth={1.5} color="#1A1A1A" />
           </Pressable>
         </View>
 
         {/* Invoices List */}
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#000000" />
+            <ActivityIndicator size="large" color="#1A1A1A" />
             <Text className="text-[14px] font-light text-[#666666] mt-4">
               Cargando facturas...
             </Text>
@@ -156,7 +156,7 @@ export default function InvoicesScreen() {
               onPress={handleCreateInvoice}
               className="border border-black px-6 py-4 active:opacity-60"
             >
-              <Text className="text-[14px] font-light text-black">Crear primera factura</Text>
+              <Text className="text-[14px] font-light text-[#1A1A1A]">Crear primera factura</Text>
             </Pressable>
           </View>
         ) : (

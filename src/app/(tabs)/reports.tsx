@@ -130,8 +130,8 @@ export default function ReportsScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={['top']}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="px-6 pt-6 pb-4 border-b border-[#E5E5E5]">
-          <Text className="text-[18px] font-semibold text-black mb-2">
+        <View className="px-6 pt-6 pb-4 border-b border-[#F0F0F0]">
+          <Text className="text-[18px] font-semibold text-[#1A1A1A] mb-2">
             {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio'}
           </Text>
           <Text className="text-[16px] font-normal text-[#666666] mb-4">
@@ -146,13 +146,13 @@ export default function ReportsScreen() {
         </View>
 
         {/* Period Tabs */}
-        <View className="flex-row mx-5 mt-2 border border-[#E5E5E5]">
+        <View className="flex-row mx-5 mt-2 border border-[#F0F0F0]">
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
               className="flex-1 py-3 items-center active:opacity-60"
               style={{
-                backgroundColor: selectedPeriod === period ? '#000000' : '#FFFFFF',
+                backgroundColor: selectedPeriod === period ? '#1A1A1A' : '#FFFFFF',
               }}
               onPress={() => handlePeriodChange(period)}
             >
@@ -170,32 +170,32 @@ export default function ReportsScreen() {
 
         {/* Resumen Ejecutivo */}
         <View className="px-6 mt-8">
-          <Text className="text-[18px] font-bold text-black mb-6">
+          <Text className="text-[18px] font-bold text-[#1A1A1A] mb-6">
             RESUMEN EJECUTIVO
           </Text>
           
-          <View className="border border-[#E5E5E5] p-5">
+          <View className="border border-[#F0F0F0] p-5">
             <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
               <Text className="text-[14px] font-light text-[#666666]">Total Gastos:</Text>
-              <Text className="text-[14px] font-semibold text-black">
+              <Text className="text-[14px] font-semibold text-[#1A1A1A]">
                 L {formatAmount(stats.total)}
               </Text>
             </View>
             <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
               <Text className="text-[14px] font-light text-[#666666]">Número de Gastos:</Text>
-              <Text className="text-[14px] font-semibold text-black">
+              <Text className="text-[14px] font-semibold text-[#1A1A1A]">
                 {stats.count}
               </Text>
             </View>
             <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
               <Text className="text-[14px] font-light text-[#666666]">Promedio por Gasto:</Text>
-              <Text className="text-[14px] font-semibold text-black">
+              <Text className="text-[14px] font-semibold text-[#1A1A1A]">
                 L {formatAmount(averagePerExpense)}
               </Text>
             </View>
             <View className="flex-row justify-between items-center py-2 border-b border-[#F5F5F5]">
               <Text className="text-[14px] font-light text-[#666666]">Gasto Más Alto:</Text>
-              <Text className="text-[14px] font-semibold text-black">
+              <Text className="text-[14px] font-semibold text-[#1A1A1A]">
                 {biggestExpense ? `L ${formatAmount(biggestExpense.amount)}` : '-'}
               </Text>
             </View>
@@ -204,7 +204,7 @@ export default function ReportsScreen() {
                 Categoría Mayor Gasto:
               </Text>
               <Text
-                className="text-[14px] font-semibold text-black mt-1"
+                className="text-[14px] font-semibold text-[#1A1A1A] mt-1"
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
@@ -218,28 +218,28 @@ export default function ReportsScreen() {
 
         {/* Gastos por Categoría */}
         <View className="px-6 mt-8">
-          <Text className="text-[18px] font-bold text-black mb-6">
+          <Text className="text-[18px] font-bold text-[#1A1A1A] mb-6">
             GASTOS POR CATEGORÍA
           </Text>
 
           {categorySummary.length === 0 ? (
-            <View className="border border-[#E5E5E5] p-5">
+            <View className="border border-[#F0F0F0] p-5">
               <Text className="text-[14px] text-[#999999] text-center py-4">
                 Sin datos en este periodo
               </Text>
             </View>
           ) : (
-            <View className="border border-[#E5E5E5]">
+            <View className="border border-[#F0F0F0]">
               {/* Table Header */}
-              <View className="flex-row border-b border-[#E5E5E5] bg-[#F9FAFB]">
+              <View className="flex-row border-b border-[#F0F0F0] bg-[#F9FAFB]">
                 <View className="flex-1 px-3 py-3">
-                  <Text className="text-[13px] font-medium text-black">Categoría</Text>
+                  <Text className="text-[13px] font-medium text-[#1A1A1A]">Categoría</Text>
                 </View>
-                <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-medium text-black text-right">Monto</Text>
+                <View className="w-24 px-3 py-3 border-l border-[#F0F0F0]">
+                  <Text className="text-[13px] font-medium text-[#1A1A1A] text-right">Monto</Text>
                 </View>
-                <View className="w-20 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-medium text-black text-right">%</Text>
+                <View className="w-20 px-3 py-3 border-l border-[#F0F0F0]">
+                  <Text className="text-[13px] font-medium text-[#1A1A1A] text-right">%</Text>
                 </View>
               </View>
 
@@ -250,23 +250,23 @@ export default function ReportsScreen() {
                   className={`flex-row border-b border-[#F5F5F5] ${index === categorySummary.length - 1 ? 'border-b-0' : ''}`}
                 >
                   <View className="flex-1 px-3 py-3">
-                    <Text className="text-[13px] font-light text-black">
+                    <Text className="text-[13px] font-light text-[#1A1A1A]">
                       {CATEGORY_LABELS[item.category]}
                     </Text>
                   </View>
                   <View
-                    className="px-3 py-3 border-l border-[#E5E5E5]"
+                    className="px-3 py-3 border-l border-[#F0F0F0]"
                     style={{ minWidth: 96, alignItems: 'flex-end' }}
                   >
                     <Text
-                      className="text-[13px] font-light text-black"
+                      className="text-[13px] font-light text-[#1A1A1A]"
                       numberOfLines={1}
                     >
                       L {formatAmount(item.total)}
                     </Text>
                   </View>
-                  <View className="w-20 px-3 py-3 border-l border-[#E5E5E5]">
-                    <Text className="text-[13px] font-light text-black text-right">
+                  <View className="w-20 px-3 py-3 border-l border-[#F0F0F0]">
+                    <Text className="text-[13px] font-light text-[#1A1A1A] text-right">
                       {item.percentage.toFixed(1)}%
                     </Text>
                   </View>
@@ -274,23 +274,23 @@ export default function ReportsScreen() {
               ))}
 
               {/* Table Footer - Total */}
-              <View className="flex-row border-t-2 border-[#E5E5E5] bg-[#F9FAFB]">
+              <View className="flex-row border-t-2 border-[#F0F0F0] bg-[#F9FAFB]">
                 <View className="flex-1 px-3 py-3">
-                  <Text className="text-[13px] font-semibold text-black">TOTAL</Text>
+                  <Text className="text-[13px] font-semibold text-[#1A1A1A]">TOTAL</Text>
                 </View>
                 <View
-                  className="px-3 py-3 border-l border-[#E5E5E5]"
+                  className="px-3 py-3 border-l border-[#F0F0F0]"
                   style={{ minWidth: 96, alignItems: 'flex-end' }}
                 >
                   <Text
-                    className="text-[13px] font-semibold text-black"
+                    className="text-[13px] font-semibold text-[#1A1A1A]"
                     numberOfLines={1}
                   >
                     L {formatAmount(stats.total)}
                   </Text>
                 </View>
-                <View className="w-20 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-semibold text-black text-right">
+                <View className="w-20 px-3 py-3 border-l border-[#F0F0F0]">
+                  <Text className="text-[13px] font-semibold text-[#1A1A1A] text-right">
                     100%
                   </Text>
                 </View>
@@ -301,31 +301,31 @@ export default function ReportsScreen() {
 
         {/* Detalle de Gastos */}
         <View className="px-6 mt-8">
-          <Text className="text-[18px] font-bold text-black mb-6">
+          <Text className="text-[18px] font-bold text-[#1A1A1A] mb-6">
             DETALLE DE GASTOS
           </Text>
 
           {sortedExpenses.length === 0 ? (
-            <View className="border border-[#E5E5E5] p-5">
+            <View className="border border-[#F0F0F0] p-5">
               <Text className="text-[14px] text-[#999999] text-center py-4">
                 Sin gastos en este periodo
               </Text>
             </View>
           ) : (
-            <View className="border border-[#E5E5E5]">
+            <View className="border border-[#F0F0F0]">
               {/* Table Header */}
-              <View className="flex-row border-b border-[#E5E5E5] bg-[#F9FAFB]">
+              <View className="flex-row border-b border-[#F0F0F0] bg-[#F9FAFB]">
                 <View className="w-24 px-3 py-3">
-                  <Text className="text-[13px] font-medium text-black">Fecha</Text>
+                  <Text className="text-[13px] font-medium text-[#1A1A1A]">Fecha</Text>
                 </View>
-                <View className="flex-1 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-medium text-black">Proveedor</Text>
+                <View className="flex-1 px-3 py-3 border-l border-[#F0F0F0]">
+                  <Text className="text-[13px] font-medium text-[#1A1A1A]">Proveedor</Text>
                 </View>
-                <View className="w-28 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-medium text-black">Categoría</Text>
+                <View className="w-28 px-3 py-3 border-l border-[#F0F0F0]">
+                  <Text className="text-[13px] font-medium text-[#1A1A1A]">Categoría</Text>
                 </View>
-                <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
-                  <Text className="text-[13px] font-medium text-black text-right">Monto</Text>
+                <View className="w-24 px-3 py-3 border-l border-[#F0F0F0]">
+                  <Text className="text-[13px] font-medium text-[#1A1A1A] text-right">Monto</Text>
                 </View>
               </View>
 
@@ -336,22 +336,22 @@ export default function ReportsScreen() {
                   className={`flex-row border-b border-[#F5F5F5] ${index === sortedExpenses.length - 1 ? 'border-b-0' : ''}`}
                 >
                   <View className="w-24 px-3 py-3">
-                    <Text className="text-[12px] font-light text-black">
+                    <Text className="text-[12px] font-light text-[#1A1A1A]">
                       {formatExpenseDate(expense.expenseDate)}
                     </Text>
                   </View>
-                  <View className="flex-1 px-3 py-3 border-l border-[#E5E5E5]">
-                    <Text className="text-[12px] font-light text-black" numberOfLines={1}>
+                  <View className="flex-1 px-3 py-3 border-l border-[#F0F0F0]">
+                    <Text className="text-[12px] font-light text-[#1A1A1A]" numberOfLines={1}>
                       {expense.provider || 'Sin proveedor'}
                     </Text>
                   </View>
-                  <View className="w-28 px-3 py-3 border-l border-[#E5E5E5]">
-                    <Text className="text-[12px] font-light text-black" numberOfLines={1}>
+                  <View className="w-28 px-3 py-3 border-l border-[#F0F0F0]">
+                    <Text className="text-[12px] font-light text-[#1A1A1A]" numberOfLines={1}>
                       {CATEGORY_LABELS[expense.category]}
                     </Text>
                   </View>
-                  <View className="w-24 px-3 py-3 border-l border-[#E5E5E5]">
-                    <Text className="text-[12px] font-light text-black text-right">
+                  <View className="w-24 px-3 py-3 border-l border-[#F0F0F0]">
+                    <Text className="text-[12px] font-light text-[#1A1A1A] text-right">
                       L {formatAmount(expense.amount)}
                     </Text>
                   </View>
@@ -362,7 +362,7 @@ export default function ReportsScreen() {
         </View>
 
         {/* Footer */}
-        <View className="px-6 mt-8 mb-8 pt-4 border-t border-[#E5E5E5]">
+        <View className="px-6 mt-8 mb-8 pt-4 border-t border-[#F0F0F0]">
           <Text className="text-[12px] text-[#999999] text-center">
             Reporte generado por MANU el {formattedDate} a las {formattedTime}
           </Text>
@@ -374,7 +374,7 @@ export default function ReportsScreen() {
             onPress={handleDownloadPDF}
             disabled={isGeneratingPDF}
             style={{
-              backgroundColor: isGeneratingPDF ? '#666666' : '#000000',
+              backgroundColor: isGeneratingPDF ? '#666666' : '#1A1A1A',
               paddingVertical: 16,
               paddingHorizontal: 24,
               borderRadius: 12,

@@ -418,7 +418,7 @@ export default function InvoiceDetailScreen() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#000000" />
+        <ActivityIndicator size="large" color="#1A1A1A" />
         <Text className="text-[15px] text-[#666666] mt-4">Cargando factura...</Text>
       </SafeAreaView>
     );
@@ -442,7 +442,7 @@ export default function InvoiceDetailScreen() {
       {/* Header */}
       <Animated.View
         entering={FadeIn.duration(200)}
-        className="px-5 pt-4 pb-6 border-b border-[#E5E5E5]"
+        className="px-5 pt-4 pb-6 border-b border-[#F0F0F0]"
       >
         <View className="flex-row justify-between items-center mb-4">
           <Pressable
@@ -450,7 +450,7 @@ export default function InvoiceDetailScreen() {
             className="flex-row items-center active:opacity-60"
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <ChevronLeft size={24} strokeWidth={1.5} color="#000000" />
+            <ChevronLeft size={24} strokeWidth={1.5} color="#1A1A1A" />
             <Text className="text-[17px] text-black ml-1">Facturas</Text>
           </Pressable>
           <View className="flex-row" style={{ gap: 8 }}>
@@ -460,10 +460,10 @@ export default function InvoiceDetailScreen() {
               disabled={isGeneratingPDF || isDeleting}
             >
               {isGeneratingPDF ? (
-                <ActivityIndicator size="small" color="#000000" />
+                <ActivityIndicator size="small" color="#1A1A1A" />
               ) : (
                 <>
-                  <Printer size={18} strokeWidth={1.5} color="#000000" />
+                  <Printer size={18} strokeWidth={1.5} color="#1A1A1A" />
                   <Text className="text-[14px] text-black ml-2">Imprimir</Text>
                 </>
               )}
@@ -489,7 +489,7 @@ export default function InvoiceDetailScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-5 pt-6">
           {/* Company Header */}
-          <View className="mb-6 border border-[#E5E5E5] p-4 bg-[#F9FAFB]">
+          <View className="mb-6 border border-[#F0F0F0] p-4 bg-[#F9FAFB]">
             {currentUser?.empresaLogoUrl && (
               <View className="items-center mb-3">
                 <Image
@@ -537,7 +537,7 @@ export default function InvoiceDetailScreen() {
           </View>
 
           {/* Invoice Details */}
-          <View className="mb-6 border border-[#E5E5E5] p-4">
+          <View className="mb-6 border border-[#F0F0F0] p-4">
             <Text className="text-[13px] text-[#999999] mb-2 uppercase tracking-wide">
               Factura
             </Text>
@@ -572,7 +572,7 @@ export default function InvoiceDetailScreen() {
           </View>
 
           {/* Client Info */}
-          <View className="mb-6 border border-[#E5E5E5] p-4">
+          <View className="mb-6 border border-[#F0F0F0] p-4">
             <Text className="text-[13px] text-[#999999] mb-2 uppercase tracking-wide">
               Cliente
             </Text>
@@ -599,7 +599,7 @@ export default function InvoiceDetailScreen() {
             {items.map((item, index) => (
               <View
                 key={item.id}
-                className="border border-[#E5E5E5] p-4 mb-2"
+                className="border border-[#F0F0F0] p-4 mb-2"
               >
                 <View className="flex-row justify-between items-start mb-2">
                   <View className="flex-1">
@@ -619,7 +619,7 @@ export default function InvoiceDetailScreen() {
           </View>
 
           {/* Totals */}
-          <View className="border-t border-[#E5E5E5] pt-4 mb-8">
+          <View className="border-t border-[#F0F0F0] pt-4 mb-8">
             <View className="flex-row justify-between items-center mb-3">
               <Text className="text-[15px] text-[#666666]">Subtotal</Text>
               <Text className="text-[15px] text-black">
@@ -648,7 +648,7 @@ export default function InvoiceDetailScreen() {
                 {formatCurrency(invoice.tax_amount)}
               </Text>
             </View>
-            <View className="flex-row justify-between items-center pt-3 border-t border-[#E5E5E5]">
+            <View className="flex-row justify-between items-center pt-3 border-t border-[#F0F0F0]">
               <Text className="text-[20px] font-bold text-black">Total</Text>
               <Text className="text-[20px] font-bold text-black">
                 {formatCurrency(invoice.total)}

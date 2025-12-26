@@ -154,7 +154,7 @@ export default function QBOAuthScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
-      <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
+      <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#F0F0F0]">
         <Text className="text-[18px] font-medium text-black">
           Conectar QuickBooks
         </Text>
@@ -162,13 +162,13 @@ export default function QBOAuthScreen() {
           onPress={() => router.back()}
           className="p-1 active:opacity-60"
         >
-          <X size={24} strokeWidth={1.5} color="#000000" />
+          <X size={24} strokeWidth={1.5} color="#1A1A1A" />
         </Pressable>
       </View>
 
       {loading && (
         <View className="absolute inset-0 items-center justify-center bg-white z-10">
-          <ActivityIndicator size="large" color="#000000" />
+          <ActivityIndicator size="large" color="#1A1A1A" />
           <Text className="text-[14px] font-light text-[#666666] mt-4">
             Conectando con QuickBooks...
           </Text>
@@ -192,7 +192,7 @@ export default function QBOAuthScreen() {
         startInLoadingState
         renderLoading={() => (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#000000" />
+            <ActivityIndicator size="large" color="#1A1A1A" />
           </View>
         )}
       />

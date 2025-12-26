@@ -729,7 +729,7 @@ export default function HistoryScreen() {
                 onPress={() => setShowExportModal(true)}
                 className="p-2 active:opacity-60"
               >
-                <Download size={24} strokeWidth={1.5} color="#000000" />
+                <Download size={24} strokeWidth={1.5} color="#1A1A1A" />
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -739,9 +739,9 @@ export default function HistoryScreen() {
                 className="p-2 active:opacity-60"
               >
                 {showSearch ? (
-                  <X size={24} strokeWidth={1.5} color="#000000" />
+                  <X size={24} strokeWidth={1.5} color="#1A1A1A" />
                 ) : (
-                  <Search size={24} strokeWidth={1.5} color="#000000" />
+                  <Search size={24} strokeWidth={1.5} color="#1A1A1A" />
                 )}
               </Pressable>
             </View>
@@ -749,10 +749,10 @@ export default function HistoryScreen() {
 
           {showSearch && (
             <Animated.View entering={FadeIn.duration(200)} className="mb-4">
-              <View className="border border-[#E5E5E5] p-3 flex-row items-center">
+              <View className="border border-[#F0F0F0] p-3 flex-row items-center">
                 <Search size={18} strokeWidth={1.5} color="#999999" />
                 <TextInput
-                  className="flex-1 ml-2 text-[15px] font-light text-black"
+                  className="flex-1 ml-2 text-[15px] font-light text-[#1A1A1A]"
                   placeholder="Buscar por proveedor..."
                   placeholderTextColor="#999999"
                   value={searchQuery}
@@ -838,7 +838,7 @@ export default function HistoryScreen() {
 
               {/* Divider and Subtotal */}
               <View className="flex-row items-center my-2">
-                <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
+                <View className="flex-1 h-[1px] bg-[#F0F0F0]" />
               </View>
               <View className="flex-row justify-end items-center mb-2">
                 <Text style={textStyles.secondaryText}>
@@ -871,7 +871,7 @@ export default function HistoryScreen() {
               <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 {/* Modal Header */}
                 <View className="flex-row justify-between items-center px-6 pt-4 pb-6">
-                  <Text className="text-[20px] font-medium text-black">
+                  <Text className="text-[20px] font-medium text-[#1A1A1A]">
                     Detalle del gasto
                   </Text>
                   <Pressable
@@ -881,7 +881,7 @@ export default function HistoryScreen() {
                     }}
                     className="p-2 active:opacity-60"
                   >
-                    <X size={24} strokeWidth={1.5} color="#000000" />
+                    <X size={24} strokeWidth={1.5} color="#1A1A1A" />
                   </Pressable>
                 </View>
 
@@ -889,7 +889,7 @@ export default function HistoryScreen() {
                   {/* Amount */}
                   <View className="mb-8">
                     <Text className="text-[13px] font-light text-[#666666] mb-1">Monto</Text>
-                    <Text className="text-[32px] font-semibold text-black">
+                    <Text className="text-[32px] font-semibold text-[#1A1A1A]">
                       {formatMoney(selectedExpense.amount, selectedExpense.currencyCode || userCurrency)}
                     </Text>
                   </View>
@@ -899,7 +899,7 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] font-light text-[#666666] mb-1">
                       Categoría
                     </Text>
-                    <Text className="text-[16px] font-light text-black">
+                    <Text className="text-[16px] font-light text-[#1A1A1A]">
                       {CATEGORY_LABELS[selectedExpense.category]}
                     </Text>
                   </View>
@@ -909,7 +909,7 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] font-light text-[#666666] mb-1">
                       Proveedor
                     </Text>
-                    <Text className="text-[16px] font-light text-black">
+                    <Text className="text-[16px] font-light text-[#1A1A1A]">
                       {selectedExpense.provider || 'Sin proveedor'}
                     </Text>
                   </View>
@@ -919,7 +919,7 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] font-light text-[#666666] mb-1">
                       Fecha y hora
                     </Text>
-                    <Text className="text-[16px] font-light text-black">
+                    <Text className="text-[16px] font-light text-[#1A1A1A]">
                       {formatDate(selectedExpense.expenseDate)} a las{' '}
                       {new Date(selectedExpense.createdAt).toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                     </Text>
@@ -931,8 +931,8 @@ export default function HistoryScreen() {
                       <Text className="text-[13px] font-light text-[#666666] mb-1">
                         Notas
                       </Text>
-                      <View className="bg-[#F5F5F5] p-5">
-                        <Text className="text-[15px] font-light text-black leading-5">
+                      <View className="bg-[#FAFAFA] p-5">
+                        <Text className="text-[15px] font-light text-[#1A1A1A] leading-5">
                           {selectedExpense.notes}
                         </Text>
                       </View>
@@ -945,7 +945,7 @@ export default function HistoryScreen() {
                       <Text className="text-[13px] font-light text-[#666666] mb-2">
                         Foto del recibo
                       </Text>
-                      <View className="border border-[#E5E5E5] overflow-hidden">
+                      <View className="border border-[#F0F0F0] overflow-hidden">
                         <Image
                           source={{ uri: selectedExpense.receiptImageUrl }}
                           style={{ width: '100%', height: 300 }}
@@ -1018,7 +1018,7 @@ export default function HistoryScreen() {
               >
                 {/* Modal Header */}
                 <View className="flex-row justify-between items-center px-6 pt-4 pb-6">
-                  <Text className="text-[20px] font-medium text-black">
+                  <Text className="text-[20px] font-medium text-[#1A1A1A]">
                     Editar gasto
                   </Text>
                   <Pressable
@@ -1029,7 +1029,7 @@ export default function HistoryScreen() {
                     className="p-2 active:opacity-60"
                     disabled={isSaving}
                   >
-                    <X size={24} strokeWidth={1.5} color="#000000" />
+                    <X size={24} strokeWidth={1.5} color="#1A1A1A" />
                   </Pressable>
                 </View>
 
@@ -1039,12 +1039,12 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Monto *
                     </Text>
-                    <View className="border border-[#E5E5E5] p-5 flex-row items-center">
-                      <Text className="text-[16px] font-light text-black mr-1">
+                    <View className="border border-[#F0F0F0] p-5 flex-row items-center">
+                      <Text className="text-[16px] font-light text-[#1A1A1A] mr-1">
                         {editingCurrencySymbol}
                       </Text>
                       <TextInput
-                        className="flex-1 text-[16px] font-light text-black"
+                        className="flex-1 text-[16px] font-light text-[#1A1A1A]"
                         placeholder="0"
                         placeholderTextColor="#999999"
                         keyboardType="decimal-pad"
@@ -1061,13 +1061,13 @@ export default function HistoryScreen() {
                       Categoría *
                     </Text>
                     <Pressable
-                      className="border border-[#E5E5E5] p-5 flex-row items-center justify-between active:opacity-60"
+                      className="border border-[#F0F0F0] p-5 flex-row items-center justify-between active:opacity-60"
                       onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                       disabled={isSaving}
                     >
                       <Text
                         className="text-[16px]"
-                        style={{ color: editCategory ? '#000000' : '#999999' }}
+                        style={{ color: editCategory ? '#1A1A1A' : '#999999' }}
                       >
                         {editCategory
                           ? CATEGORY_LABELS[editCategory]
@@ -1077,11 +1077,11 @@ export default function HistoryScreen() {
                     </Pressable>
 
                     {showCategoryPicker && (
-                      <View className="border border-t-0 border-[#E5E5E5]">
+                      <View className="border border-t-0 border-[#F0F0F0]">
                         {CATEGORIES.map((cat) => (
                           <Pressable
                             key={cat}
-                            className="p-5 border-b border-[#F5F5F5] active:bg-[#F5F5F5]"
+                            className="p-5 border-b border-[#F5F5F5] active:bg-[#FAFAFA]"
                             onPress={() => {
                               setEditCategory(cat);
                               setShowCategoryPicker(false);
@@ -1091,7 +1091,7 @@ export default function HistoryScreen() {
                             <Text
                               className="text-[15px]"
                               style={{
-                                color: editCategory === cat ? '#000000' : '#666666',
+                                color: editCategory === cat ? '#1A1A1A' : '#666666',
                                 fontWeight: editCategory === cat ? '500' : '400',
                               }}
                             >
@@ -1108,9 +1108,9 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Proveedor (opcional)
                     </Text>
-                    <View className="border border-[#E5E5E5] p-5">
+                    <View className="border border-[#F0F0F0] p-5">
                       <TextInput
-                        className="text-[16px] font-light text-black"
+                        className="text-[16px] font-light text-[#1A1A1A]"
                         placeholder="Nombre del proveedor"
                         placeholderTextColor="#999999"
                         value={editProvider}
@@ -1127,10 +1127,10 @@ export default function HistoryScreen() {
                     </Text>
                     <Pressable
                       onPress={() => setShowDatePicker(true)}
-                      className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
+                      className="border border-[#F0F0F0] px-4 py-3 flex-row justify-between items-center"
                       disabled={isSaving}
                     >
-                      <Text className="text-[16px] font-light text-black">
+                      <Text className="text-[16px] font-light text-[#1A1A1A]">
                         {format(selectedDate, 'dd/MM/yyyy')}
                       </Text>
                       <Calendar size={20} strokeWidth={1.5} color="#999999" />
@@ -1141,7 +1141,7 @@ export default function HistoryScreen() {
                     <View style={{ 
                       backgroundColor: '#FFFFFF',
                       borderWidth: 1,
-                      borderColor: '#E5E5E5',
+                      borderColor: '#F0F0F0',
                       marginBottom: 20,
                       paddingVertical: 8,
                       borderRadius: 8
@@ -1163,7 +1163,7 @@ export default function HistoryScreen() {
                           }
                         }}
                         maximumDate={new Date()}
-                        textColor="#000000"
+                        textColor="#1A1A1A"
                       />
                     </View>
                   )}
@@ -1190,9 +1190,9 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Notas (opcional)
                     </Text>
-                    <View className="border border-[#E5E5E5] p-5">
+                    <View className="border border-[#F0F0F0] p-5">
                       <TextInput
-                        className="text-[16px] font-light text-black"
+                        className="text-[16px] font-light text-[#1A1A1A]"
                         placeholder="Recordatorios, observaciones..."
                         placeholderTextColor="#999999"
                         value={editNotes}
@@ -1217,7 +1217,7 @@ export default function HistoryScreen() {
                       className="py-5 items-center active:opacity-60"
                       style={{
                         backgroundColor:
-                          isEditValid && !isSaving ? '#000000' : '#E5E5E5',
+                          isEditValid && !isSaving ? '#1A1A1A' : '#F0F0F0',
                       }}
                       onPress={handleSaveEdit}
                       disabled={!isEditValid || isSaving}
@@ -1256,14 +1256,14 @@ export default function HistoryScreen() {
             >
               <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 {/* Header */}
-                <View className="px-6 pt-4 pb-4 border-b border-[#E5E5E5]">
+                <View className="px-6 pt-4 pb-4 border-b border-[#F0F0F0]">
                   <View className="flex-row justify-between items-center">
                     <Text style={textStyles.screenTitle}>Exportar gastos</Text>
                     <Pressable
                       onPress={() => setShowExportModal(false)}
                       className="p-2 active:opacity-60"
                     >
-                      <X size={24} strokeWidth={1.5} color="#000000" />
+                      <X size={24} strokeWidth={1.5} color="#1A1A1A" />
                     </Pressable>
                   </View>
                 </View>
@@ -1279,9 +1279,9 @@ export default function HistoryScreen() {
                       <Text className="text-[12px] text-[#999999] mb-1">Desde</Text>
                       <Pressable
                         onPress={() => setShowExportStartPicker(true)}
-                        className="border border-[#E5E5E5] px-5 py-4 flex-row justify-between items-center"
+                        className="border border-[#F0F0F0] px-5 py-4 flex-row justify-between items-center"
                       >
-                        <Text className="text-[16px] text-black">
+                        <Text className="text-[16px] text-[#1A1A1A]">
                           {format(exportStartDate, 'dd/MM/yyyy')}
                         </Text>
                         <Calendar size={20} strokeWidth={1.5} color="#999999" />
@@ -1292,9 +1292,9 @@ export default function HistoryScreen() {
                       <Text className="text-[12px] text-[#999999] mb-1">Hasta</Text>
                       <Pressable
                         onPress={() => setShowExportEndPicker(true)}
-                        className="border border-[#E5E5E5] px-5 py-4 flex-row justify-between items-center"
+                        className="border border-[#F0F0F0] px-5 py-4 flex-row justify-between items-center"
                       >
-                        <Text className="text-[16px] text-black">
+                        <Text className="text-[16px] text-[#1A1A1A]">
                           {format(exportEndDate, 'dd/MM/yyyy')}
                         </Text>
                         <Calendar size={20} strokeWidth={1.5} color="#999999" />
@@ -1311,31 +1311,31 @@ export default function HistoryScreen() {
                       <View className="flex-row" style={{ gap: 12 }}>
                         <Pressable
                           onPress={selectAllCategories}
-                          className="px-3 py-1 border border-[#E5E5E5] active:opacity-60"
+                          className="px-3 py-1 border border-[#F0F0F0] active:opacity-60"
                         >
-                          <Text className="text-[12px] text-black">Todas</Text>
+                          <Text className="text-[12px] text-[#1A1A1A]">Todas</Text>
                         </Pressable>
                         <Pressable
                           onPress={clearAllCategories}
-                          className="px-3 py-1 border border-[#E5E5E5] active:opacity-60"
+                          className="px-3 py-1 border border-[#F0F0F0] active:opacity-60"
                         >
-                          <Text className="text-[12px] text-black">Ninguna</Text>
+                          <Text className="text-[12px] text-[#1A1A1A]">Ninguna</Text>
                         </Pressable>
                       </View>
                     </View>
 
-                    <View className="border border-[#E5E5E5]">
+                    <View className="border border-[#F0F0F0]">
                       {CATEGORIES.map((category) => (
                         <Pressable
                           key={category}
                           onPress={() => toggleCategory(category)}
                           className="px-5 py-4 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
                         >
-                          <Text className="text-[15px] text-black">
+                          <Text className="text-[15px] text-[#1A1A1A]">
                             {CATEGORY_LABELS[category]}
                           </Text>
                           {selectedCategories.has(category) && (
-                            <Check size={20} strokeWidth={2} color="#000000" />
+                            <Check size={20} strokeWidth={2} color="#1A1A1A" />
                           )}
                         </Pressable>
                       ))}
@@ -1352,13 +1352,13 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Formato de exportación
                     </Text>
-                    <View className="border border-[#E5E5E5]">
+                    <View className="border border-[#F0F0F0]">
                       <Pressable
                         onPress={() => setExportFormat('csv-photos')}
                         className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
                       >
                         <View className="flex-1">
-                          <Text className="text-[15px] text-black">
+                          <Text className="text-[15px] text-[#1A1A1A]">
                             CSV + Imágenes (ZIP)
                           </Text>
                           <Text className="text-[12px] text-[#999999]">
@@ -1368,7 +1368,7 @@ export default function HistoryScreen() {
                         <View
                           className="w-5 h-5 rounded-full border-2 items-center justify-center"
                           style={{
-                            borderColor: exportFormat === 'csv-photos' ? '#000000' : '#E5E5E5',
+                            borderColor: exportFormat === 'csv-photos' ? '#1A1A1A' : '#F0F0F0',
                           }}
                         >
                           {exportFormat === 'csv-photos' && (
@@ -1381,7 +1381,7 @@ export default function HistoryScreen() {
                         className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
                       >
                         <View className="flex-1">
-                          <Text className="text-[15px] text-black">
+                          <Text className="text-[15px] text-[#1A1A1A]">
                             Solo CSV
                           </Text>
                           <Text className="text-[12px] text-[#999999]">
@@ -1391,7 +1391,7 @@ export default function HistoryScreen() {
                         <View
                           className="w-5 h-5 rounded-full border-2 items-center justify-center"
                           style={{
-                            borderColor: exportFormat === 'csv-only' ? '#000000' : '#E5E5E5',
+                            borderColor: exportFormat === 'csv-only' ? '#1A1A1A' : '#F0F0F0',
                           }}
                         >
                           {exportFormat === 'csv-only' && (
@@ -1404,7 +1404,7 @@ export default function HistoryScreen() {
                         className="px-4 py-3 flex-row items-center justify-between active:opacity-60"
                       >
                         <View className="flex-1">
-                          <Text className="text-[15px] text-black">
+                          <Text className="text-[15px] text-[#1A1A1A]">
                             Solo imágenes (ZIP)
                           </Text>
                           <Text className="text-[12px] text-[#999999]">
@@ -1414,7 +1414,7 @@ export default function HistoryScreen() {
                         <View
                           className="w-5 h-5 rounded-full border-2 items-center justify-center"
                           style={{
-                            borderColor: exportFormat === 'photos-only' ? '#000000' : '#E5E5E5',
+                            borderColor: exportFormat === 'photos-only' ? '#1A1A1A' : '#F0F0F0',
                           }}
                         >
                           {exportFormat === 'photos-only' && (
@@ -1431,13 +1431,13 @@ export default function HistoryScreen() {
                     <Text className="text-[13px] text-[#666666] mb-2">
                       Formato CSV
                     </Text>
-                    <View className="border border-[#E5E5E5]">
+                    <View className="border border-[#F0F0F0]">
                       <Pressable
                         onPress={() => setCsvFormat('standard')}
                         className="px-4 py-3 flex-row items-center justify-between border-b border-[#F5F5F5] active:opacity-60"
                       >
                         <View className="flex-1">
-                          <Text className="text-[15px] text-black">
+                          <Text className="text-[15px] text-[#1A1A1A]">
                             CSV estándar (coma)
                           </Text>
                           <Text className="text-[12px] text-[#999999]">
@@ -1447,7 +1447,7 @@ export default function HistoryScreen() {
                         <View
                           className="w-5 h-5 rounded-full border-2 items-center justify-center"
                           style={{
-                            borderColor: csvFormat === 'standard' ? '#000000' : '#E5E5E5',
+                            borderColor: csvFormat === 'standard' ? '#1A1A1A' : '#F0F0F0',
                           }}
                         >
                           {csvFormat === 'standard' && (
@@ -1460,7 +1460,7 @@ export default function HistoryScreen() {
                         className="px-4 py-3 flex-row items-center justify-between active:opacity-60"
                       >
                         <View className="flex-1">
-                          <Text className="text-[15px] text-black">
+                          <Text className="text-[15px] text-[#1A1A1A]">
                             CSV para Excel (punto y coma)
                           </Text>
                           <Text className="text-[12px] text-[#999999]">
@@ -1470,7 +1470,7 @@ export default function HistoryScreen() {
                         <View
                           className="w-5 h-5 rounded-full border-2 items-center justify-center"
                           style={{
-                            borderColor: csvFormat === 'excel' ? '#000000' : '#E5E5E5',
+                            borderColor: csvFormat === 'excel' ? '#1A1A1A' : '#F0F0F0',
                           }}
                         >
                           {csvFormat === 'excel' && (
@@ -1489,7 +1489,7 @@ export default function HistoryScreen() {
                       disabled={isExporting}
                       className="py-5 items-center active:opacity-60"
                       style={{
-                        backgroundColor: isExporting ? '#E5E5E5' : '#000000',
+                        backgroundColor: isExporting ? '#F0F0F0' : '#1A1A1A',
                       }}
                     >
                       {isExporting ? (
@@ -1512,7 +1512,7 @@ export default function HistoryScreen() {
               style={{
                 backgroundColor: '#FFFFFF',
                 borderWidth: 1,
-                borderColor: '#E5E5E5',
+                borderColor: '#F0F0F0',
                 marginBottom: 20,
                 paddingVertical: 8,
                 borderRadius: 4,
@@ -1532,7 +1532,7 @@ export default function HistoryScreen() {
                   }
                 }}
                 maximumDate={exportEndDate}
-                textColor="#000000"
+                textColor="#1A1A1A"
               />
             </View>
           )}
@@ -1557,7 +1557,7 @@ export default function HistoryScreen() {
               style={{
                 backgroundColor: '#FFFFFF',
                 borderWidth: 1,
-                borderColor: '#E5E5E5',
+                borderColor: '#F0F0F0',
                 marginBottom: 20,
                 paddingVertical: 8,
                 borderRadius: 4,
@@ -1578,7 +1578,7 @@ export default function HistoryScreen() {
                 }}
                 minimumDate={exportStartDate}
                 maximumDate={new Date()}
-                textColor="#000000"
+                textColor="#1A1A1A"
               />
             </View>
           )}

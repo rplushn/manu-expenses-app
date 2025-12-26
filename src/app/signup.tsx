@@ -116,7 +116,7 @@ export default function SignupScreen() {
                 className="p-2 -ml-2 active:opacity-60"
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <ArrowLeft size={24} strokeWidth={1.5} color="#000000" />
+                <ArrowLeft size={24} strokeWidth={1.5} color="#1A1A1A" />
               </Pressable>
             </Animated.View>
 
@@ -156,7 +156,7 @@ export default function SignupScreen() {
                 <View
                   className="border p-4"
                   style={{
-                    borderColor: nombreFocused ? '#000000' : '#E5E5E5',
+                    borderColor: nombreFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput
@@ -182,7 +182,7 @@ export default function SignupScreen() {
                 <View
                   className="border p-4"
                   style={{
-                    borderColor: emailFocused ? '#000000' : '#E5E5E5',
+                    borderColor: emailFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput
@@ -212,7 +212,7 @@ export default function SignupScreen() {
                 <View
                   className="border p-4 flex-row items-center"
                   style={{
-                    borderColor: passwordFocused ? '#000000' : '#E5E5E5',
+                    borderColor: passwordFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput
@@ -251,7 +251,7 @@ export default function SignupScreen() {
                 <View
                   className="border p-4"
                   style={{
-                    borderColor: confirmFocused ? '#000000' : '#E5E5E5',
+                    borderColor: confirmFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput

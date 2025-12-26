@@ -119,7 +119,7 @@ export default function LoginScreen() {
                 <View
                   className="border p-4"
                   style={{
-                    borderColor: emailFocused ? '#000000' : '#E5E5E5',
+                    borderColor: emailFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput
@@ -147,7 +147,7 @@ export default function LoginScreen() {
                 <View
                   className="border p-4 flex-row items-center"
                   style={{
-                    borderColor: passwordFocused ? '#000000' : '#E5E5E5',
+                    borderColor: passwordFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput

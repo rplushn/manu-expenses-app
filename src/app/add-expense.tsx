@@ -269,7 +269,7 @@ export default function AddExpenseScreen() {
               entering={FadeIn.duration(200)}
               className="flex-row justify-between items-center px-6 pt-4 pb-6"
             >
-              <Text className="text-[20px] font-medium text-black">
+              <Text className="text-[20px] font-medium text-[#1A1A1A]">
                 Nuevo gasto
               </Text>
               <Pressable
@@ -278,7 +278,7 @@ export default function AddExpenseScreen() {
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 disabled={isSaving || isProcessing}
               >
-                <X size={24} strokeWidth={1.5} color="#000000" />
+                <X size={24} strokeWidth={1.5} color="#1A1A1A" />
               </Pressable>
             </Animated.View>
 
@@ -287,10 +287,10 @@ export default function AddExpenseScreen() {
               {showOcrSuccess && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-5 mb-6 border border-[#E5E5E5]"
+                  className="flex-row items-center bg-[#FAFAFA] p-5 mb-6 border border-[#F0F0F0]"
                 >
-                  <CheckCircle size={20} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] font-light text-black ml-2 flex-1">
+                  <CheckCircle size={20} strokeWidth={1.5} color="#1A1A1A" />
+                  <Text className="text-[14px] font-light text-[#1A1A1A] ml-2 flex-1">
                     Recibo procesado correctamente
                   </Text>
                 </Animated.View>
@@ -300,9 +300,9 @@ export default function AddExpenseScreen() {
               {isProcessing && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-3 mb-6"
+                  className="flex-row items-center bg-[#FAFAFA] p-3 mb-6"
                 >
-                  <ActivityIndicator size="small" color="#000000" />
+                  <ActivityIndicator size="small" color="#1A1A1A" />
                   <Text className="text-[14px] font-light text-[#666666] ml-2">
                     Analizando recibo...
                   </Text>
@@ -317,26 +317,26 @@ export default function AddExpenseScreen() {
               >
                 {/* Take Photo Button */}
                 <Pressable
-                  className="flex-1 flex-row items-center justify-center border border-[#E5E5E5] py-3.5 active:opacity-60"
-                  style={{ gap: 12, backgroundColor: receiptImageUrl ? '#F5F5F5' : '#FFFFFF' }}
+                  className="flex-1 flex-row items-center justify-center border border-[#F0F0F0] py-3.5 active:opacity-60"
+                  style={{ gap: 12, backgroundColor: receiptImageUrl ? '#FAFAFA' : '#FFFFFF' }}
                   onPress={handleTakePhoto}
                   disabled={isSaving || isProcessing}
                 >
-                  <Camera size={20} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] font-normal text-black">
+                  <Camera size={20} strokeWidth={1.5} color="#1A1A1A" />
+                  <Text className="text-[14px] font-normal text-[#1A1A1A]">
                     Tomar foto
                   </Text>
                 </Pressable>
 
                 {/* Pick from Gallery Button */}
                 <Pressable
-                  className="flex-1 flex-row items-center justify-center border border-[#E5E5E5] py-3.5 active:opacity-60"
+                  className="flex-1 flex-row items-center justify-center border border-[#F0F0F0] py-3.5 active:opacity-60"
                   style={{ gap: 12, backgroundColor: '#FFFFFF' }}
                   onPress={handlePickImage}
                   disabled={isSaving || isProcessing}
                 >
-                  <ImageIcon size={20} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] font-normal text-black">
+                  <ImageIcon size={20} strokeWidth={1.5} color="#1A1A1A" />
+                  <Text className="text-[14px] font-normal text-[#1A1A1A]">
                     Elegir de galería
                   </Text>
                 </Pressable>
@@ -346,9 +346,9 @@ export default function AddExpenseScreen() {
               {receiptImageUrl && !isProcessing && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#F5F5F5] p-3 mb-6"
+                  className="flex-row items-center bg-[#FAFAFA] p-3 mb-6"
                 >
-                  <CheckCircle size={18} strokeWidth={1.5} color="#000000" />
+                  <CheckCircle size={18} strokeWidth={1.5} color="#1A1A1A" />
                   <Text className="text-[13px] font-light text-[#666666] ml-2 flex-1">
                     Foto guardada
                   </Text>
@@ -357,11 +357,11 @@ export default function AddExpenseScreen() {
 
               {/* Divider */}
               <View className="flex-row items-center my-6">
-                <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
+                <View className="flex-1 h-[1px] bg-[#F0F0F0]" />
                 <Text className="px-4 text-[13px] font-light text-[#999999]">
                   {receiptImageUrl ? 'edita los datos' : 'o ingresa manualmente'}
                 </Text>
-                <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
+                <View className="flex-1 h-[1px] bg-[#F0F0F0]" />
               </View>
 
               {/* Amount Input */}
@@ -370,14 +370,14 @@ export default function AddExpenseScreen() {
                 <View
                   className="border p-5 flex-row items-center"
                   style={{
-                    borderColor: amountFocused ? '#000000' : '#E5E5E5',
+                    borderColor: amountFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
-                  <Text className="text-[16px] font-light text-black mr-1">
+                  <Text className="text-[16px] font-light text-[#1A1A1A] mr-1">
                     {currencySymbol}
                   </Text>
                   <TextInput
-                    className="flex-1 text-[16px] font-light text-black"
+                    className="flex-1 text-[16px] font-light text-[#1A1A1A]"
                     placeholder="0"
                     placeholderTextColor="#999999"
                     keyboardType="decimal-pad"
@@ -400,13 +400,13 @@ export default function AddExpenseScreen() {
                   Categoría *
                 </Text>
                 <Pressable
-                  className="border border-[#E5E5E5] p-5 flex-row items-center justify-between active:opacity-60"
+                  className="border border-[#F0F0F0] p-5 flex-row items-center justify-between active:opacity-60"
                   onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                   disabled={isSaving || isProcessing}
                 >
                   <Text
                     className="text-[16px]"
-                    style={{ color: category ? '#000000' : '#999999' }}
+                    style={{ color: category ? '#1A1A1A' : '#999999' }}
                   >
                     {category ? CATEGORY_LABELS[category] : 'Seleccionar'}
                   </Text>
@@ -414,11 +414,11 @@ export default function AddExpenseScreen() {
                 </Pressable>
 
                 {showCategoryPicker && (
-                  <View className="border border-t-0 border-[#E5E5E5]">
+                  <View className="border border-t-0 border-[#F0F0F0]">
                     {CATEGORIES.map((cat) => (
                       <Pressable
                         key={cat}
-                        className="p-5 border-b border-[#F5F5F5] active:bg-[#F5F5F5]"
+                        className="p-5 border-b border-[#F5F5F5] active:bg-[#FAFAFA]"
                         onPress={() => {
                           setCategory(cat);
                           setShowCategoryPicker(false);
@@ -428,7 +428,7 @@ export default function AddExpenseScreen() {
                         <Text
                           className="text-[15px]"
                           style={{
-                            color: category === cat ? '#000000' : '#666666',
+                            color: category === cat ? '#1A1A1A' : '#666666',
                             fontWeight: category === cat ? '500' : '400',
                           }}
                         >
@@ -451,11 +451,11 @@ export default function AddExpenseScreen() {
                 <View
                   className="border p-5"
                   style={{
-                    borderColor: providerFocused ? '#000000' : '#E5E5E5',
+                    borderColor: providerFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput
-                    className="text-[16px] font-light text-black"
+                    className="text-[16px] font-light text-[#1A1A1A]"
                     placeholder="Nombre del proveedor"
                     placeholderTextColor="#999999"
                     value={provider}
@@ -478,7 +478,7 @@ export default function AddExpenseScreen() {
                 <Pressable
                   className="border p-4 flex-row items-center justify-between active:opacity-60"
                   style={{
-                    borderColor: '#E5E5E5',
+                    borderColor: '#F0F0F0',
                   }}
                   onPress={() => {
                     setTempExpenseDate(expenseDate);
@@ -489,7 +489,7 @@ export default function AddExpenseScreen() {
                 >
                   <View className="flex-row items-center flex-1">
                     <Calendar size={18} strokeWidth={1.5} color="#666666" />
-                    <Text className="text-[16px] font-light text-black ml-2">
+                    <Text className="text-[16px] font-light text-[#1A1A1A] ml-2">
                       {format(expenseDate, "d 'de' MMMM, yyyy", { locale: es })}
                     </Text>
                   </View>
@@ -507,11 +507,11 @@ export default function AddExpenseScreen() {
                 <View
                   className="border p-5"
                   style={{
-                    borderColor: notesFocused ? '#000000' : '#E5E5E5',
+                    borderColor: notesFocused ? '#1A1A1A' : '#F0F0F0',
                   }}
                 >
                   <TextInput
-                    className="text-[16px] font-light text-black"
+                    className="text-[16px] font-light text-[#1A1A1A]"
                     placeholder="Recordatorios, observaciones..."
                     placeholderTextColor="#999999"
                     value={notes}
@@ -540,7 +540,7 @@ export default function AddExpenseScreen() {
                 <Pressable
                   className="py-5 items-center active:opacity-60"
                   style={{
-                    backgroundColor: isValid && !isSaving && !isProcessing ? '#000000' : '#E5E5E5',
+                    backgroundColor: isValid && !isSaving && !isProcessing ? '#1A1A1A' : '#F0F0F0',
                   }}
                   onPress={handleSave}
                   disabled={!isValid || isSaving || isProcessing}
@@ -595,7 +595,7 @@ export default function AddExpenseScreen() {
             }}
             onPress={(e) => e.stopPropagation()}
           >
-            <Text className="text-[18px] font-medium text-black mb-6">
+            <Text className="text-[18px] font-medium text-[#1A1A1A] mb-6">
               Fecha del gasto
             </Text>
 
@@ -617,7 +617,7 @@ export default function AddExpenseScreen() {
                 }}
                 maximumDate={new Date()}
                 locale="es-ES"
-                textColor="#000000"
+                textColor="#1A1A1A"
                 style={{ backgroundColor: '#FFFFFF' }}
               />
             </View>
@@ -628,9 +628,9 @@ export default function AddExpenseScreen() {
                   setIsDatePickerVisible(false);
                   setTempExpenseDate(expenseDate);
                 }}
-                className="flex-1 py-3 border border-[#E5E5E5] items-center active:opacity-60"
+                className="flex-1 py-3 border border-[#F0F0F0] items-center active:opacity-60"
               >
-                <Text className="text-[15px] font-normal text-black">
+                <Text className="text-[15px] font-normal text-[#1A1A1A]">
                   Cancelar
                 </Text>
               </Pressable>

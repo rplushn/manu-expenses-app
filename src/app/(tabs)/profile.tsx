@@ -171,8 +171,8 @@ function getInitials(name: string): string {
 // Feature item component for Pro modal
 const Feature = ({ text }: { text: string }) => (
   <View className="flex-row items-center mb-3" style={{ gap: 10 }}>
-    <Check size={18} strokeWidth={2} color="#000000" />
-    <Text className="text-[15px] text-[#333333] flex-1">{text}</Text>
+    <Check size={18} strokeWidth={2} color="#1A1A1A" />
+    <Text className="text-[15px] text-[#1A1A1A] flex-1">{text}</Text>
   </View>
 );
 
@@ -962,7 +962,7 @@ export default function ProfileScreen() {
   if (isLoggingOut) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#000000" />
+        <ActivityIndicator size="large" color="#1A1A1A" />
         <Text className="text-[15px] text-[#666666] mt-4">
           Cerrando sesión...
         </Text>
@@ -973,7 +973,7 @@ export default function ProfileScreen() {
   if (isLoadingUserData && !currentUser) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#000000" />
+        <ActivityIndicator size="large" color="#1A1A1A" />
         <Text className="text-[15px] text-[#666666] mt-4">
           Cargando perfil...
         </Text>
@@ -1100,7 +1100,7 @@ export default function ProfileScreen() {
               <View
                 style={{
                   marginTop: 12,
-                  backgroundColor: '#000000',
+                  backgroundColor: '#1A1A1A',
                   paddingHorizontal: 12,
                   paddingVertical: 4,
                   borderRadius: 12,
@@ -1282,7 +1282,7 @@ export default function ProfileScreen() {
           
           {/* QuickBooks Card - 20% más pequeño */}
           <View
-            className="bg-[#EBEBEB] rounded-3xl p-7 mb-5"
+            className="bg-[#F5F5F5] rounded-3xl p-7 mb-5"
             style={{
               shadowColor: '#000',
               shadowOffset: { width: 0, height: 1 },
@@ -1301,7 +1301,7 @@ export default function ProfileScreen() {
               >
                 <Text className="text-white font-bold text-[14px]">qb</Text>
               </View>
-              <Text className="text-[18px] font-medium text-black">quickbooks</Text>
+              <Text className="text-[18px] font-medium text-[#1A1A1A]">quickbooks</Text>
             </View>
 
             {/* Badge Conectado - REDUCIDO 20% - SIN BORDE */}
@@ -1450,15 +1450,15 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#F0F0F0]">
             <Pressable
               onPress={() => setShowEditNameModal(false)}
               className="p-1 active:opacity-60"
               disabled={isSavingName}
             >
-              <X size={24} strokeWidth={1.5} color="#000000" />
+              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
             </Pressable>
-            <Text className="text-[18px] font-medium text-black">
+            <Text className="text-[18px] font-medium text-[#1A1A1A]">
               Editar nombre
             </Text>
             <View style={{ width: 32 }} />
@@ -1469,7 +1469,7 @@ export default function ProfileScreen() {
               Nombre del negocio
             </Text>
             <TextInput
-              className="border border-[#E5E5E5] px-4 py-3 text-[16px] font-light text-black"
+              className="border border-[#F0F0F0] px-4 py-3 text-[16px] font-light text-[#1A1A1A]"
               value={newBusinessName}
               onChangeText={setNewBusinessName}
               placeholder="Nombre del negocio"
@@ -1486,7 +1486,7 @@ export default function ProfileScreen() {
                 backgroundColor:
                   isSavingName || !newBusinessName.trim()
                     ? '#E5E5E5'
-                    : '#000000',
+                    : '#1A1A1A',
               }}
             >
               {isSavingName ? (
@@ -1519,15 +1519,15 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#F0F0F0]">
             <Pressable
               onPress={() => setShowCompanyInfoModal(false)}
               className="p-1 active:opacity-60"
               disabled={isSavingCompanyInfo}
             >
-              <X size={24} strokeWidth={1.5} color="#000000" />
+              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
             </Pressable>
-            <Text className="text-[18px] font-medium text-black">
+            <Text className="text-[18px] font-medium text-[#1A1A1A]">
               Datos de facturación
             </Text>
             <View style={{ width: 32 }} />
@@ -1547,7 +1547,7 @@ export default function ProfileScreen() {
                 style={{ gap: 12 }}
               >
                 {companyLogoUrl ? (
-                  <View className="border border-[#E5E5E5] p-2">
+                  <View className="border border-[#F0F0F0] p-2">
                     <Image
                       source={{ uri: companyLogoUrl }}
                       style={{ width: 100, height: 100 }}
@@ -1555,11 +1555,11 @@ export default function ProfileScreen() {
                     />
                   </View>
                 ) : (
-                  <View className="border border-[#E5E5E5] p-2 w-[100px] h-[100px] items-center justify-center bg-[#F9FAFB]">
+                  <View className="border border-[#F0F0F0] p-2 w-[100px] h-[100px] items-center justify-center bg-[#F9FAFB]">
                     <ImageIcon
                       size={40}
                       strokeWidth={1.5}
-                      color="#CCCCCC"
+                      color="#E5E5E5"
                     />
                   </View>
                 )}
@@ -1572,7 +1572,7 @@ export default function ProfileScreen() {
                     {isUploadingLogo ? (
                       <ActivityIndicator
                         size="small"
-                        color="#000000"
+                        color="#1A1A1A"
                       />
                     ) : (
                       <View
@@ -1582,9 +1582,9 @@ export default function ProfileScreen() {
                         <Upload
                           size={18}
                           strokeWidth={1.5}
-                          color="#000000"
+                          color="#1A1A1A"
                         />
-                        <Text className="text-[14px] text-black">
+                        <Text className="text-[14px] text-[#1A1A1A]">
                           {companyLogoUrl
                             ? 'Cambiar logo'
                             : 'Subir logo'}
@@ -1640,10 +1640,10 @@ export default function ProfileScreen() {
                     );
                   }
                 }}
-                className="border border-[#E5E5E5] px-5 py-4 flex-row justify-between items-center"
+                className="border border-[#F0F0F0] px-5 py-4 flex-row justify-between items-center"
                 style={{ minHeight: 50 }}
               >
-                <Text className="text-[16px] font-light text-black">
+                <Text className="text-[16px] font-light text-[#1A1A1A]">
                   {currencyCode === 'USD' ? 'USD - Dólar estadounidense' : 'HNL - Lempira hondureño'}
                 </Text>
                 <ChevronRight size={20} strokeWidth={1.5} color="#999999" />
@@ -1660,7 +1660,7 @@ export default function ProfileScreen() {
                 Nombre de la empresa *
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={companyName}
                 onChangeText={setCompanyName}
                 placeholder="RPLUS INVERSIONES S DE RL"
@@ -1677,7 +1677,7 @@ export default function ProfileScreen() {
                 RTN de la empresa
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={companyRtn}
                 onChangeText={setCompanyRtn}
                 placeholder="08011990123456"
@@ -1692,7 +1692,7 @@ export default function ProfileScreen() {
                 CAI (Código de Autorización)
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={companyCai}
                 onChangeText={setCompanyCai}
                 placeholder="CAI-123456-789012-345678"
@@ -1706,7 +1706,7 @@ export default function ProfileScreen() {
                 Dirección
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={companyAddress}
                 onChangeText={setCompanyAddress}
                 placeholder="Calle Principal, Col. Centro"
@@ -1723,7 +1723,7 @@ export default function ProfileScreen() {
                 Teléfono
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={companyPhone}
                 onChangeText={setCompanyPhone}
                 placeholder="+504 1234-5678"
@@ -1738,7 +1738,7 @@ export default function ProfileScreen() {
                 Email de facturación
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={companyEmail}
                 onChangeText={setCompanyEmail}
                 placeholder="facturacion@empresa.com"
@@ -1754,7 +1754,7 @@ export default function ProfileScreen() {
                 Tasa de impuesto (%)
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={taxRate}
                 onChangeText={setTaxRate}
                 placeholder="15"
@@ -1767,8 +1767,8 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            <View className="my-6 border-t border-[#E5E5E5]" />
-            <Text className="text-[15px] font-normal text-black mb-6">
+            <View className="my-6 border-t border-[#F0F0F0]" />
+            <Text className="text-[15px] font-normal text-[#1A1A1A] mb-6">
               Rango de facturas
             </Text>
 
@@ -1777,7 +1777,7 @@ export default function ProfileScreen() {
                 Rango de facturas - Inicio
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={invoiceRangeStart}
                 onChangeText={setInvoiceRangeStart}
                 placeholder="000-001-01-00000001"
@@ -1794,7 +1794,7 @@ export default function ProfileScreen() {
                 Rango de facturas - Fin
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={invoiceRangeEnd}
                 onChangeText={setInvoiceRangeEnd}
                 placeholder="000-001-01-00005000"
@@ -1810,7 +1810,7 @@ export default function ProfileScreen() {
               <Text className="text-[13px] font-light text-[#666666] mb-2">
                 Próximo número de factura
               </Text>
-              <View className="border border-[#E5E5E5] bg-[#F5F5F5] px-5 py-4">
+              <View className="border border-[#F0F0F0] bg-[#FAFAFA] px-5 py-4">
                 <Text className="text-[16px] text-[#666666]">
                   {currentUser?.facturaProximoNumero ||
                     invoiceRangeStart ||
@@ -1827,7 +1827,7 @@ export default function ProfileScreen() {
                 Fecha de vencimiento del CAI
               </Text>
               <TextInput
-                className="border border-[#E5E5E5] px-5 py-4 text-[16px] font-light text-black"
+                className="border border-[#F0F0F0] px-5 py-4 text-[16px] font-light text-[#1A1A1A]"
                 value={caiExpirationDate}
                 onChangeText={setCaiExpirationDate}
                 placeholder="YYYY-MM-DD"
@@ -1846,7 +1846,7 @@ export default function ProfileScreen() {
               style={{
                 backgroundColor: isSavingCompanyInfo
                   ? '#E5E5E5'
-                  : '#000000',
+                  : '#1A1A1A',
               }}
             >
               {isSavingCompanyInfo ? (
@@ -1872,15 +1872,15 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#F0F0F0]">
             <Pressable
               onPress={() => setShowProModal(false)}
               className="p-1 active:opacity-60"
               disabled={isProcessingPurchase}
             >
-              <X size={24} strokeWidth={1.5} color="#000000" />
+              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
             </Pressable>
-            <Text className="text-[18px] font-medium text-black">
+            <Text className="text-[18px] font-medium text-[#1A1A1A]">
               MANU Pro
             </Text>
             <View style={{ width: 32 }} />
@@ -1899,7 +1899,7 @@ export default function ProfileScreen() {
                   color="#FFFFFF"
                 />
               </View>
-              <Text className="text-[28px] font-semibold text-black mb-2">
+              <Text className="text-[28px] font-semibold text-[#1A1A1A] mb-2">
                 MANU Pro
               </Text>
               <Text className="text-[15px] font-light text-[#666666] text-center">
@@ -1912,7 +1912,7 @@ export default function ProfileScreen() {
                 <Text className="text-[14px] font-light text-[#666666] mb-1">
                   Suscripción mensual
                 </Text>
-                <Text className="text-[36px] font-bold text-black">
+                <Text className="text-[36px] font-bold text-[#1A1A1A]">
                   {proPackage.product.priceString}
                 </Text>
                 <Text className="text-[13px] font-light text-[#999999] mt-1">
@@ -1921,8 +1921,8 @@ export default function ProfileScreen() {
               </View>
             )}
 
-            <View className="mb-8 p-6 border border-[#E5E5E5] rounded-2xl">
-              <Text className="text-[16px] font-medium text-black mb-6">
+            <View className="mb-8 p-6 border border-[#F0F0F0] rounded-2xl">
+              <Text className="text-[16px] font-medium text-[#1A1A1A] mb-6">
                 Incluye:
               </Text>
               <Feature text="Gastos ilimitados cada mes" />
@@ -1942,7 +1942,7 @@ export default function ProfileScreen() {
                 style={{
                   backgroundColor: isProcessingPurchase
                     ? '#E5E5E5'
-                    : '#000000',
+                    : '#1A1A1A',
                 }}
               >
                 {isProcessingPurchase ? (
@@ -2006,15 +2006,15 @@ export default function ProfileScreen() {
           className="flex-1 bg-white"
           edges={['top', 'bottom']}
         >
-          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#E5E5E5]">
-            <Text className="text-[18px] font-semibold text-black">
+          <View className="flex-row justify-between items-center px-6 py-4 border-b border-[#F0F0F0]">
+            <Text className="text-[18px] font-semibold text-[#1A1A1A]">
               Logs de Sincronización
             </Text>
             <Pressable
               onPress={() => setShowQBSyncLogs(false)}
               className="p-1 active:opacity-60"
             >
-              <X size={24} strokeWidth={1.5} color="#000000" />
+              <X size={24} strokeWidth={1.5} color="#1A1A1A" />
             </Pressable>
           </View>
 
@@ -2033,7 +2033,7 @@ export default function ProfileScreen() {
               qbSyncLogs.map((log) => (
                 <View
                   key={log.id}
-                  className="mb-6 p-5 border border-[#E5E5E5] rounded-2xl"
+                  className="mb-6 p-5 border border-[#F0F0F0] rounded-2xl"
                 >
                   <View className="flex-row justify-between items-start mb-2">
                     <View style={{ flex: 1 }}>
