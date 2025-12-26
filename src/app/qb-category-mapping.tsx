@@ -163,7 +163,7 @@ export default function QBCategoryMappingScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
-        <Text className="text-[18px] font-semibold text-black">
+        <Text className="text-[18px] font-medium text-black">
           Mapeo de Categorías
         </Text>
         <Pressable
@@ -176,7 +176,7 @@ export default function QBCategoryMappingScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-5 py-4">
-          <Text className="text-[13px] text-[#666666] mb-4">
+          <Text className="text-[13px] font-light text-[#666666] mb-4">
             Personaliza cómo se mapean tus categorías de MANU a cuentas de QuickBooks.
           </Text>
 
@@ -187,10 +187,10 @@ export default function QBCategoryMappingScreen() {
             >
               <View className="flex-row justify-between items-center mb-3">
                 <View>
-                  <Text className="text-[16px] font-semibold text-black">
+                  <Text className="text-[16px] font-medium text-black">
                     {CATEGORY_LABELS[mapping.manu_category]}
                   </Text>
-                  <Text className="text-[12px] text-[#666666] mt-1">
+                  <Text className="text-[12px] font-light text-[#666666] mt-1">
                     {mapping.qb_account_name}
                   </Text>
                 </View>
@@ -204,21 +204,21 @@ export default function QBCategoryMappingScreen() {
 
               {editingCategory === mapping.manu_category && (
                 <View className="mt-3 pt-3 border-t border-[#E5E5E5]">
-                  <Text className="text-[13px] text-[#666666] mb-2">
+                  <Text className="text-[13px] font-light text-[#666666] mb-2">
                     ID de cuenta QB
                   </Text>
                   <TextInput
-                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] text-black mb-3"
+                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] font-light text-black mb-3"
                     value={editAccountId}
                     onChangeText={setEditAccountId}
                     placeholder="Ej: 123"
                   />
 
-                  <Text className="text-[13px] text-[#666666] mb-2">
+                  <Text className="text-[13px] font-light text-[#666666] mb-2">
                     Nombre de cuenta QB
                   </Text>
                   <TextInput
-                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] text-black mb-3"
+                    className="border border-[#E5E5E5] px-3 py-2 text-[14px] font-light text-black mb-3"
                     value={editAccountName}
                     onChangeText={setEditAccountName}
                     placeholder="Ej: Office Expenses"
@@ -229,7 +229,7 @@ export default function QBCategoryMappingScreen() {
                       onPress={() => setEditingCategory(null)}
                       className="flex-1 py-2 items-center border border-[#E5E5E5] rounded-lg active:opacity-80"
                     >
-                      <Text className="text-[14px] font-medium text-black">
+                      <Text className="text-[14px] font-normal text-black">
                         Cancelar
                       </Text>
                     </Pressable>
@@ -241,7 +241,7 @@ export default function QBCategoryMappingScreen() {
                       {saving ? (
                         <ActivityIndicator size="small" color="#FFFFFF" />
                       ) : (
-                        <Text className="text-[14px] font-medium text-white">
+                        <Text className="text-[14px] font-normal text-white">
                           Guardar
                         </Text>
                       )}

@@ -269,7 +269,7 @@ export default function AddExpenseScreen() {
               entering={FadeIn.duration(200)}
               className="flex-row justify-between items-center px-5 pt-4 pb-6"
             >
-              <Text className="text-[20px] font-semibold text-black">
+              <Text className="text-[20px] font-medium text-black">
                 Nuevo gasto
               </Text>
               <Pressable
@@ -290,7 +290,7 @@ export default function AddExpenseScreen() {
                   className="flex-row items-center bg-[#F5F5F5] p-4 mb-4 border border-[#E5E5E5]"
                 >
                   <CheckCircle size={20} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] text-black ml-2 flex-1">
+                  <Text className="text-[14px] font-light text-black ml-2 flex-1">
                     Recibo procesado correctamente
                   </Text>
                 </Animated.View>
@@ -303,7 +303,7 @@ export default function AddExpenseScreen() {
                   className="flex-row items-center bg-[#F5F5F5] p-3 mb-4"
                 >
                   <ActivityIndicator size="small" color="#000000" />
-                  <Text className="text-[14px] text-[#666666] ml-2">
+                  <Text className="text-[14px] font-light text-[#666666] ml-2">
                     Analizando recibo...
                   </Text>
                 </Animated.View>
@@ -323,7 +323,7 @@ export default function AddExpenseScreen() {
                   disabled={isSaving || isProcessing}
                 >
                   <Camera size={20} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] font-medium text-black">
+                  <Text className="text-[14px] font-normal text-black">
                     Tomar foto
                   </Text>
                 </Pressable>
@@ -336,7 +336,7 @@ export default function AddExpenseScreen() {
                   disabled={isSaving || isProcessing}
                 >
                   <ImageIcon size={20} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[14px] font-medium text-black">
+                  <Text className="text-[14px] font-normal text-black">
                     Elegir de galería
                   </Text>
                 </Pressable>
@@ -349,7 +349,7 @@ export default function AddExpenseScreen() {
                   className="flex-row items-center bg-[#F5F5F5] p-3 mb-4"
                 >
                   <CheckCircle size={18} strokeWidth={1.5} color="#000000" />
-                  <Text className="text-[13px] text-[#666666] ml-2 flex-1">
+                  <Text className="text-[13px] font-light text-[#666666] ml-2 flex-1">
                     Foto guardada
                   </Text>
                 </Animated.View>
@@ -358,7 +358,7 @@ export default function AddExpenseScreen() {
               {/* Divider */}
               <View className="flex-row items-center my-6">
                 <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
-                <Text className="px-4 text-[13px] text-[#999999]">
+                <Text className="px-4 text-[13px] font-light text-[#999999]">
                   {receiptImageUrl ? 'edita los datos' : 'o ingresa manualmente'}
                 </Text>
                 <View className="flex-1 h-[1px] bg-[#E5E5E5]" />
@@ -366,18 +366,18 @@ export default function AddExpenseScreen() {
 
               {/* Amount Input */}
               <Animated.View entering={SlideInDown.duration(300).delay(200)}>
-                <Text className="text-[13px] text-[#666666] mb-2">Monto *</Text>
+                <Text className="text-[13px] font-light text-[#666666] mb-2">Monto *</Text>
                 <View
                   className="border p-4 flex-row items-center"
                   style={{
                     borderColor: amountFocused ? '#000000' : '#E5E5E5',
                   }}
                 >
-                  <Text className="text-[16px] text-black mr-1">
+                  <Text className="text-[16px] font-light text-black mr-1">
                     {currencySymbol}
                   </Text>
                   <TextInput
-                    className="flex-1 text-[16px] text-black"
+                    className="flex-1 text-[16px] font-light text-black"
                     placeholder="0"
                     placeholderTextColor="#999999"
                     keyboardType="decimal-pad"
@@ -396,7 +396,7 @@ export default function AddExpenseScreen() {
                 entering={SlideInDown.duration(300).delay(300)}
                 className="mt-5"
               >
-                <Text className="text-[13px] text-[#666666] mb-2">
+                <Text className="text-[13px] font-light text-[#666666] mb-2">
                   Categoría *
                 </Text>
                 <Pressable
@@ -445,7 +445,7 @@ export default function AddExpenseScreen() {
                 entering={SlideInDown.duration(300).delay(400)}
                 className="mt-5"
               >
-                <Text className="text-[13px] text-[#666666] mb-2">
+                <Text className="text-[13px] font-light text-[#666666] mb-2">
                   Proveedor (opcional)
                 </Text>
                 <View
@@ -455,7 +455,7 @@ export default function AddExpenseScreen() {
                   }}
                 >
                   <TextInput
-                    className="text-[16px] text-black"
+                    className="text-[16px] font-light text-black"
                     placeholder="Nombre del proveedor"
                     placeholderTextColor="#999999"
                     value={provider}
@@ -472,7 +472,7 @@ export default function AddExpenseScreen() {
                 entering={SlideInDown.duration(300).delay(425)}
                 className="mt-5"
               >
-                <Text className="text-[13px] text-[#666666] mb-2">
+                <Text className="text-[13px] font-light text-[#666666] mb-2">
                   Fecha del gasto (opcional)
                 </Text>
                 <Pressable
@@ -489,7 +489,7 @@ export default function AddExpenseScreen() {
                 >
                   <View className="flex-row items-center flex-1">
                     <Calendar size={18} strokeWidth={1.5} color="#666666" />
-                    <Text className="text-[16px] text-black ml-2">
+                    <Text className="text-[16px] font-light text-black ml-2">
                       {format(expenseDate, "d 'de' MMMM, yyyy", { locale: es })}
                     </Text>
                   </View>
@@ -501,7 +501,7 @@ export default function AddExpenseScreen() {
                 entering={SlideInDown.duration(300).delay(450)}
                 className="mt-5"
               >
-                <Text className="text-[13px] text-[#666666] mb-2">
+                <Text className="text-[13px] font-light text-[#666666] mb-2">
                   Notas (opcional)
                 </Text>
                 <View
@@ -511,7 +511,7 @@ export default function AddExpenseScreen() {
                   }}
                 >
                   <TextInput
-                    className="text-[16px] text-black"
+                    className="text-[16px] font-light text-black"
                     placeholder="Recordatorios, observaciones..."
                     placeholderTextColor="#999999"
                     value={notes}
@@ -526,7 +526,7 @@ export default function AddExpenseScreen() {
                   />
                 </View>
                 {notes.length > 0 && (
-                  <Text className="text-[12px] text-[#999999] mt-1 text-right">
+                  <Text className="text-[12px] font-light text-[#999999] mt-1 text-right">
                     {notes.length}/500
                   </Text>
                 )}
@@ -549,7 +549,7 @@ export default function AddExpenseScreen() {
                     <ActivityIndicator color="#FFFFFF" />
                   ) : (
                     <Text
-                      className="text-[15px] font-medium"
+                      className="text-[15px] font-normal"
                       style={{ color: isValid && !isProcessing ? '#FFFFFF' : '#999999' }}
                     >
                       Guardar gasto
@@ -595,7 +595,7 @@ export default function AddExpenseScreen() {
             }}
             onPress={(e) => e.stopPropagation()}
           >
-            <Text className="text-[18px] font-semibold text-black mb-4">
+            <Text className="text-[18px] font-medium text-black mb-4">
               Fecha del gasto
             </Text>
 
@@ -630,7 +630,7 @@ export default function AddExpenseScreen() {
                 }}
                 className="flex-1 py-3 border border-[#E5E5E5] items-center active:opacity-60"
               >
-                <Text className="text-[15px] font-medium text-black">
+                <Text className="text-[15px] font-normal text-black">
                   Cancelar
                 </Text>
               </Pressable>
@@ -642,7 +642,7 @@ export default function AddExpenseScreen() {
                 }}
                 className="flex-1 py-3 bg-black items-center active:opacity-80"
               >
-                <Text className="text-[15px] font-medium text-white">
+                <Text className="text-[15px] font-normal text-white">
                   Guardar
                 </Text>
               </Pressable>

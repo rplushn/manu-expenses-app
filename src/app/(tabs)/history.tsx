@@ -752,7 +752,7 @@ export default function HistoryScreen() {
               <View className="border border-[#E5E5E5] p-3 flex-row items-center">
                 <Search size={18} strokeWidth={1.5} color="#999999" />
                 <TextInput
-                  className="flex-1 ml-2 text-[15px] text-black"
+                  className="flex-1 ml-2 text-[15px] font-light text-black"
                   placeholder="Buscar por proveedor..."
                   placeholderTextColor="#999999"
                   value={searchQuery}
@@ -871,7 +871,7 @@ export default function HistoryScreen() {
               <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
                 {/* Modal Header */}
                 <View className="flex-row justify-between items-center px-5 pt-4 pb-6">
-                  <Text className="text-[20px] font-semibold text-black">
+                  <Text className="text-[20px] font-medium text-black">
                     Detalle del gasto
                   </Text>
                   <Pressable
@@ -888,7 +888,7 @@ export default function HistoryScreen() {
                 <View className="px-5">
                   {/* Amount */}
                   <View className="mb-6">
-                    <Text className="text-[13px] text-[#666666] mb-1">Monto</Text>
+                    <Text className="text-[13px] font-light text-[#666666] mb-1">Monto</Text>
                     <Text className="text-[32px] font-semibold text-black">
                       {formatMoney(selectedExpense.amount, selectedExpense.currencyCode || userCurrency)}
                     </Text>
@@ -896,30 +896,30 @@ export default function HistoryScreen() {
 
                   {/* Category */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-1">
+                    <Text className="text-[13px] font-light text-[#666666] mb-1">
                       Categoría
                     </Text>
-                    <Text className="text-[16px] text-black">
+                    <Text className="text-[16px] font-light text-black">
                       {CATEGORY_LABELS[selectedExpense.category]}
                     </Text>
                   </View>
 
                   {/* Provider */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-1">
+                    <Text className="text-[13px] font-light text-[#666666] mb-1">
                       Proveedor
                     </Text>
-                    <Text className="text-[16px] text-black">
+                    <Text className="text-[16px] font-light text-black">
                       {selectedExpense.provider || 'Sin proveedor'}
                     </Text>
                   </View>
 
                   {/* Date & Time */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-1">
+                    <Text className="text-[13px] font-light text-[#666666] mb-1">
                       Fecha y hora
                     </Text>
-                    <Text className="text-[16px] text-black">
+                    <Text className="text-[16px] font-light text-black">
                       {formatDate(selectedExpense.expenseDate)} a las{' '}
                       {new Date(selectedExpense.createdAt).toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                     </Text>
@@ -928,11 +928,11 @@ export default function HistoryScreen() {
                   {/* Notes */}
                   {selectedExpense.notes && (
                     <View className="mb-5">
-                      <Text className="text-[13px] text-[#666666] mb-1">
+                      <Text className="text-[13px] font-light text-[#666666] mb-1">
                         Notas
                       </Text>
                       <View className="bg-[#F5F5F5] p-4">
-                        <Text className="text-[15px] text-black leading-5">
+                        <Text className="text-[15px] font-light text-black leading-5">
                           {selectedExpense.notes}
                         </Text>
                       </View>
@@ -942,7 +942,7 @@ export default function HistoryScreen() {
                   {/* Receipt Image */}
                   {selectedExpense.receiptImageUrl && (
                     <View className="mb-6">
-                      <Text className="text-[13px] text-[#666666] mb-2">
+                      <Text className="text-[13px] font-light text-[#666666] mb-2">
                         Foto del recibo
                       </Text>
                       <View className="border border-[#E5E5E5] overflow-hidden">
@@ -968,7 +968,7 @@ export default function HistoryScreen() {
                           color="#FFFFFF"
                           style={{ marginRight: 6 }}
                         />
-                        <Text className="text-[15px] font-medium text-white">
+                        <Text className="text-[15px] font-normal text-white">
                           Editar
                         </Text>
                       </View>
@@ -984,7 +984,7 @@ export default function HistoryScreen() {
                           color="#DC2626"
                           style={{ marginRight: 6 }}
                         />
-                        <Text className="text-[15px] font-medium text-[#DC2626]">
+                        <Text className="text-[15px] font-normal text-[#DC2626]">
                           Eliminar
                         </Text>
                       </View>
@@ -1018,7 +1018,7 @@ export default function HistoryScreen() {
               >
                 {/* Modal Header */}
                 <View className="flex-row justify-between items-center px-5 pt-4 pb-6">
-                  <Text className="text-[20px] font-semibold text-black">
+                  <Text className="text-[20px] font-medium text-black">
                     Editar gasto
                   </Text>
                   <Pressable
@@ -1036,15 +1036,15 @@ export default function HistoryScreen() {
                 <View className="px-5">
                   {/* Amount Input */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-2">
+                    <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Monto *
                     </Text>
                     <View className="border border-[#E5E5E5] p-4 flex-row items-center">
-                      <Text className="text-[16px] text-black mr-1">
+                      <Text className="text-[16px] font-light text-black mr-1">
                         {editingCurrencySymbol}
                       </Text>
                       <TextInput
-                        className="flex-1 text-[16px] text-black"
+                        className="flex-1 text-[16px] font-light text-black"
                         placeholder="0"
                         placeholderTextColor="#999999"
                         keyboardType="decimal-pad"
@@ -1057,7 +1057,7 @@ export default function HistoryScreen() {
 
                   {/* Category Picker */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-2">
+                    <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Categoría *
                     </Text>
                     <Pressable
@@ -1105,12 +1105,12 @@ export default function HistoryScreen() {
 
                   {/* Provider Input */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-2">
+                    <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Proveedor (opcional)
                     </Text>
                     <View className="border border-[#E5E5E5] p-4">
                       <TextInput
-                        className="text-[16px] text-black"
+                        className="text-[16px] font-light text-black"
                         placeholder="Nombre del proveedor"
                         placeholderTextColor="#999999"
                         value={editProvider}
@@ -1122,7 +1122,7 @@ export default function HistoryScreen() {
 
                   {/* Expense Date Picker */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-2">
+                    <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Fecha del gasto *
                     </Text>
                     <Pressable
@@ -1130,7 +1130,7 @@ export default function HistoryScreen() {
                       className="border border-[#E5E5E5] px-4 py-3 flex-row justify-between items-center"
                       disabled={isSaving}
                     >
-                      <Text className="text-[16px] text-black">
+                      <Text className="text-[16px] font-light text-black">
                         {format(selectedDate, 'dd/MM/yyyy')}
                       </Text>
                       <Calendar size={20} strokeWidth={1.5} color="#999999" />
@@ -1187,12 +1187,12 @@ export default function HistoryScreen() {
 
                   {/* Notes Input */}
                   <View className="mb-5">
-                    <Text className="text-[13px] text-[#666666] mb-2">
+                    <Text className="text-[13px] font-light text-[#666666] mb-2">
                       Notas (opcional)
                     </Text>
                     <View className="border border-[#E5E5E5] p-4">
                       <TextInput
-                        className="text-[16px] text-black"
+                        className="text-[16px] font-light text-black"
                         placeholder="Recordatorios, observaciones..."
                         placeholderTextColor="#999999"
                         value={editNotes}
@@ -1205,7 +1205,7 @@ export default function HistoryScreen() {
                       />
                     </View>
                     {editNotes.length > 0 && (
-                      <Text className="text-[12px] text-[#999999] mt-1 text-right">
+                      <Text className="text-[12px] font-light text-[#999999] mt-1 text-right">
                         {editNotes.length}/500
                       </Text>
                     )}
@@ -1226,7 +1226,7 @@ export default function HistoryScreen() {
                         <ActivityIndicator color="#FFFFFF" />
                       ) : (
                         <Text
-                          className="text-[15px] font-medium"
+                          className="text-[15px] font-normal"
                           style={{
                             color: isEditValid ? '#FFFFFF' : '#999999',
                           }}
@@ -1495,7 +1495,7 @@ export default function HistoryScreen() {
                       {isExporting ? (
                         <ActivityIndicator color="#FFFFFF" />
                       ) : (
-                        <Text className="text-[15px] font-medium text-white">
+                        <Text className="text-[15px] font-normal text-white">
                           Exportar
                         </Text>
                       )}

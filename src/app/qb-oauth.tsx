@@ -133,17 +133,17 @@ export default function QBOAuthScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 items-center justify-center px-5">
-          <Text className="text-[18px] font-semibold text-black mb-2 text-center">
+          <Text className="text-[18px] font-medium text-black mb-2 text-center">
             Error de conexión
           </Text>
-          <Text className="text-[14px] text-[#666666] text-center mb-6">
+          <Text className="text-[14px] font-light text-[#666666] text-center mb-6">
             {error}
           </Text>
           <Pressable
             onPress={() => router.back()}
             className="px-6 py-3 bg-black rounded-lg active:opacity-80"
           >
-            <Text className="text-[16px] font-semibold text-white">
+            <Text className="text-[16px] font-medium text-white">
               Volver
             </Text>
           </Pressable>
@@ -155,7 +155,7 @@ export default function QBOAuthScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
       <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#E5E5E5]">
-        <Text className="text-[18px] font-semibold text-black">
+        <Text className="text-[18px] font-medium text-black">
           Conectar QuickBooks
         </Text>
         <Pressable
@@ -169,7 +169,7 @@ export default function QBOAuthScreen() {
       {loading && (
         <View className="absolute inset-0 items-center justify-center bg-white z-10">
           <ActivityIndicator size="large" color="#000000" />
-          <Text className="text-[14px] text-[#666666] mt-4">
+          <Text className="text-[14px] font-light text-[#666666] mt-4">
             Conectando con QuickBooks...
           </Text>
         </View>
