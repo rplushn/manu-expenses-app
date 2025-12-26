@@ -346,7 +346,7 @@ export default function HomeScreen() {
         )}
 
         {/* Period Selector */}
-        <View className="flex-row mx-5 mt-8 border border-[#F0F0F0]">
+        <View className="flex-row mx-5 mt-8 border border-[#2A2A2A]">
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
@@ -402,7 +402,7 @@ export default function HomeScreen() {
             <Text className="text-[16px] font-normal text-[#1A1A1A] mb-6">
               Por categoria
             </Text>
-            <View className="border border-[#F0F0F0] p-5">
+            <View className="border border-[#2A2A2A] p-5">
               {categorySummary.map((cat, index) => (
                 <View key={cat.category} className={index > 0 ? 'mt-6' : ''}>
                   <View className="flex-row justify-between items-center mb-2">
@@ -463,7 +463,7 @@ export default function HomeScreen() {
                 key={expense.id}
                 entering={FadeInDown.duration(300).delay(200 + index * 100)}
               >
-                <View className="border border-[#F0F0F0] p-5 mb-4">
+                <View className="border border-[#2A2A2A] p-5 mb-4">
                   <View className="flex-row justify-between items-start">
                     <View className="flex-1">
                       <Text className="text-[16px] text-[#1A1A1A] font-normal">
@@ -512,7 +512,7 @@ export default function HomeScreen() {
       >
         <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
           {/* Modal Header */}
-          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#F0F0F0]">
+          <View className="flex-row justify-between items-center px-5 py-4 border-b border-[#2A2A2A]">
             <Pressable
               onPress={() => setShowProModal(false)}
               className="p-1 active:opacity-60"
@@ -560,7 +560,7 @@ export default function HomeScreen() {
             )}
 
             {/* Features */}
-            <View className="mb-8 p-6 border border-[#F0F0F0] rounded-2xl">
+            <View className="mb-8 p-6 border border-[#2A2A2A] rounded-2xl">
               <Text className="text-[16px] font-medium text-[#1A1A1A] mb-6">
                 Incluye:
               </Text>

@@ -189,8 +189,8 @@ export default function BudgetsScreen() {
               }}
               style={{
                 backgroundColor: '#000000',
-                borderWidth: 1.5,
-                borderColor: '#1A1A1A',
+                borderWidth: 1.8,
+                borderColor: '#2A2A2A',
                 borderRadius: 8,
                 paddingHorizontal: 24,
                 paddingVertical: 12,

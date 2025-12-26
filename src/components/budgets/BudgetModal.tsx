@@ -104,7 +104,7 @@ export function BudgetModal({
       <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         <View className="flex-1">
           {/* Header */}
-          <View className="flex-row justify-between items-center px-6 pt-4 pb-6 border-b border-[#F0F0F0]">
+          <View className="flex-row justify-between items-center px-6 pt-4 pb-6 border-b border-[#2A2A2A]">
             <Text
               style={{
                 fontSize: 24,
@@ -136,8 +136,8 @@ export function BudgetModal({
                 <Pressable
                   onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                   style={{
-                    borderWidth: 1.5,
-                    borderColor: '#1A1A1A',
+                    borderWidth: 1.8,
+                    borderColor: '#2A2A2A',
                     borderRadius: 8,
                     padding: 16,
                     backgroundColor: '#FFFFFF',
@@ -206,8 +206,8 @@ export function BudgetModal({
                 </Text>
                 <View
                   style={{
-                    borderWidth: 1.5,
-                    borderColor: '#1A1A1A',
+                    borderWidth: 1.8,
+                    borderColor: '#2A2A2A',
                     borderRadius: 8,
                     padding: 16,
                     flexDirection: 'row',
@@ -258,7 +258,7 @@ export function BudgetModal({
                     style={{
                       flex: 1,
                       borderWidth: 1.5,
-                      borderColor: period === 'mensual' ? '#1A1A1A' : '#F0F0F0',
+                      borderColor: period === 'mensual' ? '#2A2A2A' : '#2A2A2A',
                       borderRadius: 8,
                       padding: 16,
                       backgroundColor: period === 'mensual' ? '#000000' : '#FFFFFF',
@@ -280,7 +280,7 @@ export function BudgetModal({
                     style={{
                       flex: 1,
                       borderWidth: 1.5,
-                      borderColor: period === 'anual' ? '#1A1A1A' : '#F0F0F0',
+                      borderColor: period === 'anual' ? '#2A2A2A' : '#2A2A2A',
                       borderRadius: 8,
                       padding: 16,
                       backgroundColor: period === 'anual' ? '#000000' : '#FFFFFF',
@@ -303,7 +303,7 @@ export function BudgetModal({
           </ScrollView>
 
           {/* Footer */}
-          <View className="px-6 pt-4 pb-6 border-t border-[#F0F0F0]">
+          <View className="px-6 pt-4 pb-6 border-t border-[#2A2A2A]">
             {budget && onDelete && (
               <Pressable
                 onPress={() => {
@@ -312,7 +312,7 @@ export function BudgetModal({
                 }}
                 disabled={isSaving}
                 style={{
-                  borderWidth: 1.5,
+                  borderWidth: 1.8,
                   borderColor: '#FF3B30',
                   borderRadius: 8,
                   padding: 16,

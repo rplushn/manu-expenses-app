@@ -38,8 +38,8 @@ export function BudgetCard({ budget, spent, onPress, currencyCode }: BudgetCardP
     <Pressable
       onPress={onPress}
       style={{
-        borderWidth: 1.5,
-        borderColor: '#1A1A1A',
+        borderWidth: 1.8,
+        borderColor: '#2A2A2A',
         borderRadius: 8,
         padding: 20,
         marginBottom: 16,

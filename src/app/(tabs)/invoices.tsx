@@ -100,7 +100,7 @@ export default function InvoicesScreen() {
         entering={FadeInDown.duration(300).delay(index * 50)}
       >
         <Pressable
-          className="border border-[#F0F0F0] rounded-2xl p-5 mb-4 active:opacity-60"
+          className="border border-[#2A2A2A] rounded-2xl p-5 mb-4 active:opacity-60"
           onPress={() => handleInvoicePress(item)}
         >
           <View className="flex-row justify-between items-start mb-2">
