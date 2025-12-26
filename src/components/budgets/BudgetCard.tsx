@@ -40,12 +40,12 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
     >
       <View
         style={{
-          borderWidth: 2,
+          borderWidth: 1,
           borderColor: '#000000',
           backgroundColor: '#FFFFFF',
-          paddingHorizontal: 20,
-          paddingVertical: 24,
-          marginBottom: 20,
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          marginBottom: 12,
         }}
       >
         {/* Header con nombre + dot status */}
@@ -54,17 +54,17 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            marginBottom: 16,
+            marginBottom: 4,
           }}
         >
-          <Text style={{ fontSize: 18, fontWeight: '700', color: '#1A1A1A' }}>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: '#1A1A1A' }}>
             {CATEGORY_LABELS[budget.category]}
           </Text>
           <View
             style={{
-              width: 5,
-              height: 5,
-              borderRadius: 2.5,
+              width: 4,
+              height: 4,
+              borderRadius: 2,
               backgroundColor: percentage >= 100 ? '#EF4444' : statusColor,
               marginTop: 1,
             }}
@@ -72,27 +72,27 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
         </View>
 
         {/* Período */}
-        <Text style={{ fontSize: 16, fontWeight: '400', color: '#666666', marginBottom: 12 }}>
+        <Text style={{ fontSize: 13, fontWeight: '400', color: '#666666', marginBottom: 8 }}>
           {periodText}
         </Text>
 
         {/* Progress Bar with Percentage */}
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 8 }}>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              gap: 8,
+              gap: 6,
             }}
           >
             {/* Barra container */}
             <View
               style={{
                 flex: 1,
-                height: 6,
+                height: 5,
                 backgroundColor: '#F3F4F6',
-                borderRadius: 3,
+                borderRadius: 2,
                 overflow: 'hidden',
               }}
             >
@@ -109,10 +109,10 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
             {/* Porcentaje */}
             <Text
               style={{
-                fontSize: 14,
+                fontSize: 11,
                 fontWeight: '500',
                 color: '#1A1A1A',
-                minWidth: 35,
+                minWidth: 28,
                 textAlign: 'right',
               }}
             >
@@ -122,23 +122,23 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
         </View>
 
         {/* Amounts - Gastado y Límite */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 6 }}>
           {/* Gastado */}
           <View>
-            <Text style={{ fontSize: 14, fontWeight: '300', color: '#666666', marginBottom: 4 }}>
+            <Text style={{ fontSize: 11, fontWeight: '300', color: '#666666', marginBottom: 3 }}>
               Gastado
             </Text>
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1A1A' }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#1A1A1A' }}>
               L {formatAmount(spentAmount)}
             </Text>
           </View>
 
           {/* Límite */}
           <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 14, fontWeight: '300', color: '#666666', marginBottom: 4 }}>
+            <Text style={{ fontSize: 11, fontWeight: '300', color: '#666666', marginBottom: 3 }}>
               Límite
             </Text>
-            <Text style={{ fontSize: 14, fontWeight: '600', color: '#1A1A1A' }}>
+            <Text style={{ fontSize: 11, fontWeight: '600', color: '#1A1A1A' }}>
               L {formatAmount(limit)}
             </Text>
           </View>
