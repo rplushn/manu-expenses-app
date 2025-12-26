@@ -109,16 +109,16 @@ export function BudgetModal({
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              paddingHorizontal: 24,
-              paddingTop: 16,
-              paddingBottom: 24,
+              paddingHorizontal: 18,
+              paddingTop: 12,
+              paddingBottom: 18,
               borderBottomWidth: 1.5,
               borderBottomColor: '#1A1A1A',
             }}
           >
             <Text
               style={{
-                fontSize: 28,
+                fontSize: 21,
                 fontWeight: '700',
                 color: '#1A1A1A',
                 letterSpacing: -0.5,
@@ -126,21 +126,21 @@ export function BudgetModal({
             >
               {budget ? 'Editar Presupuesto' : 'Nuevo Presupuesto'}
             </Text>
-            <Pressable onPress={onClose} style={{ padding: 8 }}>
-              <X size={28} strokeWidth={2} color="#1A1A1A" />
+            <Pressable onPress={onClose} style={{ padding: 6 }}>
+              <X size={21} strokeWidth={2} color="#1A1A1A" />
             </Pressable>
           </View>
 
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-            <View style={{ paddingHorizontal: 24, paddingTop: 24 }}>
+            <View style={{ paddingHorizontal: 18, paddingTop: 18 }}>
               {/* Category */}
-              <View style={{ marginBottom: 24 }}>
+              <View style={{ marginBottom: 18 }}>
                 <Text
                   style={{
-                    fontSize: 16,
+                    fontSize: 12,
                     fontWeight: '600',
                     color: '#666666',
-                    marginBottom: 8,
+                    marginBottom: 6,
                   }}
                 >
                   Categoría *
@@ -151,14 +151,14 @@ export function BudgetModal({
                     borderWidth: 2,
                     borderColor: '#1A1A1A',
                     borderRadius: 0,
-                    paddingVertical: 16,
-                    paddingHorizontal: 16,
+                    paddingVertical: 12,
+                    paddingHorizontal: 12,
                     backgroundColor: '#FFFFFF',
                   }}
                 >
                   <Text
                     style={{
-                      fontSize: 16,
+                      fontSize: 12,
                       fontWeight: '400',
                       color: category ? '#1A1A1A' : '#CCCCCC',
                     }}
@@ -173,7 +173,7 @@ export function BudgetModal({
                       borderWidth: 2,
                       borderColor: '#1A1A1A',
                       borderRadius: 0,
-                      marginTop: 8,
+                      marginTop: 6,
                       backgroundColor: '#FFFFFF',
                     }}
                   >
@@ -185,15 +185,15 @@ export function BudgetModal({
                           setShowCategoryPicker(false);
                         }}
                         style={{
-                          paddingVertical: 16,
-                          paddingHorizontal: 16,
+                          paddingVertical: 12,
+                          paddingHorizontal: 12,
                           borderBottomWidth: 2,
                           borderBottomColor: '#1A1A1A',
                         }}
                       >
                         <Text
                           style={{
-                            fontSize: 16,
+                            fontSize: 12,
                             fontWeight: '400',
                             color: '#1A1A1A',
                           }}
@@ -207,13 +207,13 @@ export function BudgetModal({
               </View>
 
               {/* Amount */}
-              <View style={{ marginBottom: 24 }}>
+              <View style={{ marginBottom: 18 }}>
                 <Text
                   style={{
-                    fontSize: 16,
+                    fontSize: 12,
                     fontWeight: '600',
                     color: '#666666',
-                    marginBottom: 8,
+                    marginBottom: 6,
                   }}
                 >
                   Monto límite *
@@ -223,18 +223,18 @@ export function BudgetModal({
                     borderWidth: 2,
                     borderColor: '#1A1A1A',
                     borderRadius: 0,
-                    paddingVertical: 16,
-                    paddingHorizontal: 16,
+                    paddingVertical: 12,
+                    paddingHorizontal: 12,
                     flexDirection: 'row',
                     alignItems: 'center',
                   }}
                 >
                   <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: '600',
                       color: '#1A1A1A',
-                      marginRight: 8,
+                      marginRight: 6,
                     }}
                   >
                     {currencySymbol}
@@ -247,7 +247,7 @@ export function BudgetModal({
                     keyboardType="decimal-pad"
                     style={{
                       flex: 1,
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: '600',
                       color: '#1A1A1A',
                     }}
@@ -256,18 +256,18 @@ export function BudgetModal({
               </View>
 
               {/* Period */}
-              <View style={{ marginBottom: 32 }}>
+              <View style={{ marginBottom: 24 }}>
                 <Text
                   style={{
-                    fontSize: 16,
+                    fontSize: 12,
                     fontWeight: '600',
                     color: '#666666',
-                    marginBottom: 8,
+                    marginBottom: 6,
                   }}
                 >
                   Período *
                 </Text>
-                <View style={{ flexDirection: 'row', gap: 12 }}>
+                <View style={{ flexDirection: 'row', gap: 9 }}>
                   <Pressable
                     onPress={() => setPeriod('mensual')}
                     style={{
@@ -275,13 +275,13 @@ export function BudgetModal({
                       borderWidth: 2,
                       borderColor: '#1A1A1A',
                       borderRadius: 0,
-                      paddingVertical: 16,
+                      paddingVertical: 12,
                       backgroundColor: period === 'mensual' ? '#1A1A1A' : '#FFFFFF',
                     }}
                   >
                     <Text
                       style={{
-                        fontSize: 16,
+                        fontSize: 12,
                         fontWeight: '600',
                         color: period === 'mensual' ? '#FFFFFF' : '#666666',
                         textAlign: 'center',
@@ -297,13 +297,13 @@ export function BudgetModal({
                       borderWidth: 2,
                       borderColor: '#1A1A1A',
                       borderRadius: 0,
-                      paddingVertical: 16,
+                      paddingVertical: 12,
                       backgroundColor: period === 'anual' ? '#1A1A1A' : '#FFFFFF',
                     }}
                   >
                     <Text
                       style={{
-                        fontSize: 16,
+                        fontSize: 12,
                         fontWeight: '600',
                         color: period === 'anual' ? '#FFFFFF' : '#666666',
                         textAlign: 'center',
@@ -320,9 +320,9 @@ export function BudgetModal({
           {/* Footer */}
           <View
             style={{
-              paddingHorizontal: 24,
-              paddingTop: 16,
-              paddingBottom: 24,
+              paddingHorizontal: 18,
+              paddingTop: 12,
+              paddingBottom: 18,
               borderTopWidth: 1.5,
               borderTopColor: '#1A1A1A',
             }}
@@ -338,15 +338,15 @@ export function BudgetModal({
                   borderWidth: 2,
                   borderColor: '#FF3B30',
                   borderRadius: 0,
-                  paddingVertical: 16,
-                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  paddingHorizontal: 12,
                   backgroundColor: '#FFFFFF',
-                  marginBottom: 12,
+                  marginBottom: 9,
                 }}
               >
                 <Text
                   style={{
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: '700',
                     color: '#FF3B30',
                     textAlign: 'center',
@@ -356,7 +356,7 @@ export function BudgetModal({
                 </Text>
               </Pressable>
             )}
-            <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{ flexDirection: 'row', gap: 9 }}>
               <Pressable
                 onPress={onClose}
                 disabled={isSaving}
@@ -365,13 +365,13 @@ export function BudgetModal({
                   borderWidth: 2,
                   borderColor: '#1A1A1A',
                   borderRadius: 0,
-                  paddingVertical: 16,
+                  paddingVertical: 12,
                   backgroundColor: '#FFFFFF',
                 }}
               >
                 <Text
                   style={{
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: '700',
                     color: '#1A1A1A',
                     textAlign: 'center',
@@ -388,7 +388,7 @@ export function BudgetModal({
                   borderWidth: 2,
                   borderColor: '#1A1A1A',
                   borderRadius: 0,
-                  paddingVertical: 16,
+                  paddingVertical: 12,
                   backgroundColor: isSaving || !category || !amount ? '#CCCCCC' : '#1A1A1A',
                 }}
               >
@@ -397,7 +397,7 @@ export function BudgetModal({
                 ) : (
                   <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: '700',
                       color: '#FFFFFF',
                       textAlign: 'center',
