@@ -987,25 +987,12 @@ export default function ProfileScreen() {
     'Mi negocio';
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white" edges={[]}>
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 12 }}
       >
-        {/* Title */}
-        <View className="px-6 pt-2 pb-4">
-          <Text
-            style={{
-              fontFamily: systemFont,
-              fontSize: 32,
-              fontWeight: '700',
-              color: '#111827',
-            }}
-          >
-            Perfil
-          </Text>
-        </View>
-
         {/* Header with gradient */}
         <LinearGradient
           colors={['#F9FAFB', '#FFFFFF']}

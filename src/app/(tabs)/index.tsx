@@ -315,7 +315,7 @@ export default function HomeScreen() {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12 }}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 12 }}
         stickyHeaderIndices={[stickyIndex]}
       >
 
@@ -345,12 +345,13 @@ export default function HomeScreen() {
 
         {/* Period Selector - Sticky */}
         <View 
-          className="flex-row mx-5 mt-4 border border-[#2A2A2A]"
+          className="flex-row mt-4 border border-[#2A2A2A]"
           style={{
             backgroundColor: '#FFFFFF',
             zIndex: 10,
             paddingVertical: 12,
             paddingHorizontal: 0,
+            marginHorizontal: 12,
             borderBottomWidth: 1,
             borderBottomColor: '#E5E5E5',
             shadowColor: '#000',
@@ -385,7 +386,8 @@ export default function HomeScreen() {
         {/* Period Total */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(100)}
-          className="px-6 mt-6"
+          className="mt-6"
+          style={{ paddingHorizontal: 12 }}
         >
           <Text className="text-[14px] font-light text-[#666666] mb-1">
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
@@ -410,7 +412,8 @@ export default function HomeScreen() {
         {categorySummary.length > 0 && (
           <Animated.View
             entering={FadeIn.duration(300).delay(200)}
-            className="px-6 mt-6"
+            className="mt-6"
+            style={{ paddingHorizontal: 12 }}
           >
             <Text className="text-[16px] font-normal text-[#1A1A1A] mb-6">
               Por categoria
@@ -443,10 +446,10 @@ export default function HomeScreen() {
         )}
 
         {/* Divider */}
-        <View className="mx-5 mt-6 h-[1px] bg-[#F0F0F0]" />
+        <View className="mt-6 h-[1px] bg-[#F0F0F0]" style={{ marginHorizontal: 12 }} />
 
         {/* Recent Expenses */}
-        <View className="px-6 mt-6">
+        <View className="mt-6" style={{ paddingHorizontal: 12 }}>
           <Text className="text-[16px] font-normal text-[#1A1A1A] mb-4">
             Ultimos gastos
           </Text>

@@ -153,6 +153,9 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Perfil',
+          headerShown: true,
+          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerTitleStyle: { fontSize: 20, fontWeight: '500', color: '#1A1A1A' },
           tabBarIcon: ({ focused, color }) => (
             <View style={{ alignItems: 'center' }}>
               <User size={24} color={color} strokeWidth={1.2} />
