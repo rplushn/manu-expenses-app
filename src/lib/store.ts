@@ -381,6 +381,40 @@ export const useAppStore = create<AppState>()(
 
           console.log('[addExpense] Success! ID:', data.id);
 
+          // Send webhook notification (non-blocking)
+          if (data) {
+            try {
+              const webhookBody = {
+                id: data.id,
+                usuario_id: data.usuario_id,
+                monto: data.monto,
+                moneda: data.moneda || 'HNL',
+                categoria: data.categoria,
+                proveedor: data.proveedor || '',
+                notas: data.notas || '',
+                foto_url: data.foto_url || '',
+                numero_caja: '',
+              };
+
+              console.log('[addExpense] Sending webhook with data:', webhookBody);
+
+              await fetch('https://n8n.srv1009646.hstgr.cloud/webhook/ea0d35fa-c502-4ded-a618-22ed76af9f20', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(webhookBody),
+              });
+
+              console.log('[addExpense] Webhook sent successfully');
+            } catch (webhookError) {
+              console.error('[addExpense] Webhook error:', {
+                message: webhookError instanceof Error ? webhookError.message : String(webhookError),
+                error: webhookError
+              });
+            }
+          }
+
           // Add to local state
           const newExpense = dbToAppExpense(data);
           // Ensure currencyCode is set from currentUser if not in DB response

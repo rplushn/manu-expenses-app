@@ -17,6 +17,7 @@ import { X, Camera, Image as ImageIcon, ChevronDown, CheckCircle, Calendar } fro
 import { useAppStore, formatMoney } from '@/lib/store';
 import { ExpenseCategory, CATEGORY_LABELS } from '@/lib/types';
 import { processReceiptImage } from '@/lib/ocr';
+import { supabase } from '@/lib/supabase';
 import Animated, { FadeIn, SlideInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
@@ -229,25 +230,53 @@ export default function AddExpenseScreen() {
     const expenseDateStr = `${year}-${month}-${day}`;
 
     const now = new Date();
-    const success = await addExpense({
-      amount: parsedAmount,
-      category,
-      provider: provider || 'Sin proveedor',
-      expenseDate: expenseDateStr,
-      createdAt: now.toISOString(),
-      notes: notes.trim() || undefined,
-      receiptImageUrl,
-    });
+    
+    if (!currentUser?.id) {
+      Alert.alert('Error', 'No se pudo identificar el usuario');
+      setIsSaving(false);
+      return;
+    }
 
-    setIsSaving(false);
+    // Insert expense directly to Supabase
+    const { data: expenseData, error } = await supabase
+      .from('gastos')
+      .insert({
+        usuario_id: currentUser.id,
+        monto: parsedAmount,
+        moneda: 'L',
+        categoria: category,
+        proveedor: provider || 'Sin proveedor',
+        fecha: expenseDateStr,
+        currency_code: currentUser.currencyCode || 'HNL',
+        foto_url: receiptImageUrl || null,
+        notas: notes.trim() || null,
+      })
+      .select()
+      .single();
 
-    if (success) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.back();
-    } else {
+    if (error) {
+      setIsSaving(false);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Error', 'No se pudo guardar el gasto. Revisa tu conexión.');
+      return;
     }
+
+    // Send webhook notification (fire-and-forget)
+    if (expenseData) {
+      fetch('https://n8n.srv1009646.hstgr.cloud/webhook/ea0d35fa-c502-4ded-a618-22ed76af9f20', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(expenseData),
+      }).catch(err => console.log('n8n sync skipped:', err));
+    }
+
+    // Update local store by reloading expenses
+    const loadExpenses = useAppStore.getState().loadExpenses;
+    await loadExpenses();
+
+    setIsSaving(false);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.back();
   };
 
   const isValid = amount && category && parseFloat(amount) > 0;
