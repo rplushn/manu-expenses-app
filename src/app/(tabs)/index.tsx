@@ -25,6 +25,10 @@ import { useAppStore, Period, formatMoney } from '@/lib/store';
 import { CATEGORY_LABELS, ExpenseCategory } from '@/lib/types';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
+import { textStyles } from '@/theme/textStyles';
+import { Receipt } from 'lucide-react-native';
+import { format, parseISO } from 'date-fns';
 import {
   isRevenueCatEnabled,
   hasEntitlement,
@@ -66,7 +70,14 @@ const Feature = ({ text }: { text: string }) => (
 export default function HomeScreen() {
   const router = useRouter();
   const navigation = useNavigation();
+  const { alerts, hasAlerts } = useBudgetAlerts();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('week');
+
+  // Format time function (same as history)
+  const formatTime = (dateString: string): string => {
+    const date = parseISO(dateString);
+    return format(date, 'h:mm a'); // No locale to ensure AM/PM in English
+  };
 
   // Pro subscription state
   const [isPro, setIsPro] = useState(false);
@@ -287,12 +298,12 @@ export default function HomeScreen() {
             marginRight: 10 
           }} />
           <Text style={{ 
-            fontSize: 20, 
-            fontWeight: '700', 
+            fontSize: 15, 
+            fontWeight: '600', 
             color: '#1A1A1A',
-            letterSpacing: -0.5
+            letterSpacing: -.8
           }}>
-            MANU
+             MANU
           </Text>
         </View>
       ),
@@ -382,6 +393,34 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
+
+        {/* Budget Alerts Banner */}
+        {hasAlerts && (
+          <Pressable
+            style={{
+              marginHorizontal: 12,
+              marginBottom: 16,
+              padding: 16,
+              backgroundColor: '#FFF3CD',
+              borderRadius: 12,
+              borderLeftWidth: 4,
+              borderLeftColor: '#FF6B00',
+            }}
+            onPress={() => router.push('/(tabs)/budgets')}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Text style={{ fontSize: 20 }}>⚠️</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '600', color: '#856404', marginBottom: 4 }}>
+                  {alerts.length} {alerts.length === 1 ? 'presupuesto cerca' : 'presupuestos cerca'} del límite
+                </Text>
+                <Text style={{ fontSize: 13, color: '#856404' }}>
+                  Toca para ver detalles
+                </Text>
+              </View>
+            </View>
+          </Pressable>
+        )}
 
         {/* Period Total */}
         <Animated.View
@@ -479,24 +518,62 @@ export default function HomeScreen() {
                 key={expense.id}
                 entering={FadeInDown.duration(300).delay(200 + index * 100)}
               >
-                <View className="border border-[#2A2A2A] p-5 mb-4">
-                  <View className="flex-row justify-between items-start">
-                    <View className="flex-1">
-                      <Text className="text-[16px] text-[#1A1A1A] font-normal">
-                        {expense.provider}
-                      </Text>
-                      <Text className="text-[13px] font-light text-[#999999] mt-1">
-                        {CATEGORY_LABELS[expense.category]} · {new Date(expense.createdAt).toLocaleTimeString('es-HN', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                      </Text>
+                <Pressable
+                  onPress={() => router.push('/(tabs)/history')}
+                  className="mb-3 active:opacity-60"
+                >
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: '#1A1A1A',
+                      borderRadius: 0,
+                      padding: 14,
+                    }}
+                  >
+                    <View className="flex-row">
+                      {/* Time column */}
+                      <View className="mr-3" style={{ width: 70 }}>
+                        <Text style={{ ...textStyles.secondaryText, fontSize: 11 }}>
+                          {formatTime(expense.createdAt)}
+                        </Text>
+                      </View>
+
+                      {/* Content column */}
+                      <View className="flex-1" style={{ gap: 7 }}>
+                        {/* Provider and amount row */}
+                        <View className="flex-row justify-between items-center" style={{ marginBottom: 3 }}>
+                          <Text style={{ ...textStyles.listItemTitle, fontWeight: '400', fontSize: 14 }} className="flex-1">
+                            {expense.provider || 'Sin proveedor'}
+                          </Text>
+                          <Text style={{ ...textStyles.listItemAmount, fontSize: 15 }} className="ml-2">
+                            {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
+                          </Text>
+                        </View>
+
+                        {/* Category and notes row (indented) */}
+                        <View className="flex-row items-center">
+                          <Text style={{ ...textStyles.secondaryText, fontWeight: '300', fontSize: 11 }}>
+                            {CATEGORY_LABELS[expense.category]}
+                          </Text>
+                          {expense.notes && (
+                            <>
+                              <Text style={{ ...textStyles.secondaryText, fontSize: 11 }} className="mx-1">•</Text>
+                              <Text style={{ ...textStyles.secondaryText, fontSize: 11 }}>NOTAS</Text>
+                            </>
+                          )}
+                          {expense.receiptImageUrl && (
+                            <Receipt
+                              size={10}
+                              strokeWidth={1.5}
+                              color="#999999"
+                              style={{ marginLeft: 3 }}
+                            />
+                          )}
+                        </View>
+                      </View>
                     </View>
-                    <Text
-                      className="text-[16px] text-[#1A1A1A] font-medium"
-                      style={{ fontFamily: 'System' }}
-                    >
-                      {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
-                    </Text>
                   </View>
-                </View>
+                </Pressable>
               </Animated.View>
             ))
           )}
