@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import {
   Plus,
   RefreshCw,
@@ -65,7 +65,8 @@ const Feature = ({ text }: { text: string }) => (
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [selectedPeriod, setSelectedPeriod] = useState<Period>('today');
+  const navigation = useNavigation();
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>('week');
 
   // Pro subscription state
   const [isPro, setIsPro] = useState(false);
@@ -141,6 +142,11 @@ export default function HomeScreen() {
   useEffect(() => {
     checkProAndLoadOfferings();
   }, [checkProAndLoadOfferings]);
+
+  // Load expenses on mount and when period changes
+  useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses, selectedPeriod]);
 
   useEffect(() => {
     checkLimits();
@@ -265,61 +271,53 @@ export default function HomeScreen() {
     );
   };
 
+  // Configure header with logo and button
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: '',
+      headerShown: true,
+      headerStyle: { backgroundColor: '#FFFFFF' },
+      headerLeft: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 12 }}>
+          <View style={{ 
+            width: 32, 
+            height: 32, 
+            backgroundColor: '#FF6B00', 
+            borderRadius: 6,
+            marginRight: 10 
+          }} />
+          <Text style={{ 
+            fontSize: 20, 
+            fontWeight: '700', 
+            color: '#1A1A1A',
+            letterSpacing: -0.5
+          }}>
+            MANU
+          </Text>
+        </View>
+      ),
+      headerRight: () => (
+        <View style={{ marginRight: 16 }}>
+          <Pressable onPress={handleAddExpense}>
+            <Plus size={28} color="#1A1A1A" strokeWidth={1.8} />
+          </Pressable>
+        </View>
+      ),
+    });
+  }, [navigation, handleAddExpense]);
+
+  // Calculate sticky index: 1 if warning is shown, 0 otherwise
+  const showWarning = !isPro && isRevenueCatEnabled();
+  const stickyIndex = showWarning ? 1 : 0;
+
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView className="flex-1 bg-white" edges={[]}>
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12 }}
+        stickyHeaderIndices={[stickyIndex]}
       >
-        {/* Header with Logo */}
-        <View className="flex-row justify-between items-start mb-2">
-          <View
-            className="flex-row items-center"
-            style={{
-              marginTop: 0,
-              marginBottom: 8,
-              marginLeft: -8,
-              paddingHorizontal: 0,
-              alignSelf: 'flex-start'
-            }}
-          >
-            <Image
-              source={require('@/assets/manu_logo_2024.png')}
-              style={{ width: 112, height: 42 }}
-              resizeMode="contain"
-            />
-            {/* Pro Badge */}
-            {isPro && (
-              <View className="ml-2 bg-black px-2 py-1 rounded">
-                <Text className="text-[10px] font-bold text-white">PRO</Text>
-              </View>
-            )}
-            {/* Sync Status Indicator */}
-            {syncStatus === 'syncing' && (
-              <ActivityIndicator
-                size="small"
-                color="#999999"
-                style={{ marginLeft: 8 }}
-              />
-            )}
-            {syncStatus === 'error' && (
-              <Pressable
-                onPress={() => loadExpenses()}
-                className="ml-2 p-1 active:opacity-60"
-              >
-                <RefreshCw size={16} strokeWidth={1.5} color="#DC2626" />
-              </Pressable>
-            )}
-          </View>
-          <Pressable
-            onPress={handleAddExpense}
-            className="p-2 active:opacity-60"
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Plus size={24} strokeWidth={1.5} color="#1A1A1A" />
-          </Pressable>
-        </View>
 
         {/* Free Plan Usage Warning */}
         {!isPro && isRevenueCatEnabled() && (
@@ -345,8 +343,23 @@ export default function HomeScreen() {
           </Pressable>
         )}
 
-        {/* Period Selector */}
-        <View className="flex-row mx-5 mt-8 border border-[#2A2A2A]">
+        {/* Period Selector - Sticky */}
+        <View 
+          className="flex-row mx-5 mt-4 border border-[#2A2A2A]"
+          style={{
+            backgroundColor: '#FFFFFF',
+            zIndex: 10,
+            paddingVertical: 12,
+            paddingHorizontal: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: '#E5E5E5',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 3,
+          }}
+        >
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
@@ -372,7 +385,7 @@ export default function HomeScreen() {
         {/* Period Total */}
         <Animated.View
           entering={FadeInDown.duration(300).delay(100)}
-          className="px-6 mt-10"
+          className="px-6 mt-6"
         >
           <Text className="text-[14px] font-light text-[#666666] mb-1">
             Total {PERIOD_LABELS[selectedPeriod].toLowerCase()}
@@ -397,7 +410,7 @@ export default function HomeScreen() {
         {categorySummary.length > 0 && (
           <Animated.View
             entering={FadeIn.duration(300).delay(200)}
-            className="px-6 mt-10"
+            className="px-6 mt-6"
           >
             <Text className="text-[16px] font-normal text-[#1A1A1A] mb-6">
               Por categoria
@@ -430,10 +443,10 @@ export default function HomeScreen() {
         )}
 
         {/* Divider */}
-        <View className="mx-5 mt-10 h-[1px] bg-[#F0F0F0]" />
+        <View className="mx-5 mt-6 h-[1px] bg-[#F0F0F0]" />
 
         {/* Recent Expenses */}
-        <View className="px-6 mt-8">
+        <View className="px-6 mt-6">
           <Text className="text-[16px] font-normal text-[#1A1A1A] mb-4">
             Ultimos gastos
           </Text>

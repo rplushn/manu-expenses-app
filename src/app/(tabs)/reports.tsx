@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppStore, Period } from '@/lib/store';
@@ -8,6 +8,7 @@ import { FileText } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useNavigation } from 'expo-router';
 
 function formatAmount(amount: number): string {
   return amount.toLocaleString('es-HN', {
@@ -39,6 +40,7 @@ function formatExpenseDate(dateStr: string): string {
 }
 
 export default function ReportsScreen() {
+  const navigation = useNavigation();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('month');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -126,27 +128,52 @@ export default function ReportsScreen() {
     }
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="px-6 pt-6 pb-4 border-b border-[#2A2A2A]">
-          <Text className="text-[18px] font-semibold text-[#1A1A1A] mb-2">
-            {currentUser?.empresaNombre || currentUser?.nombreNegocio || 'Mi Negocio'}
-          </Text>
-          <Text className="text-[16px] font-normal text-[#666666] mb-4">
-            Reporte de Gastos
-          </Text>
-          <Text className="text-[13px] font-light text-[#999999] mb-1">
-            Rango de fechas: {PERIOD_DISPLAY[selectedPeriod]}
-          </Text>
-          <Text className="text-[13px] font-light text-[#999999]">
-            Generado el {formattedDate} a las {formattedTime}
-          </Text>
+  // Configure header with PDF download button
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Reportes',
+      headerShown: true,
+      headerStyle: { backgroundColor: '#FFFFFF' },
+      headerTitleStyle: { fontSize: 20, fontWeight: '500', color: '#1A1A1A' },
+      headerRight: () => (
+        <View style={{ marginRight: 16 }}>
+          <Pressable onPress={handleDownloadPDF} disabled={isGeneratingPDF}>
+            {isGeneratingPDF ? (
+              <ActivityIndicator size="small" color="#1A1A1A" />
+            ) : (
+              <FileText size={24} color="#1A1A1A" strokeWidth={1.8} />
+            )}
+          </Pressable>
         </View>
+      ),
+    });
+  }, [navigation, handleDownloadPDF, isGeneratingPDF]);
 
-        {/* Period Tabs */}
-        <View className="flex-row mx-5 mt-2 border border-[#2A2A2A]">
+  return (
+    <SafeAreaView className="flex-1 bg-white" edges={[]}>
+      <ScrollView 
+        className="flex-1" 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 12 }}
+        stickyHeaderIndices={[0]}
+      >
+        {/* Period Tabs - Sticky */}
+        <View 
+          className="flex-row mx-5 border border-[#2A2A2A]"
+          style={{
+            backgroundColor: '#FFFFFF',
+            zIndex: 10,
+            paddingVertical: 12,
+            paddingHorizontal: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: '#E5E5E5',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 3,
+          }}
+        >
           {(['today', 'week', 'month'] as Period[]).map((period) => (
             <Pressable
               key={period}
@@ -232,14 +259,14 @@ export default function ReportsScreen() {
             <View className="border border-[#2A2A2A]">
               {/* Table Header */}
               <View className="flex-row border-b border-[#2A2A2A] bg-[#F9FAFB]">
-                <View className="flex-1 px-3 py-3">
-                  <Text className="text-[13px] font-medium text-[#1A1A1A]">Categoría</Text>
+                <View style={{ flex: 2, paddingVertical: 8, paddingHorizontal: 8 }}>
+                  <Text className="text-[13px] font-bold text-[#1A1A1A]" style={{ textAlign: 'left', paddingLeft: 8 }}>Categoría</Text>
                 </View>
-                <View className="w-24 px-3 py-3 border-l border-[#2A2A2A]">
-                  <Text className="text-[13px] font-medium text-[#1A1A1A] text-right">Monto</Text>
+                <View style={{ flex: 2, paddingVertical: 8, paddingHorizontal: 8, borderLeftWidth: 1, borderLeftColor: '#2A2A2A' }}>
+                  <Text className="text-[13px] font-bold text-[#1A1A1A]" style={{ textAlign: 'right', paddingRight: 8 }}>Monto</Text>
                 </View>
-                <View className="w-20 px-3 py-3 border-l border-[#2A2A2A]">
-                  <Text className="text-[13px] font-medium text-[#1A1A1A] text-right">%</Text>
+                <View style={{ flex: 1, paddingVertical: 8, paddingHorizontal: 8, borderLeftWidth: 1, borderLeftColor: '#2A2A2A' }}>
+                  <Text className="text-[13px] font-bold text-[#1A1A1A]" style={{ textAlign: 'right', paddingRight: 8 }}>%</Text>
                 </View>
               </View>
 
@@ -249,24 +276,21 @@ export default function ReportsScreen() {
                   key={item.category}
                   className={`flex-row border-b border-[#2A2A2A] ${index === categorySummary.length - 1 ? 'border-b-0' : ''}`}
                 >
-                  <View className="flex-1 px-3 py-3">
-                    <Text className="text-[13px] font-light text-[#1A1A1A]">
+                  <View style={{ flex: 2, paddingVertical: 8, paddingHorizontal: 8 }}>
+                    <Text className="text-[13px] font-light text-[#1A1A1A]" style={{ textAlign: 'left', paddingLeft: 8 }}>
                       {CATEGORY_LABELS[item.category]}
                     </Text>
                   </View>
-                  <View
-                    className="px-3 py-3 border-l border-[#2A2A2A]"
-                    style={{ minWidth: 96, alignItems: 'flex-end' }}
-                  >
+                  <View style={{ flex: 2, paddingVertical: 8, paddingHorizontal: 8, borderLeftWidth: 1, borderLeftColor: '#2A2A2A' }}>
                     <Text
                       className="text-[13px] font-light text-[#1A1A1A]"
-                      numberOfLines={1}
+                      style={{ textAlign: 'right', paddingRight: 8 }}
                     >
                       L {formatAmount(item.total)}
                     </Text>
                   </View>
-                  <View className="w-20 px-3 py-3 border-l border-[#2A2A2A]">
-                    <Text className="text-[13px] font-light text-[#1A1A1A] text-right">
+                  <View style={{ flex: 1, paddingVertical: 8, paddingHorizontal: 8, borderLeftWidth: 1, borderLeftColor: '#2A2A2A' }}>
+                    <Text className="text-[13px] font-light text-[#1A1A1A]" style={{ textAlign: 'right', paddingRight: 8 }}>
                       {item.percentage.toFixed(1)}%
                     </Text>
                   </View>
@@ -275,22 +299,19 @@ export default function ReportsScreen() {
 
               {/* Table Footer - Total */}
               <View className="flex-row border-t-2 border-[#2A2A2A] bg-[#F9FAFB]">
-                <View className="flex-1 px-3 py-3">
-                  <Text className="text-[13px] font-semibold text-[#1A1A1A]">TOTAL</Text>
+                <View style={{ flex: 2, paddingVertical: 8, paddingHorizontal: 8 }}>
+                  <Text className="text-[13px] font-bold text-[#1A1A1A]" style={{ textAlign: 'left', paddingLeft: 8 }}>TOTAL</Text>
                 </View>
-                <View
-                  className="px-3 py-3 border-l border-[#2A2A2A]"
-                  style={{ minWidth: 96, alignItems: 'flex-end' }}
-                >
+                <View style={{ flex: 2, paddingVertical: 8, paddingHorizontal: 8, borderLeftWidth: 1, borderLeftColor: '#2A2A2A' }}>
                   <Text
-                    className="text-[13px] font-semibold text-[#1A1A1A]"
-                    numberOfLines={1}
+                    className="text-[13px] font-bold text-[#1A1A1A]"
+                    style={{ textAlign: 'right', paddingRight: 8 }}
                   >
                     L {formatAmount(stats.total)}
                   </Text>
                 </View>
-                <View className="w-20 px-3 py-3 border-l border-[#2A2A2A]">
-                  <Text className="text-[13px] font-semibold text-[#1A1A1A] text-right">
+                <View style={{ flex: 1, paddingVertical: 8, paddingHorizontal: 8, borderLeftWidth: 1, borderLeftColor: '#2A2A2A' }}>
+                  <Text className="text-[13px] font-bold text-[#1A1A1A]" style={{ textAlign: 'right', paddingRight: 8 }}>
                     100%
                   </Text>
                 </View>
@@ -319,13 +340,13 @@ export default function ReportsScreen() {
                   <Text className="text-[13px] font-medium text-[#1A1A1A]">Fecha</Text>
                 </View>
                 <View className="flex-1 px-3 py-3 border-l border-[#2A2A2A]">
-                  <Text className="text-[13px] font-medium text-[#1A1A1A]">Proveedor</Text>
-                </View>
-                <View className="w-28 px-3 py-3 border-l border-[#2A2A2A]">
                   <Text className="text-[13px] font-medium text-[#1A1A1A]">Categoría</Text>
                 </View>
-                <View className="w-24 px-3 py-3 border-l border-[#2A2A2A]">
-                  <Text className="text-[13px] font-medium text-[#1A1A1A] text-right">Monto</Text>
+                <View 
+                  className="px-3 py-3 border-l border-[#2A2A2A]"
+                  style={{ minWidth: 100, flexShrink: 0 }}
+                >
+                  <Text className="text-[13px] font-medium text-[#1A1A1A]" style={{ textAlign: 'right' }}>Monto</Text>
                 </View>
               </View>
 
@@ -342,16 +363,19 @@ export default function ReportsScreen() {
                   </View>
                   <View className="flex-1 px-3 py-3 border-l border-[#2A2A2A]">
                     <Text className="text-[12px] font-light text-[#1A1A1A]" numberOfLines={1}>
-                      {expense.provider || 'Sin proveedor'}
-                    </Text>
-                  </View>
-                  <View className="w-28 px-3 py-3 border-l border-[#2A2A2A]">
-                    <Text className="text-[12px] font-light text-[#1A1A1A]" numberOfLines={1}>
                       {CATEGORY_LABELS[expense.category]}
                     </Text>
                   </View>
-                  <View className="w-24 px-3 py-3 border-l border-[#2A2A2A]">
-                    <Text className="text-[12px] font-light text-[#1A1A1A] text-right">
+                  <View 
+                    className="px-3 py-3 border-l border-[#2A2A2A]"
+                    style={{ minWidth: 100, flexShrink: 0 }}
+                  >
+                    <Text 
+                      className="text-[12px] font-light text-[#1A1A1A]"
+                      numberOfLines={1}
+                      ellipsizeMode="clip"
+                      style={{ textAlign: 'right' }}
+                    >
                       L {formatAmount(expense.amount)}
                     </Text>
                   </View>
@@ -366,39 +390,6 @@ export default function ReportsScreen() {
           <Text className="text-[12px] text-[#999999] text-center">
             Reporte generado por MANU el {formattedDate} a las {formattedTime}
           </Text>
-        </View>
-
-        {/* Download PDF Button */}
-        <View className="px-6 mt-6 mb-8">
-          <Pressable
-            onPress={handleDownloadPDF}
-            disabled={isGeneratingPDF}
-            style={{
-              backgroundColor: isGeneratingPDF ? '#666666' : '#1A1A1A',
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              borderRadius: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {isGeneratingPDF ? (
-              <>
-                <ActivityIndicator size="small" color="#FFFFFF" />
-                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '500', marginLeft: 8 }}>
-                  Generando reporte...
-                </Text>
-              </>
-            ) : (
-              <>
-                <FileText size={20} color="#FFFFFF" />
-                <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '500', marginLeft: 8 }}>
-                  Descargar reporte detallado (PDF)
-                </Text>
-              </>
-            )}
-          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>

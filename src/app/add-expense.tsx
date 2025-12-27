@@ -287,7 +287,8 @@ export default function AddExpenseScreen() {
               {showOcrSuccess && (
                 <Animated.View
                   entering={FadeIn.duration(200)}
-                  className="flex-row items-center bg-[#FAFAFA] p-5 mb-6 border border-[#F0F0F0]"
+                  className="flex-row items-center bg-[#FAFAFA] p-5 mb-6"
+                  style={{ borderWidth: 1, borderColor: '#000000' }}
                 >
                   <CheckCircle size={20} strokeWidth={1.5} color="#1A1A1A" />
                   <Text className="text-[14px] font-light text-[#1A1A1A] ml-2 flex-1">
@@ -312,31 +313,48 @@ export default function AddExpenseScreen() {
               {/* Photo Options */}
               <Animated.View
                 entering={SlideInDown.duration(300).delay(100)}
-                className="flex-row mb-6"
-                style={{ gap: 16 }}
+                style={{ flexDirection: 'row', gap: 8, marginBottom: 24, width: '100%' }}
               >
                 {/* Take Photo Button */}
                 <Pressable
-                  className="flex-1 flex-row items-center justify-center border border-[#F0F0F0] py-3.5 active:opacity-60"
-                  style={{ gap: 12, backgroundColor: receiptImageUrl ? '#FAFAFA' : '#FFFFFF' }}
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingVertical: 14,
+                    gap: 12,
+                    backgroundColor: receiptImageUrl ? '#FAFAFA' : '#FFFFFF',
+                    borderWidth: 1,
+                    borderColor: '#000000',
+                  }}
                   onPress={handleTakePhoto}
                   disabled={isSaving || isProcessing}
                 >
                   <Camera size={20} strokeWidth={1.5} color="#1A1A1A" />
-                  <Text className="text-[14px] font-normal text-[#1A1A1A]">
+                  <Text style={{ fontSize: 14, fontWeight: '400', color: '#1A1A1A' }}>
                     Tomar foto
                   </Text>
                 </Pressable>
 
                 {/* Pick from Gallery Button */}
                 <Pressable
-                  className="flex-1 flex-row items-center justify-center border border-[#F0F0F0] py-3.5 active:opacity-60"
-                  style={{ gap: 12, backgroundColor: '#FFFFFF' }}
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingVertical: 14,
+                    gap: 12,
+                    backgroundColor: '#FFFFFF',
+                    borderWidth: 1,
+                    borderColor: '#000000',
+                  }}
                   onPress={handlePickImage}
                   disabled={isSaving || isProcessing}
                 >
                   <ImageIcon size={20} strokeWidth={1.5} color="#1A1A1A" />
-                  <Text className="text-[14px] font-normal text-[#1A1A1A]">
+                  <Text style={{ fontSize: 14, fontWeight: '400', color: '#1A1A1A' }}>
                     Elegir de galería
                   </Text>
                 </Pressable>
@@ -368,9 +386,10 @@ export default function AddExpenseScreen() {
               <Animated.View entering={SlideInDown.duration(300).delay(200)}>
                 <Text className="text-[13px] font-light text-[#666666] mb-2">Monto *</Text>
                 <View
-                  className="border p-5 flex-row items-center"
+                  className="p-5 flex-row items-center"
                   style={{
-                    borderColor: amountFocused ? '#1A1A1A' : '#F0F0F0',
+                    borderWidth: 1,
+                    borderColor: '#000000',
                   }}
                 >
                   <Text className="text-[16px] font-light text-[#1A1A1A] mr-1">
@@ -400,7 +419,8 @@ export default function AddExpenseScreen() {
                   Categoría *
                 </Text>
                 <Pressable
-                  className="border border-[#F0F0F0] p-5 flex-row items-center justify-between active:opacity-60"
+                  className="p-5 flex-row items-center justify-between active:opacity-60"
+                  style={{ borderWidth: 1, borderColor: '#000000' }}
                   onPress={() => setShowCategoryPicker(!showCategoryPicker)}
                   disabled={isSaving || isProcessing}
                 >
@@ -414,11 +434,12 @@ export default function AddExpenseScreen() {
                 </Pressable>
 
                 {showCategoryPicker && (
-                  <View className="border border-t-0 border-[#F0F0F0]">
+                  <View style={{ borderWidth: 1, borderTopWidth: 0, borderColor: '#000000' }}>
                     {CATEGORIES.map((cat) => (
                       <Pressable
                         key={cat}
-                        className="p-5 border-b border-[#F5F5F5] active:bg-[#FAFAFA]"
+                        className="p-5 active:bg-[#FAFAFA]"
+                        style={{ borderBottomWidth: 1, borderBottomColor: '#000000' }}
                         onPress={() => {
                           setCategory(cat);
                           setShowCategoryPicker(false);
@@ -449,9 +470,10 @@ export default function AddExpenseScreen() {
                   Proveedor (opcional)
                 </Text>
                 <View
-                  className="border p-5"
+                  className="p-5"
                   style={{
-                    borderColor: providerFocused ? '#1A1A1A' : '#F0F0F0',
+                    borderWidth: 1,
+                    borderColor: '#000000',
                   }}
                 >
                   <TextInput
@@ -476,9 +498,10 @@ export default function AddExpenseScreen() {
                   Fecha del gasto (opcional)
                 </Text>
                 <Pressable
-                  className="border p-4 flex-row items-center justify-between active:opacity-60"
+                  className="p-4 flex-row items-center justify-between active:opacity-60"
                   style={{
-                    borderColor: '#F0F0F0',
+                    borderWidth: 1,
+                    borderColor: '#000000',
                   }}
                   onPress={() => {
                     setTempExpenseDate(expenseDate);
@@ -505,9 +528,10 @@ export default function AddExpenseScreen() {
                   Notas (opcional)
                 </Text>
                 <View
-                  className="border p-5"
+                  className="p-5"
                   style={{
-                    borderColor: notesFocused ? '#1A1A1A' : '#F0F0F0',
+                    borderWidth: 1,
+                    borderColor: '#000000',
                   }}
                 >
                   <TextInput
@@ -628,7 +652,8 @@ export default function AddExpenseScreen() {
                   setIsDatePickerVisible(false);
                   setTempExpenseDate(expenseDate);
                 }}
-                className="flex-1 py-3 border border-[#F0F0F0] items-center active:opacity-60"
+                className="flex-1 py-3 items-center active:opacity-60"
+                style={{ borderWidth: 1, borderColor: '#000000' }}
               >
                 <Text className="text-[15px] font-normal text-[#1A1A1A]">
                   Cancelar

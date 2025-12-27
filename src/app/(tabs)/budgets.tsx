@@ -157,9 +157,9 @@ export default function BudgetsScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <SafeAreaView className="flex-1" edges={['top']}>
+      <SafeAreaView className="flex-1" edges={[]}>
         {budgets.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-6">
+          <View className="flex-1 items-center justify-center px-6" style={{ paddingTop: 12 }}>
             <Text
               style={{
                 fontSize: 24,
@@ -211,14 +211,13 @@ export default function BudgetsScreen() {
           <FlatList
             data={budgets}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <BudgetCard
                 budget={item}
                 spent={calculateSpent(item)}
                 onPress={() => handleEdit(item)}
-                currencyCode={userCurrency}
               />
             )}
           />

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useNavigation } from 'expo-router';
 import { useAppStore, formatMoney } from '@/lib/store';
 import {
   getQBConnection,
@@ -64,6 +64,7 @@ const CATEGORIES: ExpenseCategory[] = [
 ];
 
 export default function HistoryScreen() {
+  const navigation = useNavigation();
   const expenses = useAppStore((s) => s.expenses);
   const removeExpense = useAppStore((s) => s.removeExpense);
   const updateExpense = useAppStore((s) => s.updateExpense);
@@ -184,6 +185,31 @@ export default function HistoryScreen() {
   const [exportFormat, setExportFormat] = useState<'csv-photos' | 'csv-only' | 'photos-only'>('csv-photos');
   const [csvFormat, setCsvFormat] = useState<'standard' | 'excel'>('standard');
   const [isExporting, setIsExporting] = useState(false);
+
+  // Configure header buttons
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', marginRight: 16, gap: 16 }}>
+          <Pressable onPress={() => setShowExportModal(true)}>
+            <Download size={24} color="#1A1A1A" strokeWidth={1.8} />
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setShowSearch(!showSearch);
+              if (showSearch) setSearchQuery('');
+            }}
+          >
+            {showSearch ? (
+              <X size={24} color="#1A1A1A" strokeWidth={1.8} />
+            ) : (
+              <Search size={24} color="#1A1A1A" strokeWidth={1.8} />
+            )}
+          </Pressable>
+        </View>
+      ),
+    });
+  }, [navigation, showSearch]);
 
   const filteredExpenses = searchQuery.trim()
     ? expenses.filter(
@@ -678,75 +704,49 @@ export default function HistoryScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <SafeAreaView className="flex-1" edges={['top']}>
-        {/* Header */}
+      <SafeAreaView className="flex-1" edges={[]}>
+        {/* QuickBooks Sync Badge */}
+        {qbConnection && qbStatus.text && (
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            className="flex-row items-center px-3 py-1.5 rounded-full mx-6 mt-4 mb-4"
+            style={{
+              backgroundColor: qbStatus.status === 'syncing' ? '#FEF3C7' : qbStatus.status === 'error' ? '#FEE2E2' : '#D1FAE5',
+              borderWidth: 1,
+              borderColor: qbStatus.status === 'syncing' ? '#FCD34D' : qbStatus.status === 'error' ? '#FCA5A5' : '#A7F3D0',
+              alignSelf: 'flex-start',
+            }}
+          >
+            {qbStatus.status === 'syncing' && (
+              <ActivityIndicator
+                size="small"
+                color="#F59E0B"
+                style={{ marginRight: 6 }}
+              />
+            )}
+            {qbStatus.status === 'error' && (
+              <AlertCircle size={14} strokeWidth={2} color="#DC2626" style={{ marginRight: 6 }} />
+            )}
+            {qbStatus.status === 'connected' && (
+              <Link2 size={14} strokeWidth={2} color="#10B981" style={{ marginRight: 6 }} />
+            )}
+            <Text
+              style={{
+                fontFamily: Platform.OS === 'ios' ? 'System' : undefined,
+                fontSize: 11,
+                fontWeight: '600',
+                color: qbStatus.color,
+              }}
+            >
+              {qbStatus.text}
+            </Text>
+          </Animated.View>
+        )}
+
         <Animated.View
           entering={FadeIn.duration(200)}
           className="px-6 pt-4 pb-4"
         >
-          <View className="flex-row justify-between items-center mb-4">
-            <Text style={textStyles.screenTitle}>
-              Historial
-            </Text>
-            <View className="flex-row items-center" style={{ gap: 12 }}>
-              {/* QuickBooks Sync Badge */}
-              {qbConnection && qbStatus.text && (
-                <Animated.View
-                  entering={FadeIn.duration(200)}
-                  className="flex-row items-center px-3 py-1.5 rounded-full"
-                  style={{
-                    backgroundColor: qbStatus.status === 'syncing' ? '#FEF3C7' : qbStatus.status === 'error' ? '#FEE2E2' : '#D1FAE5',
-                    borderWidth: 1,
-                    borderColor: qbStatus.status === 'syncing' ? '#FCD34D' : qbStatus.status === 'error' ? '#FCA5A5' : '#A7F3D0',
-                  }}
-                >
-                  {qbStatus.status === 'syncing' && (
-                    <ActivityIndicator
-                      size="small"
-                      color="#F59E0B"
-                      style={{ marginRight: 6 }}
-                    />
-                  )}
-                  {qbStatus.status === 'error' && (
-                    <AlertCircle size={14} strokeWidth={2} color="#DC2626" style={{ marginRight: 6 }} />
-                  )}
-                  {qbStatus.status === 'connected' && (
-                    <Link2 size={14} strokeWidth={2} color="#10B981" style={{ marginRight: 6 }} />
-                  )}
-                  <Text
-                    style={{
-                      fontFamily: Platform.OS === 'ios' ? 'System' : undefined,
-                      fontSize: 11,
-                      fontWeight: '600',
-                      color: qbStatus.color,
-                    }}
-                  >
-                    {qbStatus.text}
-                  </Text>
-                </Animated.View>
-              )}
-              <Pressable
-                onPress={() => setShowExportModal(true)}
-                className="p-2 active:opacity-60"
-              >
-                <Download size={24} strokeWidth={1.5} color="#1A1A1A" />
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  setShowSearch(!showSearch);
-                  if (showSearch) setSearchQuery('');
-                }}
-                className="p-2 active:opacity-60"
-              >
-                {showSearch ? (
-                  <X size={24} strokeWidth={1.5} color="#1A1A1A" />
-                ) : (
-                  <Search size={24} strokeWidth={1.5} color="#1A1A1A" />
-                )}
-              </Pressable>
-            </View>
-          </View>
-
           {showSearch && (
             <Animated.View entering={FadeIn.duration(200)} className="mb-4">
               <View className="border border-[#2A2A2A] p-3 flex-row items-center">
@@ -763,7 +763,7 @@ export default function HistoryScreen() {
             </Animated.View>
           )}
 
-          <Text style={textStyles.largeNumber} className="mb-1">
+          <Text style={{ ...textStyles.largeNumber, fontSize: 19 }} className="mb-1">
             Total: {formatMoney(total, userCurrency)}
           </Text>
           <Text style={textStyles.secondaryText}>
@@ -775,10 +775,10 @@ export default function HistoryScreen() {
         <FlatList
           data={expenseGroups}
           keyExtractor={(group) => group.dateKey}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
           renderItem={({ item: group }) => (
-            <View className="mb-8">
+            <View className="mb-6">
               {/* Date Header */}
               <Text style={textStyles.sectionLabel} className="mb-4 mt-2">
                 {group.dateLabel}
@@ -789,47 +789,56 @@ export default function HistoryScreen() {
                 <Pressable
                   key={expense.id}
                   onPress={() => openDetailModal(expense)}
-                  className="py-2 active:opacity-60"
+                  className="mb-3 active:opacity-60"
                 >
-                  <View className="flex-row">
-                    {/* Time column */}
-                    <View className="mr-3" style={{ width: 70 }}>
-                      <Text style={textStyles.secondaryText}>
-                        {formatTime(expense.createdAt)}
-                      </Text>
-                    </View>
-
-                    {/* Content column */}
-                    <View className="flex-1">
-                      {/* Provider and amount row */}
-                      <View className="flex-row justify-between items-center mb-1">
-                        <Text style={textStyles.listItemTitle} className="flex-1">
-                          {expense.provider || 'Sin proveedor'}
-                        </Text>
-                        <Text style={textStyles.listItemAmount} className="ml-2">
-                          {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: '#1A1A1A',
+                      borderRadius: 0,
+                      padding: 14,
+                    }}
+                  >
+                    <View className="flex-row">
+                      {/* Time column */}
+                      <View className="mr-3" style={{ width: 70 }}>
+                        <Text style={{ ...textStyles.secondaryText, fontSize: 11 }}>
+                          {formatTime(expense.createdAt)}
                         </Text>
                       </View>
 
-                      {/* Category and notes row (indented) */}
-                      <View className="flex-row items-center">
-                        <Text style={textStyles.secondaryText}>
-                          {CATEGORY_LABELS[expense.category]}
-                        </Text>
-                        {expense.notes && (
-                          <>
-                            <Text style={textStyles.secondaryText} className="mx-1">•</Text>
-                            <Text style={textStyles.secondaryText}>NOTAS</Text>
-                          </>
-                        )}
-                        {expense.receiptImageUrl && (
-                          <Receipt
-                            size={12}
-                            strokeWidth={1.5}
-                            color="#999999"
-                            style={{ marginLeft: 6 }}
-                          />
-                        )}
+                      {/* Content column */}
+                      <View className="flex-1" style={{ gap: 7 }}>
+                        {/* Provider and amount row */}
+                        <View className="flex-row justify-between items-center" style={{ marginBottom: 3 }}>
+                          <Text style={{ ...textStyles.listItemTitle, fontWeight: '400', fontSize: 14 }} className="flex-1">
+                            {expense.provider || 'Sin proveedor'}
+                          </Text>
+                          <Text style={{ ...textStyles.listItemAmount, fontSize: 15 }} className="ml-2">
+                            {formatMoney(expense.amount, expense.currencyCode || userCurrency)}
+                          </Text>
+                        </View>
+
+                        {/* Category and notes row (indented) */}
+                        <View className="flex-row items-center">
+                          <Text style={{ ...textStyles.secondaryText, fontWeight: '300', fontSize: 11 }}>
+                            {CATEGORY_LABELS[expense.category]}
+                          </Text>
+                          {expense.notes && (
+                            <>
+                              <Text style={{ ...textStyles.secondaryText, fontSize: 11 }} className="mx-1">•</Text>
+                              <Text style={{ ...textStyles.secondaryText, fontSize: 11 }}>NOTAS</Text>
+                            </>
+                          )}
+                          {expense.receiptImageUrl && (
+                            <Receipt
+                              size={10}
+                              strokeWidth={1.5}
+                              color="#999999"
+                              style={{ marginLeft: 3 }}
+                            />
+                          )}
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -1140,7 +1149,7 @@ export default function HistoryScreen() {
                   {showDatePicker && Platform.OS === 'ios' && (
                     <View style={{ 
                       backgroundColor: '#FFFFFF',
-                      borderWidth: 1.2,
+                      borderWidth: 1,
                       borderColor: '#2A2A2A',
                       marginBottom: 20,
                       paddingVertical: 8,
@@ -1511,7 +1520,7 @@ export default function HistoryScreen() {
             <View
               style={{
                 backgroundColor: '#FFFFFF',
-                borderWidth: 1.2,
+                borderWidth: 1,
                 borderColor: '#2A2A2A',
                 marginBottom: 20,
                 paddingVertical: 8,
@@ -1556,7 +1565,7 @@ export default function HistoryScreen() {
             <View
               style={{
                 backgroundColor: '#FFFFFF',
-                borderWidth: 1.2,
+                borderWidth: 1,
                 borderColor: '#2A2A2A',
                 marginBottom: 20,
                 paddingVertical: 8,
