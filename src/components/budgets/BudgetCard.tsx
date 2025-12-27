@@ -76,6 +76,39 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
           {periodText}
         </Text>
 
+        {/* Alert Indicator */}
+        {percentage >= 80 && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 8,
+              paddingVertical: 6,
+              paddingHorizontal: 10,
+              backgroundColor: percentage >= 100 ? '#FFE5E5' : '#FFF3CD',
+              borderRadius: 8,
+              borderLeftWidth: 3,
+              borderLeftColor: percentage >= 100 ? '#DC3545' : '#FF6B00',
+            }}
+          >
+            <Text style={{ fontSize: 18 }}>
+              {percentage >= 100 ? '🚨' : '⚠️'}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '600',
+                color: percentage >= 100 ? '#721C24' : '#856404',
+              }}
+            >
+              {percentage >= 100
+                ? `Excedido por L ${(spentAmount - limit).toLocaleString('es-HN', { minimumFractionDigits: 2 })}`
+                : `${(100 - percentage).toFixed(0)}% restante`}
+            </Text>
+          </View>
+        )}
+
         {/* Progress Bar with Percentage */}
         <View style={{ marginBottom: 8 }}>
           <View
@@ -101,7 +134,7 @@ export function BudgetCard({ budget, spent, onPress }: BudgetCardProps) {
                 style={{
                   height: '100%',
                   width: `${Math.min(percentage, 100)}%`,
-                  backgroundColor: statusColor,
+                  backgroundColor: percentage >= 100 ? '#DC3545' : percentage >= 80 ? '#FF6B00' : '#4A90E2',
                 }}
               />
             </View>

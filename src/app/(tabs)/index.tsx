@@ -29,6 +29,7 @@ import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 import { textStyles } from '@/theme/textStyles';
 import { Receipt } from 'lucide-react-native';
 import { format, parseISO } from 'date-fns';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   isRevenueCatEnabled,
   hasEntitlement,
@@ -70,8 +71,9 @@ const Feature = ({ text }: { text: string }) => (
 export default function HomeScreen() {
   const router = useRouter();
   const navigation = useNavigation();
-  const { alerts, hasAlerts } = useBudgetAlerts();
+  const { alerts, hasAlerts, dismissBanner } = useBudgetAlerts();
   const [selectedPeriod, setSelectedPeriod] = useState<Period>('week');
+  const [alertDismissed, setAlertDismissed] = useState(false);
 
   // Format time function (same as history)
   const formatTime = (dateString: string): string => {
@@ -162,6 +164,15 @@ export default function HomeScreen() {
   useEffect(() => {
     checkLimits();
   }, [checkLimits, periodExpenses.length]);
+
+  // Load dismissed alert state
+  useEffect(() => {
+    AsyncStorage.getItem('budget_alert_dismissed').then((value) => {
+      if (value === 'true') {
+        setAlertDismissed(true);
+      }
+    });
+  }, []);
 
   const handlePeriodChange = (period: Period) => {
     Haptics.selectionAsync();
@@ -395,31 +406,55 @@ export default function HomeScreen() {
         </View>
 
         {/* Budget Alerts Banner */}
-        {hasAlerts && (
-          <Pressable
+        {hasAlerts && !alertDismissed && (
+          <View
             style={{
               marginHorizontal: 12,
-              marginBottom: 16,
-              padding: 16,
+              marginBottom: 10,
               backgroundColor: '#FFF3CD',
               borderRadius: 12,
               borderLeftWidth: 4,
               borderLeftColor: '#FF6B00',
+              overflow: 'hidden',
             }}
-            onPress={() => router.push('/(tabs)/budgets')}
           >
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Text style={{ fontSize: 20 }}>⚠️</Text>
+            <Pressable
+              style={{
+                padding: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+              }}
+              onPress={() => router.push('/(tabs)/budgets')}
+            >
+              <Text style={{ fontSize: 16 }}>⚠️</Text>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#856404', marginBottom: 4 }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#856404', marginBottom: 3 }}>
                   {alerts.length} {alerts.length === 1 ? 'presupuesto cerca' : 'presupuestos cerca'} del límite
                 </Text>
-                <Text style={{ fontSize: 13, color: '#856404' }}>
+                <Text style={{ fontSize: 11, color: '#856404' }}>
                   Toca para ver detalles
                 </Text>
               </View>
-            </View>
-          </Pressable>
+            </Pressable>
+
+            {/* Botón X para cerrar */}
+            <Pressable
+              style={{
+                position: 'absolute',
+                top: 6,
+                right: 6,
+                padding: 6,
+              }}
+              onPress={(e) => {
+                e.stopPropagation();
+                setAlertDismissed(true);
+                AsyncStorage.setItem('budget_alert_dismissed', 'true');
+              }}
+            >
+              <Text style={{ fontSize: 18, color: '#856404', fontWeight: '700' }}>×</Text>
+            </Pressable>
+          </View>
         )}
 
         {/* Period Total */}

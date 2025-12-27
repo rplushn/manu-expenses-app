@@ -2,10 +2,8 @@ import React from 'react';
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Home, Clock, Receipt, BarChart3, User, Wallet } from 'lucide-react-native';
-import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 
 export default function TabLayout() {
-  const { count } = useBudgetAlerts();
   return (
     <Tabs
       screenOptions={{
@@ -132,7 +130,6 @@ export default function TabLayout() {
         name="budgets"
         options={{
           title: 'Presupuestos',
-          tabBarBadge: count > 0 ? count : undefined,
           tabBarIcon: ({ focused, color }) => (
             <View style={{ alignItems: 'center' }}>
               <Wallet size={24} color={color} strokeWidth={1.2} />

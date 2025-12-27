@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppStore } from '@/lib/store';
 import { getBudgets } from '@/lib/supabase-budgets';
 import type { Budget } from '@/types/budget';
 import { startOfMonth, startOfYear, isAfter, isBefore } from 'date-fns';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface BudgetAlert {
   budgetId: string;
@@ -20,10 +21,34 @@ export interface BudgetAlertsResult {
   alertCount: number;
   count: number; // Alias para compatibilidad
   isLoading: boolean;
+  dismissBanner: (budgetId: string) => Promise<void>;
 }
 
 const ALERT_THRESHOLD = 80; // Porcentaje para mostrar alerta (80%)
 const EXCEEDED_THRESHOLD = 100; // Porcentaje para considerar excedido (100%)
+const DISMISSED_ALERTS_KEY = 'dismissedBudgetAlerts';
+
+// AsyncStorage functions for dismissal
+async function getDismissedAlerts(): Promise<string[]> {
+  try {
+    const dismissed = await AsyncStorage.getItem(DISMISSED_ALERTS_KEY);
+    return dismissed ? JSON.parse(dismissed) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function dismissAlert(budgetId: string): Promise<void> {
+  try {
+    const dismissed = await getDismissedAlerts();
+    if (!dismissed.includes(budgetId)) {
+      dismissed.push(budgetId);
+      await AsyncStorage.setItem(DISMISSED_ALERTS_KEY, JSON.stringify(dismissed));
+    }
+  } catch (error) {
+    console.error('Error dismissing alert:', error);
+  }
+}
 
 /**
  * Hook para detectar alertas de presupuesto
@@ -34,6 +59,7 @@ export function useBudgetAlerts(): BudgetAlertsResult {
   const expenses = useAppStore((s) => s.expenses);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
   // Load budgets
   const loadBudgets = useCallback(async () => {
@@ -56,6 +82,11 @@ export function useBudgetAlerts(): BudgetAlertsResult {
   useEffect(() => {
     loadBudgets();
   }, [loadBudgets]);
+
+  // Load dismissed alerts on mount
+  useEffect(() => {
+    getDismissedAlerts().then(setDismissedIds);
+  }, []);
 
   // Reload budgets when expenses change
   useEffect(() => {
@@ -95,38 +126,50 @@ export function useBudgetAlerts(): BudgetAlertsResult {
     [expenses]
   );
 
-  // Calculate alerts
-  const alerts = budgets
-    .filter((budget) => budget.activo)
-    .map((budget) => {
-      const spent = calculateSpent(budget);
-      const limit = budget.amount;
-      const percentage = limit > 0 ? (spent / limit) * 100 : 0;
+  // Calculate alerts with dismissal filtering
+  const alerts = useMemo(() => {
+    return budgets
+      .filter((budget) => budget.activo)
+      .map((budget) => {
+        const spent = calculateSpent(budget);
+        const limit = budget.amount;
+        const percentage = limit > 0 ? (spent / limit) * 100 : 0;
 
-      // Determine status
-      let status: 'ALERTA' | 'PASADO' | null = null;
-      if (percentage >= EXCEEDED_THRESHOLD) {
-        status = 'PASADO';
-      } else if (percentage >= ALERT_THRESHOLD) {
-        status = 'ALERTA';
-      }
+        // Determine status
+        let status: 'ALERTA' | 'PASADO' | null = null;
+        if (percentage >= EXCEEDED_THRESHOLD) {
+          status = 'PASADO';
+        } else if (percentage >= ALERT_THRESHOLD) {
+          status = 'ALERTA';
+        }
 
-      if (!status) return null;
+        if (!status) return null;
 
-      return {
-        budgetId: budget.id,
-        category: budget.category,
-        status,
-        percentage: Math.round(percentage),
-        spent,
-        limit,
-      } as BudgetAlert;
-    })
-    .filter((alert): alert is BudgetAlert => alert !== null);
+        return {
+          budgetId: budget.id,
+          category: budget.category,
+          status,
+          percentage: Math.round(percentage),
+          spent,
+          limit,
+          isDismissed: dismissedIds.includes(budget.id),
+        } as BudgetAlert & { isDismissed: boolean };
+      })
+      .filter((alert): alert is BudgetAlert & { isDismissed: boolean } => {
+        return alert !== null && !alert.isDismissed;
+      })
+      .map(({ isDismissed, ...alert }) => alert as BudgetAlert);
+  }, [budgets, expenses, dismissedIds, calculateSpent]);
 
   const hasExceeded = alerts.some((alert) => alert.status === 'PASADO');
   const hasAlerts = alerts.length > 0;
   const alertCount = alerts.length;
+
+  // Dismiss banner function
+  const dismissBanner = useCallback(async (budgetId: string) => {
+    await dismissAlert(budgetId);
+    setDismissedIds((prev) => [...prev, budgetId]);
+  }, []);
 
   return {
     hasAlerts,
@@ -135,6 +178,7 @@ export function useBudgetAlerts(): BudgetAlertsResult {
     alertCount,
     count: alertCount, // Alias para compatibilidad
     isLoading,
+    dismissBanner,
   };
 }
 
